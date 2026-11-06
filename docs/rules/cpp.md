@@ -13,10 +13,112 @@ review hold each change to.
 | [KB-CPP-004](#kb-cpp-004) Errors are values, and every result is used | must | driver, library, hal, firmware, template | checked |
 | [KB-CPP-005](#kb-cpp-005) Format with the org clang-format configuration | must | all | checked |
 | [KB-CPP-006](#kb-cpp-006) Names follow the org naming scheme | must | all | checked |
-| [KB-CPP-007](#kb-cpp-007) No reinterpret_cast or C-style casts outside the port layer | must | driver, library, template | checked |
+| [KB-CPP-007](#kb-cpp-007) No reinterpret\_cast or C-style casts outside the port layer | must | driver, library, template | checked |
 | [KB-CPP-008](#kb-cpp-008) Static analysis is clean, and every suppression is a recorded deviation | must | driver, library, hal, firmware, template | checked |
 | [KB-CPP-009](#kb-cpp-009) Register frames have their layout asserted | must | driver, library, hal (high level and above) | planned |
 | [KB-CPP-010](#kb-cpp-010) Data shared with an interrupt is atomic or explicitly guarded | must | driver, library, hal, firmware | review |
+| [KB-CPP-011](#kb-cpp-011) Driver code includes only its own headers and the allowed standard headers | must | driver, template | checked |
+| [KB-CPP-012](#kb-cpp-012) Target code uses only freestanding-friendly headers and C++20 the pinned compilers share | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-013](#kb-cpp-013) Each kb-core part includes only what its layer table allows | must | library | planned |
+| [KB-CPP-014](#kb-cpp-014) Handlers include only their driver, Base headers and kb-core utilities | must | library | planned |
+| [KB-CPP-015](#kb-cpp-015) HAL and product code reach hardware only through their bind and handlers | must | hal, firmware | planned |
+| [KB-CPP-016](#kb-cpp-016) Shared code never tests platform, board or product macros | must | driver, library, template | planned |
+| [KB-CPP-017](#kb-cpp-017) An MCU family header fails to compile outside its family | must | library | planned |
+| [KB-CPP-018](#kb-cpp-018) Includes are quoted from the include root and never climb with ../ | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-019](#kb-cpp-019) Every header uses #pragma once | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-020](#kb-cpp-020) Includes are grouped own header, standard, other repositories, this repository | should | driver, library, hal, firmware, template | review |
+| [KB-CPP-021](#kb-cpp-021) Every header includes what it uses and compiles on its own | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-022](#kb-cpp-022) Drivers carry no organisation brand | must | driver, template | planned |
+| [KB-CPP-023](#kb-cpp-023) Driver names derive from the chip | must | driver, template | planned |
+| [KB-CPP-024](#kb-cpp-024) A driver declares nothing at global scope | must | driver, template | planned |
+| [KB-CPP-025](#kb-cpp-025) Namespaces follow the layer they belong to | must | driver, library, hal, firmware, template | checked |
+| [KB-CPP-026](#kb-cpp-026) No using-directives in headers; anonymous namespaces only in source files | must | driver, library, hal, firmware, template | checked |
+| [KB-CPP-027](#kb-cpp-027) Macros carry their repository's prefix and never leak generic names | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-028](#kb-cpp-028) No m\_, s\_, g\_ or p\_ prefixes on names | should | driver, library, hal, firmware, template | planned |
+| [KB-CPP-029](#kb-cpp-029) Function names say whether they touch the chip | should | driver, library, hal, template | review |
+| [KB-CPP-030](#kb-cpp-030) Quantities carry their unit in the name | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-031](#kb-cpp-031) Names describe what they hold | guide | all | none |
+| [KB-CPP-032](#kb-cpp-032) One CRTP port base per bus, and the driver is constrained by its port concept | must | driver, template | checked |
+| [KB-CPP-033](#kb-cpp-033) No virtual functions in a driver or its port | must | driver, template | planned |
+| [KB-CPP-034](#kb-cpp-034) The port base never declares a required hook | must | driver, template | review |
+| [KB-CPP-035](#kb-cpp-035) Port hooks are PascalCase, noexcept and return bool, with the bus's fixed signatures | must | driver, template | checked |
+| [KB-CPP-036](#kb-cpp-036) Optional hooks are detected with requires, in one place | must | driver, template | planned |
+| [KB-CPP-037](#kb-cpp-037) A missing hook fails to compile or falls back in a documented way, never silently | must | driver, template | checked |
+| [KB-CPP-038](#kb-cpp-038) Driver pins are logical; the port maps them to the board | must | driver, template | review |
+| [KB-CPP-039](#kb-cpp-039) Drivers use no std::function or printf-family output; callbacks are a function pointer | must | driver, template | planned |
+| [KB-CPP-040](#kb-cpp-040) Drivers and kb-core utilities hold no mutable global or static state | must | driver, library, template | checked |
+| [KB-CPP-041](#kb-cpp-041) A driver waits only through the port's delay hooks | must | driver, template | planned |
+| [KB-CPP-042](#kb-cpp-042) Drivers declare no friends | should | driver, template | review |
+| [KB-CPP-043](#kb-cpp-043) Run-time configuration is one Config struct passed to Initialize | must | driver, library, template | review |
+| [KB-CPP-044](#kb-cpp-044) Kconfig values are read in one header | must | driver, template | checked |
+| [KB-CPP-045](#kb-cpp-045) Destructive chip operations need explicit input | must | driver, library, template | review |
+| [KB-CPP-046](#kb-cpp-046) Each driver has its own Error enum and a trivially copyable Result type | must | driver, template | planned |
+| [KB-CPP-047](#kb-cpp-047) Driver error codes 0 to 9 are fixed; chip-specific codes start at 16 | must | driver, template | planned |
+| [KB-CPP-048](#kb-cpp-048) Every chip-specific error code is returned somewhere | must | driver, template | planned |
+| [KB-CPP-049](#kb-cpp-049) kb::Status values are fixed and only grow | must | library | planned |
+| [KB-CPP-050](#kb-cpp-050) A failed bus transfer always reaches the caller | must | driver, template | checked |
+| [KB-CPP-051](#kb-cpp-051) Above the drivers, one error type per layer and no vendor error types | must | library, hal, firmware | planned |
+| [KB-CPP-052](#kb-cpp-052) Error mapping follows the fixed tables | must | library | checked |
+| [KB-CPP-053](#kb-cpp-053) A mapping switch lists every enumerator and has no default | must | driver, library, hal, template | checked |
+| [KB-CPP-054](#kb-cpp-054) Code branches on the status, never on its detail | must | library, hal, firmware | planned |
+| [KB-CPP-055](#kb-cpp-055) Never log an error and return Ok | must | library, hal, firmware | review |
+| [KB-CPP-056](#kb-cpp-056) Error handling separates recoverable from fatal failures and keeps context | guide | library, hal, firmware | none |
+| [KB-CPP-057](#kb-cpp-057) Constructors are noexcept, do no I/O and cannot fail | must | driver, library, template | checked |
+| [KB-CPP-058](#kb-cpp-058) Initialize runs the fixed sequence and leaves nothing half-initialised | must | driver, template | checked |
+| [KB-CPP-059](#kb-cpp-059) No call initialises as a side effect | must | driver, library, template | checked |
+| [KB-CPP-060](#kb-cpp-060) Deinitialize leaves the chip in its documented safe state | must | driver, template | checked |
+| [KB-CPP-061](#kb-cpp-061) Handler files and classes follow the handler naming | must | library | planned |
+| [KB-CPP-062](#kb-cpp-062) A handler keeps its driver in place and rebuilds it cleanly on a failed start | must | library | checked |
+| [KB-CPP-063](#kb-cpp-063) Every public handler method holds the handler's mutex for its whole duration | must | library | planned |
+| [KB-CPP-064](#kb-cpp-064) Locks follow the fixed order and are held for one call only | must | library, hal | review |
+| [KB-CPP-065](#kb-cpp-065) Handlers lend their driver only through VisitDriver | must | library | checked |
+| [KB-CPP-066](#kb-cpp-066) The bus adapter implements the driver's port with Base calls only | must | library | review |
+| [KB-CPP-067](#kb-cpp-067) Every handler reports diagnostics with the common header first | must | library | checked |
+| [KB-CPP-068](#kb-cpp-068) Channel wrappers live in a fixed array created at start-up | must | library | review |
+| [KB-CPP-069](#kb-cpp-069) Each Base interface keeps its error list and a ToStatus mapping | must | library | planned |
+| [KB-CPP-070](#kb-cpp-070) Base interfaces start idempotently and report missing features as Unsupported | must | library | checked |
+| [KB-CPP-071](#kb-cpp-071) Base interfaces expose operations through non-virtual public functions | should | library | planned |
+| [KB-CPP-072](#kb-cpp-072) Every overriding function says override | must | library, hal, firmware | checked |
+| [KB-CPP-073](#kb-cpp-073) Drivers are never stored type-erased as void pointers | should | library, hal, firmware | review |
+| [KB-CPP-074](#kb-cpp-074) Dispatch is chosen by measurement and changed incrementally | guide | library, hal, firmware | none |
+| [KB-CPP-075](#kb-cpp-075) RTOS objects are statically allocated | must | library, hal, firmware | planned |
+| [KB-CPP-076](#kb-cpp-076) Above the bind, threads, locks and delays go through kb::rtos only | must | library, hal, firmware | planned |
+| [KB-CPP-077](#kb-cpp-077) Code above kb::rtos builds and runs on every RTOS backend | must | library | planned |
+| [KB-CPP-078](#kb-cpp-078) The only clock above the bind is kb::MonotonicUs | must | library, hal, firmware | planned |
+| [KB-CPP-079](#kb-cpp-079) Durations are unsigned integers with a unit, and deadlines compare by subtraction | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-080](#kb-cpp-080) Delays never return early | must | library | checked |
+| [KB-CPP-081](#kb-cpp-081) Ticks are converted from milliseconds, never written as raw counts | must | library, hal, firmware | planned |
+| [KB-CPP-082](#kb-cpp-082) Long busy-waits stay off normal task priorities | should | library, hal, firmware | review |
+| [KB-CPP-083](#kb-cpp-083) Fixed-rate work uses a periodic timer or a drift-corrected loop | must | library, hal, firmware | review |
+| [KB-CPP-084](#kb-cpp-084) Interrupt handlers never block | must | driver, library, hal, firmware | planned |
+| [KB-CPP-085](#kb-cpp-085) Data shared between tasks has exactly one guard | must | library, hal, firmware | review |
+| [KB-CPP-086](#kb-cpp-086) Memory-mapped registers are accessed through volatile, only in the MCU port | must | library, hal | review |
+| [KB-CPP-087](#kb-cpp-087) Interrupt handlers keep their stack small | should | driver, library, hal, firmware | review |
+| [KB-CPP-088](#kb-cpp-088) Stack use is bounded, measured and within budget | must | driver, library, hal, firmware (high level and above) | checked |
+| [KB-CPP-089](#kb-cpp-089) Task stacks, priorities and core affinity are named in one header | must | firmware | planned |
+| [KB-CPP-090](#kb-cpp-090) Applications never put the CPU to sleep themselves | should | firmware | review |
+| [KB-CPP-091](#kb-cpp-091) Managers live in static storage owned by the board facade | must | hal | planned |
+| [KB-CPP-092](#kb-cpp-092) Managers are thread-safe and report failure state consistently | must | hal | checked |
+| [KB-CPP-093](#kb-cpp-093) Diagnostics are collected through one facade call into a sink | must | hal | checked |
+| [KB-CPP-094](#kb-cpp-094) The platform bind uses fixed verbs and fixed slots | must | hal | checked |
+| [KB-CPP-096](#kb-cpp-096) Borrowed references never outlive their owner | must | library, hal, firmware | checked |
+| [KB-CPP-097](#kb-cpp-097) Scoped resources are released by RAII guards | should | driver, library, hal, firmware, template | review |
+| [KB-CPP-098](#kb-cpp-098) Constants are constexpr, not macros | should | driver, library, hal, firmware, template | checked |
+| [KB-CPP-099](#kb-cpp-099) Const by default | should | driver, library, hal, firmware, template | checked |
+| [KB-CPP-100](#kb-cpp-100) Large objects are passed by const reference, and moved when ownership moves | should | driver, library, hal, firmware, template | checked |
+| [KB-CPP-101](#kb-cpp-101) Static initialisation never depends on translation-unit order | must | library, hal, firmware | checked |
+| [KB-CPP-102](#kb-cpp-102) Members are initialised in declaration order | must | driver, library, hal, firmware, template | checked |
+| [KB-CPP-103](#kb-cpp-103) Fixed-width integer types where size matters | should | driver, library, hal, firmware, template | review |
+| [KB-CPP-104](#kb-cpp-104) Integer arithmetic does not overflow or narrow silently | must | driver, library, hal, firmware, template | checked |
+| [KB-CPP-105](#kb-cpp-105) Bit operations use unsigned operands and shifts stay within the width | must | driver, library, hal, firmware, template | checked |
+| [KB-CPP-106](#kb-cpp-106) Register fields and wire bytes are packed with masks, shifts and explicit byte order | must | driver, library, hal, template | planned |
+| [KB-CPP-107](#kb-cpp-107) Register maps are written as tables | guide | driver, template | none |
+| [KB-CPP-108](#kb-cpp-108) Parsers of external input check length and type before use | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-110](#kb-cpp-110) At the safety level, code follows the MISRA subset in the compliance matrix | must | driver, library, hal, firmware (safety level and above) | planned |
+| [KB-CPP-111](#kb-cpp-111) Comments explain why, and datasheet references are exact | should | all | review |
+| [KB-CPP-112](#kb-cpp-112) No commented-out code, untracked TODOs, author banners or tool attribution | must | all | planned |
+| [KB-CPP-113](#kb-cpp-113) Class members are grouped by access | guide | driver, library, hal, firmware, template | none |
+| [KB-CPP-114](#kb-cpp-114) Slow start-up steps are opt-in or visible | guide | library, hal, firmware | none |
 
 ## KB-CPP-001: C++20, no compiler extensions { #kb-cpp-001 }
 
@@ -133,7 +235,7 @@ as `config/.clang-tidy` encodes it.
 
 *Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
 
-## KB-CPP-007: No reinterpret_cast or C-style casts outside the port layer { #kb-cpp-007 }
+## KB-CPP-007: No reinterpret\_cast or C-style casts outside the port layer { #kb-cpp-007 }
 
 **MUST** · driver, library, template · since 1.0
 
@@ -183,7 +285,7 @@ every field, and states its byte order.
 
 *Verified by:*
 
-- `register-layout-asserts` (planned): every register or wire frame struct has static_assert on its size and field
+- `register-layout-asserts` (planned): every register or wire frame struct has static\_assert on its size and field
   offsets
 
 *See also:* SEI CERT C EXP42-C
@@ -202,4 +304,1778 @@ accessed only inside a critical section, and the function that runs in interrupt
 - review: Every variable shared with an ISR is atomic or guarded, and the ISR-context function is documented as such.
 
 *See also:* SEI CERT C SIG31-C; C++ Core Guidelines CP.8
+
+
+## KB-CPP-011: Driver code includes only its own headers and the allowed standard headers { #kb-cpp-011 }
+
+**MUST** · driver, template · since 1.0
+
+Files in a driver's `inc/` and `src/` include only the driver's own headers and the standard headers listed on the
+Layers page (such as `<cstdint>`, `<array>`, `<span>`, `<optional>` and `<bit>`). They never include kb-core, another
+Kokeb Labs repository, an SDK, RTOS or vendor header, or `<iostream>`, `<cstdio>`, `<string>`, `<functional>`,
+`<memory>`, `<vector>`, `<map>`, `<thread>` or `<mutex>`.
+
+*Why:* A driver that includes nothing but its own code and a freestanding subset of the library builds on any MCU and in
+any framework. The host build without SDK include paths already rejects SDK headers.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- `include-allowlist/driver` (planned): a script over the include graph that fails on a header outside the allowed set
+  for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+
+*See also:* [ADR-0012](../adr/0012-unbranded-drivers.md); [ADR-0014](../adr/0014-three-kinds-of-specific.md)
+
+*Explained in:* [standards/layers.md](../standards/layers.md)
+
+## KB-CPP-012: Target code uses only freestanding-friendly headers and C++20 the pinned compilers share { #kb-cpp-012 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+Code that runs on a target uses only the standard headers the Layers page allows for its part (never `<iostream>`,
+`<fstream>`, `<thread>`, `<future>`, `<regex>` or `<filesystem>`) and only C++20 features that both the pinned ESP-IDF
+GCC and the CI clang support. Host-only test code is exempt.
+
+*Why:* Hosted-only headers pull in allocation, locale and threading support that a microcontroller build either lacks or
+pays for in flash.
+
+*Verified by:*
+
+- `include-allowlist/hosted` (planned): a script over the include graph that fails on a header outside the allowed set
+  for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+- `cross-build/esp-idf` (planned): the library compiles warning-free for the named target (arm-none-eabi, riscv32,
+  esp-idf)
+
+*See also:* [ADR-0010](../adr/0010-cpp20.md)
+
+
+## KB-CPP-013: Each kb-core part includes only what its layer table allows { #kb-cpp-013 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+Each kb-core part follows its include table on the Layers page: `utils/` includes no RTOS, SDK or `Base*` header,
+`interfaces/base/` never includes `mcu/` or an SDK header, a `base/` header includes nothing that is missing on any MCU
+family, and `kb/utils/Status.h` depends on nothing. Drivers never include `Status.h`.
+
+*Verified by:*
+
+- `include-allowlist/kb-core` (planned): a script over the include graph that fails on a header outside the allowed set
+  for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+
+*See also:* [ADR-0013](../adr/0013-kb-core-monorepo.md); [ADR-0014](../adr/0014-three-kinds-of-specific.md)
+
+*Explained in:* [standards/layers.md](../standards/layers.md)
+
+## KB-CPP-014: Handlers include only their driver, Base headers and kb-core utilities { #kb-cpp-014 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+A handler includes only its driver's umbrella header, `Base*.h`, `kb/rtos`, `kb/utils` and `kb/handlers/common`. It
+never includes `mcu/`, an SDK, a HAL, product code or another handler.
+
+*Why:* A handler that cannot see another handler cannot call it while holding its own locks.
+
+*Verified by:*
+
+- `include-allowlist/handlers` (planned): a script over the include graph that fails on a header outside the allowed set
+  for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+
+*Explained in:* [standards/layers.md](../standards/layers.md)
+
+## KB-CPP-015: HAL and product code reach hardware only through their bind and handlers { #kb-cpp-015 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · hal, firmware · since 1.0 · enforced from 2027-03-01
+
+Outside `bsp_bind/`, HAL code never includes an SDK, `esp_*`, FreeRTOS, `mcu/` or driver header, and managers reach
+chips only through a handler's typed API or `VisitDriver()`; the bind's interface header includes only `Base*` and
+standard headers. Outside `platform/`, product code never includes handlers, drivers, `Base*`, `mcu/` or raw FreeRTOS
+headers.
+
+*Verified by:*
+
+- `include-allowlist/hal-boundary` (planned): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+
+*See also:* [ADR-0005](../adr/0005-kb-hal-common.md)
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-CPP-016: Shared code never tests platform, board or product macros { #kb-cpp-016 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, template · since 1.0 · enforced from 2027-03-01
+
+Drivers, kb-core outside `interfaces/mcu/` and the RTOS backends, and `kb-hal-common` never test `ESP_PLATFORM`,
+`STM32*`, `__ZEPHYR__` or a board or product macro. Variant differences inside one MCU family use the vendor's
+capability macros (`SOC_*_SUPPORTED`, `HAL_*_MODULE_ENABLED`) only inside `mcu/<family>/`.
+
+*Why:* Each `#ifdef` on a platform is a build nobody tests on the other platforms. Chip, MCU and product code each have
+one place.
+
+*Verified by:*
+
+- `forbidden-patterns/platform-macros` (planned): a source scan for a construct the handbook bans; the parameter names
+  the pattern set
+
+*See also:* [ADR-0014](../adr/0014-three-kinds-of-specific.md); NASA/JPL Power of Ten Rule 8 (limited use of the
+preprocessor)
+
+*Explained in:* [standards/layers.md](../standards/layers.md)
+
+## KB-CPP-017: An MCU family header fails to compile outside its family { #kb-cpp-017 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+Every header in `interfaces/mcu/<family>/` begins with a check that stops the build with `#error` unless
+`KB_MCU_<FAMILY>` is defined.
+
+*Verified by:*
+
+- `mcu-header-guards` (planned): every header under interfaces/mcu/&lt;family&gt;/ starts with an #error guard on
+  KB\_MCU\_&lt;FAMILY&gt;
+
+*Explained in:* [standards/layers.md](../standards/layers.md)
+
+## KB-CPP-018: Includes are quoted from the include root and never climb with ../ { #kb-cpp-018 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+Project headers are included in quotes from their include root (`"kb/utils/Status.h"`, `"<chip>.hpp"`), never with angle
+brackets and never with a relative path that climbs out of the directory (`"../"`). Each kb-core part has one include
+root; a driver has a flat `inc/`.
+
+*Verified by:*
+
+- `forbidden-patterns/include-style` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+*See also:* [ADR-0008](../adr/0008-naming.md)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-019: Every header uses #pragma once { #kb-cpp-019 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+Every header starts with `#pragma once`. `#ifndef` include guards are not used.
+
+*Verified by:*
+
+- `forbidden-patterns/pragma-once` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-020: Includes are grouped own header, standard, other repositories, this repository { #kb-cpp-020 }
+
+**SHOULD** · driver, library, hal, firmware, template · since 1.0
+
+A file includes its own header first, then standard headers, then headers from other repositories, then headers from
+this repository, with a blank line between groups.
+
+*Why:* Including its own header first proves the header compiles on its own. The org clang-format keeps `IncludeBlocks:
+Preserve`, so the order is not enforced by the formatter.
+
+*Verified by:*
+
+- review: Include groups are in the order own header, standard, other repositories, this repository.
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-021: Every header includes what it uses and compiles on its own { #kb-cpp-021 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. clang-tidy misc-include-cleaner could add to this once config/.clang-tidy enables
+    it.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+A header includes every header it uses and compiles as the first include of an otherwise empty translation unit. It does
+not rely on what its includer happened to include first.
+
+*Verified by:*
+
+- `header-self-contained` (planned): every public header compiles on its own as the first include of a translation unit
+
+*See also:* C++ Core Guidelines SF.11
+
+
+## KB-CPP-022: Drivers carry no organisation brand { #kb-cpp-022 }
+
+**MUST** · driver, template · since 1.0
+
+No name in a driver carries an organisation prefix: not `kb_`, `kb::`, `KB_`, `hf_` or any other, in its namespace,
+types, macros, CMake target and options, Kconfig symbols or file names. The prefix table on the naming page says which
+prefix each kind of repository uses.
+
+*Why:* A driver is the part most likely to be used alone or forked; a brand in its symbols forces a fork to keep it or
+break its users. Today only the template's self-test bans foreign prefixes.
+
+*Verified by:*
+
+- `forbidden-patterns/org-prefix` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+- review: The driver adds no name with an organisation prefix.
+
+*See also:* [ADR-0012](../adr/0012-unbranded-drivers.md)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-023: Driver names derive from the chip { #kb-cpp-023 }
+
+**MUST** · driver, template · since 1.0
+
+A driver for chip `<chip>` lives in namespace `<chip>`, its class is `<chip>::<CHIP>` (the part number in capitals,
+never `Device` or `Driver`), its target is `<chip>::<chip>`, its macros start `<CHIP>_` and its Kconfig symbols start
+`CONFIG_<CHIP>_`.
+
+*Verified by:*
+
+- `driver-names` (planned): the driver's namespace, class, CMake target, macro prefix and Kconfig prefix all derive from
+  the chip name in the repository name (driver-&lt;chip&gt;)
+- review: Namespace, class, target, macro and Kconfig names follow the chip name.
+
+*See also:* [ADR-0012](../adr/0012-unbranded-drivers.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-024: A driver declares nothing at global scope { #kb-cpp-024 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Everything a driver declares, including `GetDriverVersion()` and any `using` declaration, is inside namespace `<chip>`
+or `<chip>::detail`.
+
+*Verified by:*
+
+- `ast-rules/global-scope` (planned): a clang-query or libclang script over the compile database for one structural
+  rule; the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi,
+  base-tostatus, detail-branch, deadline-compare, isr-calls, bitfield-frames)
+
+*See also:* [ADR-0008](../adr/0008-naming.md)
+
+
+## KB-CPP-025: Namespaces follow the layer they belong to { #kb-cpp-025 }
+
+**MUST** · driver, library, hal, firmware, template · since 1.0
+
+Drivers use `<chip>` and `<chip>::detail`; kb-core uses `kb` or `kb::<area>`; the shared HAL uses `kb::hal`; board code
+uses `<board>` and `<board>::bsp`; products use `<board>::app`. New kb-core API is C++ in `kb`; the legacy `os_*`
+functions and `kb_*_t` types keep their names, and no new names are added in those forms.
+
+*Verified by:*
+
+- `clang-tidy/readability-identifier-naming` (implemented): a clang-tidy check from config/.clang-tidy, run with the
+  CMake compile database
+- review: New code is in its layer's namespace and adds no os\_\* function or kb\_\*\_t type.
+
+*See also:* [ADR-0008](../adr/0008-naming.md); [ADR-0013](../adr/0013-kb-core-monorepo.md)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-026: No using-directives in headers; anonymous namespaces only in source files { #kb-cpp-026 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. config/.clang-tidy must enable google-global-names-in-headers and
+    google-build-namespaces first.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+A header never contains `using namespace`. Anonymous namespaces appear only in `.cpp` files, for helpers local to that
+file.
+
+*Verified by:*
+
+- `clang-tidy/google-global-names-in-headers` (implemented): a clang-tidy check from config/.clang-tidy, run with the
+  CMake compile database
+- `clang-tidy/google-build-namespaces` (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake
+  compile database
+
+*See also:* C++ Core Guidelines SF.7; C++ Core Guidelines SF.21
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-027: Macros carry their repository's prefix and never leak generic names { #kb-cpp-027 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+Every macro is `UPPER_CASE` and starts with its repository's prefix: `<CHIP>_` in a driver, `KB_` in kb-core, `KB_HAL_`
+in `kb-hal-common`, `CONFIG_` for Kconfig. Public headers define no generic macro such as `MIN`, `MAX` or `ARRAY_SIZE`.
+
+*Why:* The macro namespace is global across every library linked into a firmware image; clang-tidy checks the case but
+not the prefix.
+
+*Verified by:*
+
+- `forbidden-patterns/macro-prefix` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+*See also:* [ADR-0008](../adr/0008-naming.md); [ADR-0012](../adr/0012-unbranded-drivers.md)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-028: No m\_, s\_, g\_ or p\_ prefixes on names { #kb-cpp-028 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+Names carry no Hungarian-style prefix (`m_`, `s_`, `g_`, `p_`). Private and protected data members, static ones
+included, use the trailing underscore form `snake_case_`; pointers get a descriptive name.
+
+*Why:* clang-tidy accepts `m_count_` as snake\_case, so a second scheme can creep in unless a check rejects the
+prefixes.
+
+*Verified by:*
+
+- `forbidden-patterns/name-prefixes` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+*See also:* [ADR-0008](../adr/0008-naming.md)
+
+
+## KB-CPP-029: Function names say whether they touch the chip { #kb-cpp-029 }
+
+**SHOULD** · driver, library, hal, template · since 1.0
+
+`Read*` performs I/O; `Get*` returns a cached value without I/O; `Set*` and `Write*` change the chip; `Is*` and `Has*`
+return `bool` without I/O.
+
+*Verified by:*
+
+- review: Read/Get/Set/Write/Is/Has names match whether the call does I/O.
+
+*See also:* [ADR-0008](../adr/0008-naming.md)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-030: Quantities carry their unit in the name { #kb-cpp-030 }
+
+**MUST** · driver, library, hal, firmware, template · since 1.0
+
+Every identifier holding a physical quantity ends in its unit in the identifier's case (`timeout_ms`, `ReadVoltageMv`,
+`kResetDelayUs`), from the naming page's unit table; `_mA`, `MilliAmps` and `Unit` enums are not used. Prefer integers
+in SI-derived units; a float in a public API says its unit.
+
+*Why:* A missing or ambiguous unit is a silent factor-of-1000 bug.
+
+*Verified by:*
+
+- `forbidden-patterns/unit-spellings` (planned): a source scan for a construct the handbook bans; the parameter names
+  the pattern set
+- review: Every new quantity has a unit suffix from the naming table.
+
+*See also:* [ADR-0008](../adr/0008-naming.md)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-031: Names describe what they hold { #kb-cpp-031 }
+
+**GUIDE** · all · since 1.0
+
+Names are descriptive rather than abbreviated (short loop and template names such as `i`, `n`, `T` and `reg` are fine),
+never confusable (`l1` and `I1`), and keep acronyms in one form within a file. Boolean parameters read as a condition
+(`is_enabled`, `has_crc`); limits and defaults read `kMax...` and `kDefault...`.
+
+*See also:* [ADR-0008](../adr/0008-naming.md)
+
+
+## KB-CPP-032: One CRTP port base per bus, and the driver is constrained by its port concept { #kb-cpp-032 }
+
+**MUST** · driver, template · since 1.0
+
+A driver's port base is `<chip>::{Spi,I2c,Uart,Adc}Interface<Derived>`, one per bus, non-copyable with a protected
+constructor, and the driver template is constrained by the concept `<chip>::{Spi,I2c,Uart,Adc}Port`, so a port that
+lacks a required hook fails to compile where it is used.
+
+*Verified by:*
+
+- `compile-fail-tests` (implemented): a misuse of the public API is a compile error, proved by a test that must fail to
+  compile
+- review: The port base and concept follow the bus naming and the driver template is constrained by the concept.
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-033: No virtual functions in a driver or its port { #kb-cpp-033 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Neither the driver class nor its port base declares a virtual function. Dispatch to the port is static, through CRTP.
+
+*Why:* Virtual dispatch costs a vtable per port and stops the compiler inlining register access.
+
+*Verified by:*
+
+- `ast-rules/driver-virtual` (planned): a clang-query or libclang script over the compile database for one structural
+  rule; the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi,
+  base-tostatus, detail-branch, deadline-compare, isr-calls, bitfield-frames)
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-034: The port base never declares a required hook { #kb-cpp-034 }
+
+**MUST** · driver, template · since 1.0
+
+The port base may offer helpers but never declares or forwards a hook that the port concept requires; only the derived
+port defines it.
+
+*Why:* A base that forwards a hook to the derived class turns a missing override into infinite recursion.
+
+*Verified by:*
+
+- review: The port base declares none of the hooks named in the port concept.
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md)
+
+
+## KB-CPP-035: Port hooks are PascalCase, noexcept and return bool, with the bus's fixed signatures { #kb-cpp-035 }
+
+**MUST** · driver, template · since 1.0
+
+Every port hook is `PascalCase`, `noexcept` and returns `bool` (never `void`), and each bus uses the hook signatures
+fixed on the driver page (SPI `Transfer`; I2C `Write`, `WriteRead`, optional `Read`; UART `Write`, `Read`, `FlushInput`;
+ADC `ReadVoltageMv`), plus `EnsureInitialized`.
+
+*Why:* A `void` hook cannot report a bus failure, so the driver returns a stale value as if it were fresh.
+
+*Verified by:*
+
+- `compile-fail-tests` (implemented): a misuse of the public API is a compile error, proved by a test that must fail to
+  compile
+- review: Every hook is noexcept, returns bool and matches the bus signature on the driver page.
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-036: Optional hooks are detected with requires, in one place { #kb-cpp-036 }
+
+**MUST** · driver, template · since 1.0
+
+Whether a port has an optional hook is tested with a C++20 `requires` expression in one place in `<chip>::detail`, never
+with `void_t` and never through the port base.
+
+*Verified by:*
+
+- `forbidden-patterns/void-t` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+- review: Optional-hook detection is one set of requires expressions in detail.
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md); [ADR-0010](../adr/0010-cpp20.md)
+
+
+## KB-CPP-037: A missing hook fails to compile or falls back in a documented way, never silently { #kb-cpp-037 }
+
+**MUST** · driver, template · since 1.0
+
+A port without `DelayUs`/`DelayMs` fails to compile at the first call that needs a delay; a chip with timing
+requirements never skips a wait. A missing GPIO hook makes the call return `Unsupported` or a documented fallback, a
+missing `Log` hook means no output, and the driver itself never formats text.
+
+*Why:* One reviewed driver skipped required delays when its port had no delay hook.
+
+*Verified by:*
+
+- `compile-fail-tests` (implemented): a misuse of the public API is a compile error, proved by a test that must fail to
+  compile
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-038: Driver pins are logical; the port maps them to the board { #kb-cpp-038 }
+
+**MUST** · driver, template · since 1.0
+
+A driver names pins by function (`CtrlPin`) and level by meaning (`GpioSignal::ACTIVE` is asserted); the port maps them
+to physical pins and polarity. The port's `EnsureInitialized()` brings the bus up on first use and is idempotent.
+
+*Verified by:*
+
+- review: The driver uses logical pins and levels only; polarity is resolved in the port.
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-039: Drivers use no std::function or printf-family output; callbacks are a function pointer { #kb-cpp-039 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Driver code does not use `std::function`, `std::string` or any `printf`-family function. A callback is a function
+pointer plus a `void*` context.
+
+*Why:* `std::function` may allocate and `printf` pulls in a formatter of several kilobytes; a driver that never formats
+text costs nothing on a board with no console.
+
+*Verified by:*
+
+- `forbidden-patterns/driver-banned` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+*See also:* [ADR-0004](../adr/0004-no-heap.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-040: Drivers and kb-core utilities hold no mutable global or static state { #kb-cpp-040 }
+
+**MUST** · driver, library, template · since 1.0
+
+Driver code and kb-core's `utils/` hold no mutable variable at namespace scope and no mutable `static` variable,
+function-local or member. State lives in the driver object.
+
+*Why:* Two instances of a driver on two buses must not share hidden state.
+
+*Verified by:*
+
+- `clang-tidy/cppcoreguidelines-avoid-non-const-global-variables` (implemented): a clang-tidy check from
+  config/.clang-tidy, run with the CMake compile database
+- `forbidden-patterns/static-mutable` (planned): a source scan for a construct the handbook bans; the parameter names
+  the pattern set
+
+*See also:* [ADR-0004](../adr/0004-no-heap.md); C++ Core Guidelines I.2
+
+
+## KB-CPP-041: A driver waits only through the port's delay hooks { #kb-cpp-041 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A driver never sleeps, spins on a clock or calls `vTaskDelay`, `usleep` or `std::this_thread`; every wait goes through
+the port's `DelayUs`/`DelayMs` hooks.
+
+*Verified by:*
+
+- `forbidden-patterns/driver-sleep` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-042: Drivers declare no friends { #kb-cpp-042 }
+
+**SHOULD** · driver, template · since 1.0
+
+A driver class declares no `friend`; if a handler needs access, the driver widens its public API instead.
+
+*Verified by:*
+
+- review: The driver adds no friend declaration.
+
+
+## KB-CPP-043: Run-time configuration is one Config struct passed to Initialize { #kb-cpp-043 }
+
+**MUST** · driver, library, template · since 1.0
+
+A driver's run-time settings are one `Config` struct with unit-suffixed fields and datasheet defaults, passed to
+`Initialize()`. Capacity limits are `constexpr` constants a board can size, and buffers are members sized by those
+limits or a caller's `std::span`.
+
+*Verified by:*
+
+- review: Settings are fields of one Config; buffers are fixed members or caller spans.
+
+*See also:* [ADR-0004](../adr/0004-no-heap.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-044: Kconfig values are read in one header { #kb-cpp-044 }
+
+**MUST** · driver, template · since 1.0
+
+`CONFIG_<CHIP>_*` symbols are read only in `inc/<chip>_kconfig.hpp`, which turns them into `KconfigDefaults()`. No other
+header and no public signature refers to a `CONFIG_` symbol.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- `forbidden-patterns/config-outside-kconfig` (planned): a source scan for a construct the handbook bans; the parameter
+  names the pattern set
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-045: Destructive chip operations need explicit input { #kb-cpp-045 }
+
+**MUST** · driver, library, template · since 1.0
+
+Calls that erase or rewrite a chip permanently (firmware update, OTP write, factory reset) take explicit data or a
+confirmation argument; no default argument triggers them.
+
+*Verified by:*
+
+- review: No destructive call can be reached with default arguments.
+
+
+## KB-CPP-046: Each driver has its own Error enum and a trivially copyable Result type { #kb-cpp-046 }
+
+**MUST** · driver, template · since 1.0
+
+Each driver defines `<chip>::Error` and `<chip>::Result<T>` (with `Result<void>`), usable without kb-core:
+`[[nodiscard]]` structs with `value`, `error`, `ok()` and an explicit `bool` conversion. `T` is default-constructible
+and trivially copyable, and a failed call leaves the value at its default.
+
+*Why:* A per-driver type keeps drivers independent of kb-core. `std::expected` is C++23 and not available on the pinned
+toolchains.
+
+*Verified by:*
+
+- `result-type-traits` (planned): static\_asserts that the driver's Result&lt;T&gt; is [[nodiscard]], has ok() and an
+  explicit bool conversion, and that T is default-constructible and trivially copyable
+- review: The driver's Result follows the shape on the errors page.
+
+*See also:* [ADR-0001](../adr/0001-error-model.md)
+
+*Explained in:* [standards/errors.md](../standards/errors.md)
+
+## KB-CPP-047: Driver error codes 0 to 9 are fixed; chip-specific codes start at 16 { #kb-cpp-047 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Every driver's `Error` starts with the base set `Ok` to `Unsupported` at the fixed values 0 to 9, in the order on the
+errors page. Chip-specific codes start at 16.
+
+*Why:* The same value means the same failure in every driver, so a handler maps all of them with one table.
+
+*Verified by:*
+
+- `error-enum-values/driver` (planned): a compiled test asserts the enumerator values of an error enum against the table
+  on the errors page; the parameter names the enum (driver, kb-status)
+
+*See also:* [ADR-0001](../adr/0001-error-model.md)
+
+*Explained in:* [standards/errors.md](../standards/errors.md)
+
+## KB-CPP-048: Every chip-specific error code is returned somewhere { #kb-cpp-048 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Each chip-specific `Error` value (16 and up) is returned by at least one call; a value nothing returns is deleted.
+
+*Verified by:*
+
+- `unused-error-codes` (planned): every chip-specific Error enumerator (16 and up) is returned somewhere in src/ or inc/
+
+*See also:* [ADR-0001](../adr/0001-error-model.md)
+
+
+## KB-CPP-049: kb::Status values are fixed and only grow { #kb-cpp-049 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+`kb::Status` keeps the values `Ok` = 0 to `Unknown` = 11 listed on the errors page. A new code is added by changing the
+page and the header together; no value is ever renumbered or reused.
+
+*Verified by:*
+
+- `error-enum-values/kb-status` (planned): a compiled test asserts the enumerator values of an error enum against the
+  table on the errors page; the parameter names the enum (driver, kb-status)
+
+*See also:* [ADR-0001](../adr/0001-error-model.md)
+
+*Explained in:* [standards/errors.md](../standards/errors.md)
+
+## KB-CPP-050: A failed bus transfer always reaches the caller { #kb-cpp-050 }
+
+**MUST** · driver, template · since 1.0
+
+Every port failure propagates as `Bus` (or `Crc` or `Timeout` when the driver can tell). Returning a stale or zero value
+after a failed read is a defect.
+
+*Why:* A dropped bus error turns into a plausible but wrong reading.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: Each new call path has a host test with a failing port hook.
+
+*See also:* [ADR-0001](../adr/0001-error-model.md); SEI CERT C ERR33-C
+
+*Explained in:* [standards/errors.md](../standards/errors.md)
+
+## KB-CPP-051: Above the drivers, one error type per layer and no vendor error types { #kb-cpp-051 }
+
+**MUST** · library, hal, firmware · since 1.0
+
+Above the drivers, fallible calls return `kb::Status` or `kb::Result<T>`: never a driver's `Result`, `esp_err_t`,
+`HAL_StatusTypeDef` or `bool`, and no layer adds a second error enum (`ManagerError`, `HalError`, `CommError`). A sticky
+error getter may exist but never replaces the call's result.
+
+*Verified by:*
+
+- `forbidden-patterns/vendor-error-types` (planned): a source scan for a construct the handbook bans; the parameter
+  names the pattern set
+- review: No public signature above the drivers returns a driver result, a vendor status or bool for a failure.
+
+*See also:* [ADR-0001](../adr/0001-error-model.md)
+
+*Explained in:* [standards/errors.md](../standards/errors.md)
+
+## KB-CPP-052: Error mapping follows the fixed tables { #kb-cpp-052 }
+
+**MUST** · library · since 1.0
+
+A driver `Error` maps to `kb::Status` by the table on the errors page (for example `DeviceIdMismatch` to `NotFound`,
+`Crc` to `Bus`), done once by `ToStatus()` in the handler's adapter header; `kb_*_err_t` values map by their name
+pattern. `ALREADY_INITIALIZED` from an idempotent `Initialize` counts as success.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: Each ToStatus follows the mapping table on the errors page.
+
+*See also:* [ADR-0001](../adr/0001-error-model.md)
+
+*Explained in:* [standards/errors.md](../standards/errors.md)
+
+## KB-CPP-053: A mapping switch lists every enumerator and has no default { #kb-cpp-053 }
+
+**MUST** · driver, library, hal, template · since 1.0
+
+A `switch` that maps one error enum to another (`ToStatus`, `ToString`) names every enumerator and has no `default:`, so
+a new enumerator is a compiler warning. `ToString()` returns a static string for every value.
+
+*Verified by:*
+
+- `compiler-warnings/-Wswitch` (implemented): the build is warning-free with the named flag and -Werror
+- review: Mapping switches over enums have no default and cover every enumerator.
+
+*Explained in:* [standards/errors.md](../standards/errors.md)
+
+## KB-CPP-054: Code branches on the status, never on its detail { #kb-cpp-054 }
+
+**MUST** · library, hal, firmware · since 1.0
+
+Callers decide on `kb::Status` alone; the `detail` field is for diagnostics and is never tested in an `if` or `switch`.
+Products map `Status` and `ManagerId` to their fault catalogue in one table and never inspect a driver `Error` or a
+`kb_*_err_t`.
+
+*Verified by:*
+
+- `ast-rules/detail-branch` (planned): a clang-query or libclang script over the compile database for one structural
+  rule; the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi,
+  base-tostatus, detail-branch, deadline-compare, isr-calls, bitfield-frames)
+- review: No new code branches on a status detail or a lower layer's error code.
+
+*See also:* [ADR-0001](../adr/0001-error-model.md)
+
+*Explained in:* [standards/errors.md](../standards/errors.md)
+
+## KB-CPP-055: Never log an error and return Ok { #kb-cpp-055 }
+
+**MUST** · library, hal, firmware · since 1.0
+
+A function that hits an error returns it. Logging a failure and then reporting success is a defect.
+
+*Verified by:*
+
+- review: No error path logs and then returns Ok.
+
+*See also:* SEI CERT C ERR33-C
+
+*Explained in:* [standards/errors.md](../standards/errors.md)
+
+## KB-CPP-056: Error handling separates recoverable from fatal failures and keeps context { #kb-cpp-056 }
+
+**GUIDE** · library, hal, firmware · since 1.0
+
+Decide for each failure whether it is recoverable (retry, report, degrade) or fatal (safe state, reset), and make the
+choice visible at the call site. Where an error is logged above the drivers, the message carries the context needed to
+act on it: bus, address, length and status.
+
+
+## KB-CPP-057: Constructors are noexcept, do no I/O and cannot fail { #kb-cpp-057 }
+
+**MUST** · driver, library, template · since 1.0
+
+Driver and handler constructors are `noexcept`, touch no hardware, allocate nothing and cannot fail; they store
+references and defaults. A handler's constructor does not create its driver.
+
+*Why:* A caller can then create objects in static storage and choose when the bus is first touched.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: Constructors only store references and defaults.
+
+*See also:* [ADR-0002](../adr/0002-lifecycle.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-058: Initialize runs the fixed sequence and leaves nothing half-initialised { #kb-cpp-058 }
+
+**MUST** · driver, template · since 1.0
+
+A driver's `Initialize()` brings the port up with `EnsureInitialized`, resets the chip (hardware reset if wired, else
+software), checks the chip ID (or the closest equivalent, documented, if the chip has none), applies the config and only
+then marks itself initialised. On any failure it stays uninitialised.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: Initialize follows the sequence on the driver page and each failure leaves the driver uninitialised.
+
+*See also:* [ADR-0002](../adr/0002-lifecycle.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-059: No call initialises as a side effect { #kb-cpp-059 }
+
+**MUST** · driver, library, template · since 1.0
+
+Before `Initialize`, every call that needs the chip returns `NotInitialized`. `EnsureInitialized()` returns `Ok` when
+initialised and otherwise runs `Initialize` with the last config; nothing else initialises.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+
+*See also:* [ADR-0002](../adr/0002-lifecycle.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-060: Deinitialize leaves the chip in its documented safe state { #kb-cpp-060 }
+
+**MUST** · driver, template · since 1.0
+
+`Deinitialize()` puts the chip in the safe state its documentation names and clears the initialised flag; on an
+uninitialised driver it returns `Ok`.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: The safe state is documented and Deinitialize reaches it.
+
+*See also:* [ADR-0002](../adr/0002-lifecycle.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CPP-061: Handler files and classes follow the handler naming { #kb-cpp-061 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+A handler lives in `<Chip>Handler.h`/`.cpp` as class `kb::<Chip>Handler` in namespace `kb`; its bus adapter is
+`Hal<Bus><Chip>Comm`.
+
+*Verified by:*
+
+- `ast-rules/handler-names` (planned): a clang-query or libclang script over the compile database for one structural
+  rule; the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi,
+  base-tostatus, detail-branch, deadline-compare, isr-calls, bitfield-frames)
+
+*Explained in:* [standards/handler.md](../standards/handler.md)
+
+## KB-CPP-062: A handler keeps its driver in place and rebuilds it cleanly on a failed start { #kb-cpp-062 }
+
+**MUST** · library · since 1.0
+
+A handler stores its driver in a `std::optional` member, never through `new`, nothrow `new` or `make_unique`, and is
+neither copyable nor movable. `EnsureInitialized()` emplaces the driver and runs the driver's `EnsureInitialized()`; on
+failure it destroys the driver so the next call retries from scratch.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: The driver is an optional member and the failure path resets it.
+
+*See also:* [ADR-0002](../adr/0002-lifecycle.md); [ADR-0004](../adr/0004-no-heap.md)
+
+*Explained in:* [standards/handler.md](../standards/handler.md)
+
+## KB-CPP-063: Every public handler method holds the handler's mutex for its whole duration { #kb-cpp-063 }
+
+**MUST** · library · since 1.0
+
+Each handler owns one `kb::RtosMutex`, and every public method takes a `MutexLockGuard` on it before doing anything else
+and holds it until it returns.
+
+*Verified by:*
+
+- `ast-rules/handler-lock-guard` (planned): a clang-query or libclang script over the compile database for one
+  structural rule; the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi,
+  base-tostatus, detail-branch, deadline-compare, isr-calls, bitfield-frames)
+- review: Every new public handler method starts with a MutexLockGuard on the handler mutex.
+
+*See also:* C++ Core Guidelines CP.20
+
+*Explained in:* [standards/handler.md](../standards/handler.md)
+
+## KB-CPP-064: Locks follow the fixed order and are held for one call only { #kb-cpp-064 }
+
+**MUST** · library, hal · since 1.0
+
+Locks are taken in the order manager, handler, bus, and all are released before the call returns. A lock is never held
+across a long delay, a callback or a call into another handler.
+
+*Why:* One global order makes deadlock impossible by construction.
+
+*Verified by:*
+
+- review: New lock acquisitions follow manager, handler, bus order and no lock is held across a callback.
+
+*See also:* SEI CERT C++ CON53-CPP; C++ Core Guidelines CP.22
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-065: Handlers lend their driver only through VisitDriver { #kb-cpp-065 }
+
+**MUST** · library · since 1.0
+
+A handler has no public `GetDriver()` and returns no raw pointer or reference to its driver. `VisitDriver(fn)` takes the
+handler's locks, returns `NotInitialized` without calling `fn` when uninitialised, and `fn` must not keep the reference.
+
+*Verified by:*
+
+- `forbidden-patterns/get-driver` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: No VisitDriver callback stores the driver reference.
+
+*Explained in:* [standards/handler.md](../standards/handler.md)
+
+## KB-CPP-066: The bus adapter implements the driver's port with Base calls only { #kb-cpp-066 }
+
+**MUST** · library · since 1.0
+
+A handler's adapter derives from the driver's port base and implements each hook with `Base*` calls, turning a
+`kb_*_err_t` failure into `false`. Its delay hooks call `kb::DelayUs`/`kb::DelayMs` and its `Log` hook forwards to the
+kb-core logger.
+
+*Verified by:*
+
+- review: The adapter's hooks call only Base\*, kb::Delay\* and the kb-core logger.
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md)
+
+*Explained in:* [standards/handler.md](../standards/handler.md)
+
+## KB-CPP-067: Every handler reports diagnostics with the common header first { #kb-cpp-067 }
+
+**MUST** · library · since 1.0
+
+Every handler has `GetDiagnostics()` returning a struct whose first member is `DiagnosticsHeader`, updated on every call
+and copied out under the handler's lock.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: The diagnostics struct starts with DiagnosticsHeader and is copied under the lock.
+
+*Explained in:* [standards/handler.md](../standards/handler.md)
+
+## KB-CPP-068: Channel wrappers live in a fixed array created at start-up { #kb-cpp-068 }
+
+**MUST** · library · since 1.0
+
+Per-channel wrappers a handler hands out live in a fixed array it owns, are created by `EnsureInitialized()` and forward
+through the handler's locked API. They are never `shared_ptr`s and never created on first use.
+
+*Verified by:*
+
+- review: Wrappers are array members built in EnsureInitialized.
+
+*See also:* [ADR-0004](../adr/0004-no-heap.md)
+
+*Explained in:* [standards/handler.md](../standards/handler.md)
+
+## KB-CPP-069: Each Base interface keeps its error list and a ToStatus mapping { #kb-cpp-069 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+Each `Base<Periph>.h` defines its `kb_<periph>_err_t` values with an X-macro list and a `ToStatus()` that maps every
+value to `kb::Status`.
+
+*Verified by:*
+
+- `ast-rules/base-tostatus` (planned): a clang-query or libclang script over the compile database for one structural
+  rule; the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi,
+  base-tostatus, detail-branch, deadline-compare, isr-calls, bitfield-frames)
+
+*See also:* [ADR-0001](../adr/0001-error-model.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-CPP-070: Base interfaces start idempotently and report missing features as Unsupported { #kb-cpp-070 }
+
+**MUST** · library · since 1.0
+
+A `Base*` `Initialize()` is idempotent and `EnsureInitialized()` initialises on first use; neither allocates after
+start-up. An optional capability a port lacks (interrupts, statistics, diagnostics) returns the interface's unsupported
+code rather than failing silently.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+
+*See also:* [ADR-0002](../adr/0002-lifecycle.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-CPP-071: Base interfaces expose operations through non-virtual public functions { #kb-cpp-071 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · library · since 1.0 · enforced from 2027-03-01
+
+A `Base*` class exposes its operations as non-virtual public functions that call protected virtual `*Impl()` functions;
+only capability queries (`IsPinAvailable`, `GetMaxPins`, `SupportsInterrupts`) are public virtual. Callers cannot set a
+raw electrical level.
+
+*Why:* The public wrapper is one place to check arguments, lock and count, whatever the MCU port does.
+
+*Verified by:*
+
+- `ast-rules/base-nvi` (planned): a clang-query or libclang script over the compile database for one structural rule;
+  the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi, base-tostatus,
+  detail-branch, deadline-compare, isr-calls, bitfield-frames)
+
+
+## KB-CPP-072: Every overriding function says override { #kb-cpp-072 }
+
+**MUST** · library, hal, firmware · since 1.0
+
+A function that overrides a virtual function, including every MCU port's `*Impl()`, is marked `override` (or `final`)
+and not repeated as `virtual`.
+
+*Verified by:*
+
+- `clang-tidy/modernize-use-override` (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake
+  compile database
+
+*See also:* C++ Core Guidelines C.128
+
+
+## KB-CPP-073: Drivers are never stored type-erased as void pointers { #kb-cpp-073 }
+
+**SHOULD** · library, hal, firmware · since 1.0
+
+A CRTP driver is never stored or passed as `void*`. Code that needs to treat different drivers alike goes through a
+`Base*` interface or a template.
+
+*Verified by:*
+
+- review: No driver object is held as void\*.
+
+
+## KB-CPP-074: Dispatch is chosen by measurement and changed incrementally { #kb-cpp-074 }
+
+**GUIDE** · library, hal, firmware · since 1.0
+
+Keep hot paths (tight loops, single call sites above 1 kHz) on templates rather than `Base*` calls, and move code to a
+different dispatch only when a measurement shows the cost. Change dispatch step by step: add the new overload or
+interface, migrate callers, then delete the old one.
+
+*See also:* C++ Core Guidelines Per.6
+
+
+## KB-CPP-075: RTOS objects are statically allocated { #kb-cpp-075 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library, hal, firmware · since 1.0 · enforced from 2027-03-01
+
+The RTOS backends create tasks, queues, mutexes and semaphores with the static-allocation API (`xTaskCreateStatic`,
+`xSemaphoreCreateMutexStatic`), never the heap-allocating variants.
+
+*Verified by:*
+
+- `forbidden-patterns/rtos-dynamic-create` (planned): a source scan for a construct the handbook bans; the parameter
+  names the pattern set
+
+*See also:* [ADR-0004](../adr/0004-no-heap.md); NASA/JPL Power of Ten Rule 3
+
+
+## KB-CPP-076: Above the bind, threads, locks and delays go through kb::rtos only { #kb-cpp-076 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library, hal, firmware · since 1.0 · enforced from 2027-03-01
+
+Above the platform bind, code never calls `xTaskCreate`, `xSemaphoreTake`, `vTaskDelay` or another raw RTOS function,
+and never uses `std::thread` or `std::mutex`. The only mutex is `kb::RtosMutex` with `MutexLockGuard`; no other mutex
+wrapper is written.
+
+*Why:* The same code then runs on the FreeRTOS, ThreadX and no-RTOS backends.
+
+*Verified by:*
+
+- `forbidden-patterns/raw-rtos` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-077: Code above kb::rtos builds and runs on every RTOS backend { #kb-cpp-077 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+Code that uses `kb::rtos` works with `KB_RTOS=FREERTOS`, `THREADX` and `NONE`; anything specific to one backend stays in
+that backend.
+
+*Verified by:*
+
+- `kb-rtos-matrix` (planned): kb-core builds and its host tests pass with KB\_RTOS set to FREERTOS (host shim), THREADX
+  and NONE
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-078: The only clock above the bind is kb::MonotonicUs { #kb-cpp-078 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library, hal, firmware · since 1.0 · enforced from 2027-03-01
+
+Above the bind, time is read only with `kb::MonotonicUs()` (64-bit, monotonic, safe in an ISR); never
+`esp_timer_get_time`, `xTaskGetTickCount`, `HAL_GetTick` or `std::chrono::steady_clock`. Waits that may exceed the tick
+counter's wrap (about 71 minutes) use it too.
+
+*Verified by:*
+
+- `forbidden-patterns/raw-clock` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+*See also:* [ADR-0006](../adr/0006-freertos-1khz-tick.md)
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-079: Durations are unsigned integers with a unit, and deadlines compare by subtraction { #kb-cpp-079 }
+
+**MUST** · driver, library, hal, firmware, template · since 1.0
+
+Durations and timestamps are `uint32_t` or `uint64_t` with a unit suffix. A deadline is checked by signed subtraction
+(`static_cast<int32_t>(now - deadline) >= 0`), never with `>` on raw values, so it survives wrap-around.
+
+*Verified by:*
+
+- `ast-rules/deadline-compare` (planned): a clang-query or libclang script over the compile database for one structural
+  rule; the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi,
+  base-tostatus, detail-branch, deadline-compare, isr-calls, bitfield-frames)
+- review: New deadline checks use signed subtraction.
+
+*See also:* [ADR-0006](../adr/0006-freertos-1khz-tick.md)
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-080: Delays never return early { #kb-cpp-080 }
+
+**MUST** · library · since 1.0
+
+A delay waits at least the time asked for. `os_delay_msec` rounds up to whole ticks and adds one; `kb::DelayUs`
+busy-waits on `kb::MonotonicUs()` below 1 ms and rounds 1000 us or more up to a millisecond delay; a delay of 0 returns
+at once or yields and never waits a tick.
+
+*Why:* A datasheet wait that is one tick short works on the bench and fails in the field.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+
+*See also:* [ADR-0006](../adr/0006-freertos-1khz-tick.md)
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-081: Ticks are converted from milliseconds, never written as raw counts { #kb-cpp-081 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library, hal, firmware · since 1.0 · enforced from 2027-03-01
+
+Code that calls the RTOS converts milliseconds with `pdMS_TO_TICKS()` or the `kb::rtos` helpers and never passes a raw
+tick count.
+
+*Verified by:*
+
+- `forbidden-patterns/raw-ticks` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+*See also:* [ADR-0006](../adr/0006-freertos-1khz-tick.md)
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-082: Long busy-waits stay off normal task priorities { #kb-cpp-082 }
+
+**SHOULD** · library, hal, firmware · since 1.0
+
+Busy-waits longer than about 100 us are avoided in tasks above idle priority; use an RTOS delay or a timer.
+
+*Verified by:*
+
+- review: No new busy-wait over 100 us runs above idle priority.
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-083: Fixed-rate work uses a periodic timer or a drift-corrected loop { #kb-cpp-083 }
+
+**MUST** · library, hal, firmware · since 1.0
+
+Work that must run at a fixed rate uses `kb::PeriodicTimer` or a loop that waits until the next absolute deadline, never
+a chain of relative delays.
+
+*Verified by:*
+
+- review: Periodic work is driven by PeriodicTimer or absolute deadlines.
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-084: Interrupt handlers never block { #kb-cpp-084 }
+
+**MUST** · driver, library, hal, firmware · since 1.0
+
+An interrupt handler never takes a mutex, waits or calls a function that may; it signals a task with `OsEventFlags` or a
+`SignalSemaphore` and returns. A manager or handler method that locks is never called from an ISR.
+
+*Verified by:*
+
+- `ast-rules/isr-calls` (planned): a clang-query or libclang script over the compile database for one structural rule;
+  the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi, base-tostatus,
+  detail-branch, deadline-compare, isr-calls, bitfield-frames)
+- review: Every function documented as ISR context calls only ISR-safe functions.
+
+*See also:* SEI CERT C SIG31-C
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-085: Data shared between tasks has exactly one guard { #kb-cpp-085 }
+
+**MUST** · library, hal, firmware · since 1.0
+
+Data read and written by more than one task is protected by one `kb::RtosMutex`, passed through an `OsQueue`, or
+published with a `SeqlockSnapshot`. A plain counter or flag may instead be a lock-free `std::atomic` with its memory
+order stated.
+
+*Verified by:*
+
+- review: Each new piece of cross-task state names its guard.
+
+*See also:* C++ Core Guidelines CP.2
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-CPP-086: Memory-mapped registers are accessed through volatile, only in the MCU port { #kb-cpp-086 }
+
+**MUST** · library, hal · since 1.0
+
+Only MCU port and bind code touches memory-mapped registers, through `volatile`-qualified accesses wrapped in a function
+that names the register. Drivers and code above the bind never touch MMIO.
+
+*Verified by:*
+
+- review: MMIO access is volatile, inside mcu/ or bsp\_bind/, and names its register.
+
+*See also:* SEI CERT C EXP32-C (never access a volatile object through a non-volatile reference)
+
+
+## KB-CPP-087: Interrupt handlers keep their stack small { #kb-cpp-087 }
+
+**SHOULD** · driver, library, hal, firmware · since 1.0
+
+An interrupt handler declares no large local buffer and makes no deep or unbounded call chain; anything substantial is
+deferred to a task.
+
+*Verified by:*
+
+- review: New ISR code has no large locals or deep call chains.
+
+
+## KB-CPP-088: Stack use is bounded, measured and within budget { #kb-cpp-088 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. config/.clang-tidy must enable misc-no-recursion first.
+
+**MUST** · driver, library, hal, firmware (high level and above) · since 1.0 · enforced from 2027-03-01
+
+Target code is not recursive, and each task and interrupt stack has a budget that the compiler's stack-usage report
+(`-fstack-usage`) shows it stays within.
+
+*Why:* A stack overflow on a microcontroller corrupts memory silently long before anything faults.
+
+*Verified by:*
+
+- `stack-usage` (planned): the target build with -fstack-usage reports every task entry and ISR within the stack budget
+  in the repository's budget file; unbounded (dynamic) frames fail
+- `clang-tidy/misc-no-recursion` (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake compile
+  database
+
+*See also:* NASA/JPL Power of Ten Rule 1 (no recursion)
+
+
+## KB-CPP-089: Task stacks, priorities and core affinity are named in one header { #kb-cpp-089 }
+
+**MUST** · firmware · since 1.0
+
+A product names every task's stack size, priority and core affinity in one header (`<board>::app::kTaskConfig`) and
+creates tasks through `kb::rtos` with those values, never with literals at the call site.
+
+*Verified by:*
+
+- `forbidden-patterns/literal-task-config` (planned): a source scan for a construct the handbook bans; the parameter
+  names the pattern set
+- review: New tasks take their stack, priority and core from kTaskConfig.
+
+*Explained in:* [standards/product.md](../standards/product.md)
+
+## KB-CPP-090: Applications never put the CPU to sleep themselves { #kb-cpp-090 }
+
+**SHOULD** · firmware · since 1.0
+
+Application code delays through the OS abstraction and never calls a sleep or wait-for-interrupt primitive
+(`esp_light_sleep_start`, `__WFI`) directly; the HAL chooses power modes.
+
+*Verified by:*
+
+- review: No application code calls a CPU sleep primitive.
+
+
+## KB-CPP-091: Managers live in static storage owned by the board facade { #kb-cpp-091 }
+
+**MUST** · hal · since 1.0
+
+Managers are objects in static storage owned by the board facade, which is the only way to reach them; there are no
+per-manager singletons. Any allocation during `Initialize` is on the HAL's start-up allowlist.
+
+*Verified by:*
+
+- `allocation-allowlist` (planned): a host run with malloc and operator new wrapped records every allocation; any
+  outside start-up or not on the HAL's allowlist fails
+- review: New managers are facade members and add no GetInstance().
+
+*See also:* [ADR-0004](../adr/0004-no-heap.md); [ADR-0005](../adr/0005-kb-hal-common.md)
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-CPP-092: Managers are thread-safe and report failure state consistently { #kb-cpp-092 }
+
+**MUST** · hal · since 1.0
+
+Every manager method either holds the manager's `kb::RtosMutex` or delegates to a thread-safe handler. Every fallible
+call returns `kb::Status`; the manager keeps the last non-`Ok` status for `GetLastError()` until `ClearLastError()`, and
+while a dependency has failed every call returns `DependencyNotReady`.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: Each manager method is locked or delegates to a locked handler.
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-CPP-093: Diagnostics are collected through one facade call into a sink { #kb-cpp-093 }
+
+**MUST** · hal · since 1.0
+
+The facade's `CollectDiagnostics()` visits every manager, and each manager writes its state and its handlers'
+diagnostics headers into the sink without logging. During start-up the facade gives the kb-core logger its sink.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: New managers contribute to CollectDiagnostics and do not log from it.
+
+*See also:* [ADR-0005](../adr/0005-kb-hal-common.md)
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-CPP-094: The platform bind uses fixed verbs and fixed slots { #kb-cpp-094 }
+
+**MUST** · hal · since 1.0
+
+Bind functions are named `Create*`, `Destroy*` or `Acquire*`; `Create*` returns `nullptr` or `false` on failure and is
+idempotent per slot. Buses are slots numbered below `kMax*`, and the bind stores its objects statically.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: New bind functions use the Create/Destroy/Acquire verbs and slot limits.
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-CPP-095: Raw pin numbers appear only in the pin table and the bind { #kb-cpp-095 }
+
+!!! note "Retired"
+
+    Duplicate of KB-ARCH-017, merged when the rules were loaded. Replaced by KB-ARCH-017.
+
+**MUST** · hal, firmware · since 1.0
+
+GPIO numbers and other physical pin identifiers appear only in the board's pin table and the bind; managers and products
+use functional names.
+
+*Verified by:*
+
+- `forbidden-patterns/raw-pins` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+- review: No pin number appears outside the pin table and bind.
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-CPP-096: Borrowed references never outlive their owner { #kb-cpp-096 }
+
+**MUST** · library, hal, firmware · since 1.0
+
+A reference or pointer to an object owned elsewhere (a manager's component, a handler's driver, a caller's buffer) is
+never stored beyond the owner's lifetime. Getters return references to objects the owner keeps.
+
+*Verified by:*
+
+- `clang-tidy/bugprone-dangling-handle` (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake
+  compile database
+- review: No new member stores a borrowed reference that can outlive its owner.
+
+
+## KB-CPP-097: Scoped resources are released by RAII guards { #kb-cpp-097 }
+
+**SHOULD** · driver, library, hal, firmware, template · since 1.0
+
+A lock, critical section, chip select or other resource held for a scope is released by a guard object's destructor,
+never by a matching manual call on every path; guards delete their copy operations. Hardware is still acquired in
+`Initialize()`, not in a constructor (KB-CPP-057).
+
+*Verified by:*
+
+- review: New scoped resources are released by a guard.
+
+*See also:* C++ Core Guidelines R.1
+
+
+## KB-CPP-098: Constants are constexpr, not macros { #kb-cpp-098 }
+
+**SHOULD** · driver, library, hal, firmware, template · since 1.0
+
+Constants and simple functions are `constexpr` variables, enums or `constexpr` functions, not macros. Macros are left
+for conditional compilation and the few cases that need the preprocessor.
+
+*Verified by:*
+
+- `clang-tidy/cppcoreguidelines-macro-usage` (implemented): a clang-tidy check from config/.clang-tidy, run with the
+  CMake compile database
+- `clang-tidy/modernize-macro-to-enum` (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake
+  compile database
+
+*See also:* C++ Core Guidelines ES.31
+
+
+## KB-CPP-099: Const by default { #kb-cpp-099 }
+
+**SHOULD** · driver, library, hal, firmware, template · since 1.0
+
+Member functions that do not change the object are `const`, and reference parameters are `const&` unless the function
+changes the argument. Locals and members that never change are `const` or `constexpr`.
+
+*Verified by:*
+
+- `clang-tidy/readability-make-member-function-const` (implemented): a clang-tidy check from config/.clang-tidy, run
+  with the CMake compile database
+
+*See also:* C++ Core Guidelines Con.2
+
+
+## KB-CPP-100: Large objects are passed by const reference, and moved when ownership moves { #kb-cpp-100 }
+
+**SHOULD** · driver, library, hal, firmware, template · since 1.0
+
+Parameters that are expensive to copy are passed by `const&`; cheap types by value. Where a value's ownership passes to
+the callee, it is moved rather than copied.
+
+*Verified by:*
+
+- `clang-tidy/performance-unnecessary-value-param` (implemented): a clang-tidy check from config/.clang-tidy, run with
+  the CMake compile database
+
+*See also:* C++ Core Guidelines F.16
+
+
+## KB-CPP-101: Static initialisation never depends on translation-unit order { #kb-cpp-101 }
+
+**MUST** · library, hal, firmware · since 1.0
+
+No object with static storage is initialised from another translation unit's static object. Objects that need each other
+are initialised explicitly, in order, at start-up.
+
+*Verified by:*
+
+- `clang-tidy/cppcoreguidelines-interfaces-global-init` (implemented): a clang-tidy check from config/.clang-tidy, run
+  with the CMake compile database
+- review: New static objects do not read other translation units' statics during initialisation.
+
+*See also:* C++ Core Guidelines I.22; SEI CERT C++ DCL56-CPP
+
+
+## KB-CPP-102: Members are initialised in declaration order { #kb-cpp-102 }
+
+**MUST** · driver, library, hal, firmware, template · since 1.0
+
+Constructor initialiser lists name members in the order they are declared, and reference members are initialised there
+rather than assigned in the body; members that depend on each other are declared in dependency order.
+
+*Verified by:*
+
+- `compiler-warnings/-Wreorder` (implemented): the build is warning-free with the named flag and -Werror
+- `clang-tidy/cppcoreguidelines-prefer-member-initializer` (implemented): a clang-tidy check from config/.clang-tidy,
+  run with the CMake compile database
+
+*See also:* C++ Core Guidelines C.47
+
+
+## KB-CPP-103: Fixed-width integer types where size matters { #kb-cpp-103 }
+
+**SHOULD** · driver, library, hal, firmware, template · since 1.0
+
+Register values, wire fields, counters and anything whose width matters use `<cstdint>` fixed-width types (`uint8_t`,
+`int32_t`); `size_t` for sizes and indices, and `bool` for truth values. Plain `int` and `long` are not used for such
+data.
+
+*Verified by:*
+
+- review: New register, frame and counter fields use fixed-width types.
+
+
+## KB-CPP-104: Integer arithmetic does not overflow or narrow silently { #kb-cpp-104 }
+
+**MUST** · driver, library, hal, firmware, template · since 1.0
+
+Arithmetic on sizes, offsets, register values and durations cannot overflow a signed type or narrow without an explicit,
+range-checked conversion. The build is clean with `-Wconversion` and `-Wsign-conversion`.
+
+*Verified by:*
+
+- `compiler-warnings/-Wconversion` (implemented): the build is warning-free with the named flag and -Werror
+- `compiler-warnings/-Wsign-conversion` (implemented): the build is warning-free with the named flag and -Werror
+- `clang-tidy/bugprone-narrowing-conversions` (implemented): a clang-tidy check from config/.clang-tidy, run with the
+  CMake compile database
+- `clang-tidy/bugprone-implicit-widening-of-multiplication-result` (implemented): a clang-tidy check from
+  config/.clang-tidy, run with the CMake compile database
+
+*See also:* SEI CERT C INT31-C; SEI CERT C INT32-C; C++ Core Guidelines ES.46
+
+
+## KB-CPP-105: Bit operations use unsigned operands and shifts stay within the width { #kb-cpp-105 }
+
+**MUST** · driver, library, hal, firmware, template · since 1.0
+
+Masks, shifts and bit tests use unsigned operands, and no shift count is negative or at least the width of the shifted
+type.
+
+*Verified by:*
+
+- `cppcheck/shiftTooManyBits` (implemented): cppcheck in strict mode; the parameter names the cppcheck message id
+- `cppcheck/shiftNegative` (implemented): cppcheck in strict mode; the parameter names the cppcheck message id
+- review: New bit manipulation uses unsigned operands.
+
+*See also:* SEI CERT C INT34-C; C++ Core Guidelines ES.101
+
+
+## KB-CPP-106: Register fields and wire bytes are packed with masks, shifts and explicit byte order { #kb-cpp-106 }
+
+**MUST** · driver, library, hal, template · since 1.0
+
+Register fields and multi-byte wire values are built and read with masks, shifts and explicit byte order. Bit fields do
+not describe hardware or wire layouts, and a byte buffer is never cast or `memcpy`'d into a multi-byte integer whose
+byte order is assumed.
+
+*Why:* Bit-field order and padding are implementation-defined, and byte order differs between targets.
+
+*Verified by:*
+
+- `ast-rules/bitfield-frames` (planned): a clang-query or libclang script over the compile database for one structural
+  rule; the parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi,
+  base-tostatus, detail-branch, deadline-compare, isr-calls, bitfield-frames)
+- review: New register and frame code uses masks, shifts and explicit byte order.
+
+*See also:* SEI CERT C EXP39-C
+
+
+## KB-CPP-107: Register maps are written as tables { #kb-cpp-107 }
+
+**GUIDE** · driver, template · since 1.0
+
+Describe a chip's registers once, as a table (an X-macro list or `constexpr` array of address, width, reset value and
+access), and derive accessors from it, rather than scattering addresses through the code.
+
+
+## KB-CPP-108: Parsers of external input check length and type before use { #kb-cpp-108 }
+
+**MUST** · driver, library, hal, firmware, template · since 1.0
+
+Code that parses bytes from outside the program (bus frames, CANopen, Modbus, OTA images, CRC-protected records) checks
+length, type and range before reading any field and returns an error for malformed input.
+
+*Verified by:*
+
+- `sanitizers` (planned): host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
+- review: Each new parser rejects short, oversized and mistyped input before reading fields.
+
+*See also:* SEI CERT C ARR30-C; NASA/JPL Power of Ten Rule 7
+
+
+## KB-CPP-109: Frame, CRC and protocol parsers have fuzz targets { #kb-cpp-109 }
+
+!!! note "Retired"
+
+    Duplicate of KB-TST-020, merged when the rules were loaded. Replaced by KB-TST-020.
+
+**MUST** · driver, library, hal (high level and above) · since 1.0
+
+Each parser of external input has a libFuzzer target built on the host and run in CI for a fixed time with
+AddressSanitizer and UndefinedBehaviorSanitizer.
+
+*Verified by:*
+
+- `fuzzing` (planned): each parser's libFuzzer target runs on the host for a fixed time under ASan and UBSan without a
+  finding
+
+
+## KB-CPP-110: At the safety level, code follows the MISRA subset in the compliance matrix { #kb-cpp-110 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware (safety level and above) · since 1.0 · enforced from 2027-03-01
+
+Repositories at the safety level follow the MISRA C++:2023 and MISRA C:2025 subset the compliance matrix adopts, checked
+by a MISRA-capable analyser, and every departure is a recorded deviation.
+
+*Verified by:*
+
+- `misra-checker` (planned): a commercial MISRA C++:2023 / C:2025 checker run, mapped to the compliance matrix (safety
+  level)
+
+*See also:* MISRA C++:2023; MISRA C:2025
+
+*Explained in:* [deviations.md](../deviations.md)
+
+## KB-CPP-111: Comments explain why, and datasheet references are exact { #kb-cpp-111 }
+
+**SHOULD** · all · since 1.0
+
+Comments say why the code does what it does, not what it does. A reference to a datasheet names the document, section
+and table or register.
+
+*Verified by:*
+
+- review: New comments explain intent and datasheet references name section and table.
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-112: No commented-out code, untracked TODOs, author banners or tool attribution { #kb-cpp-112 }
+
+**MUST** · all · since 1.0
+
+Source files contain no commented-out code, no `TODO` without an issue link, no author, date or copyright banner (the
+SPDX line carries the licence), and no line crediting a tool or agent.
+
+*Why:* Git already records who wrote what and when; banners go stale and attribution lines leak tooling.
+
+*Verified by:*
+
+- `forbidden-patterns/comment-hygiene` (planned): a source scan for a construct the handbook bans; the parameter names
+  the pattern set
+- review: The change adds no commented-out code, untracked TODO, banner or attribution line.
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-CPP-113: Class members are grouped by access { #kb-cpp-113 }
+
+**GUIDE** · driver, library, hal, firmware, template · since 1.0
+
+Within a class, list public members first, then protected, then private; constructors and destructor first in their
+section and data members last.
+
+
+## KB-CPP-114: Slow start-up steps are opt-in or visible { #kb-cpp-114 }
+
+**GUIDE** · library, hal, firmware · since 1.0
+
+A start-up step that can take long (probing a bus with retries, waiting for a chip to boot) is either behind a
+configuration option or reported to the caller, so a board does not appear to hang at boot.
 

@@ -4,7 +4,10 @@ nav:
   - How rules work: how-rules-work.md
   - Assurance levels: assurance-levels.md
   - Rules:
+      - Architecture: rules/architecture.md
       - C++ code: rules/cpp.md
+      - C code: rules/c.md
+      - Hardware and porting: rules/hardware.md
       - Build and CMake: rules/build.md
       - Testing: rules/testing.md
       - Documentation: rules/docs.md

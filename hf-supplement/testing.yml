@@ -1,0 +1,60 @@
+---
+area: testing
+prefix: HF-TST
+title: Testing (HardFOC supplement)
+intro: >-
+  What HardFOC adds to the Kokeb testing rules for the Flux and Vortex board HALs and the HardFOC bench boxes.
+rules:
+  - id: HF-TST-001
+    title: Flux and Vortex HAL performance tests assert thresholds from a committed file
+    statement: >-
+      On-target performance tests of the Flux and Vortex HAL managers (GPIO, ADC, valve and motor-controller
+      paths) assert time, throughput and memory limits read from a thresholds file in the repository, not
+      constants in the test.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify:
+      - review: Changed thresholds come with the bench measurement that justifies them.
+    notes: The figures in hf:process/performance.md are unmeasured and are not carried over as thresholds.
+    origin: ["hf:process/testing-requirements.md:255-325", "hf:process/performance.md:41-47 (left out)"]
+
+  - id: HF-TST-002
+    title: Flux and Vortex managers have on-target stress tests
+    statement: >-
+      Each thread-safe Flux and Vortex manager has a stress test on the board: maximum concurrency, runs of one
+      minute or more, injected errors and exhausted resources, with no call failing because of contention.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: The stress test covers concurrency, a long run, error injection and exhaustion.
+    origin:
+      - "hf:process/testing-requirements.md:355-429 (1% failures under contention; tightened)"
+      - "kb:standards/hal.md (thread-safe managers never fail from contention)"
+
+  - id: HF-TST-003
+    title: On-target runs use the ESP32-S3 and ESP32-C6 bench boxes and record evidence
+    statement: >-
+      HardFOC hardware tests run on the ESP32-S3 and ESP32-C6 bench boxes (or the board under test attached to
+      one), and each run writes the record KB-TST-023 describes, naming the bench box.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, hal, firmware]}
+    verify:
+      - review: The pull request or release links the bench run record.
+    origin: ["hf:agents/driver-authoring.md:229", "hf:CONTRIBUTING.md (bench boxes)"]
+
+  - id: HF-TST-004
+    title: HardFOC HAL test suites may use GoogleTest
+    statement: >-
+      HardFOC board HAL suites may use GoogleTest for fixtures and parameterised tests. Kokeb drivers keep the
+      template's own harness so they build with no third-party test dependency.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    origin: ["hf:process/testing-requirements.md:438-442"]

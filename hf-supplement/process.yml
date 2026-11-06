@@ -1,0 +1,208 @@
+---
+area: process
+prefix: HF-PRC
+title: Process (HardFOC supplement)
+intro: >-
+  What HardFOC repositories add to the Kokeb git, CI and repository rules: the release cascade through the HardFOC
+  repository graph, the handbook submodule, HAL naming, hardware specifications and where people talk. Every KB-GIT,
+  KB-CI and KB-REPO rule still applies; HardFOC's develop, hotfix and release branches are retired.
+rules:
+  - id: HF-PRC-001
+    title: Downstream HardFOC repositories open their bump within 24 hours of a release
+    statement: >-
+      When `hf-core` releases, each `hf-hal-<board>` opens its pin-bump pull request within 24 hours and releases
+      once its CI is green; applications then bump the HAL on their own product cadence.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal, firmware]}
+    verify:
+      - review: The bump pull request was opened within a day of the upstream release and links it.
+    notes: The order of the cascade is HF-AGT-002; this rule adds the time limit.
+    origin:
+      - "hf:process/github-workflows.md:271-280 (cascade releases)"
+      - "hf:agents/release-and-submodules.md:36,200-216 (urgent cascade in 24-48 h)"
+      - "hf:agents/release-and-submodules.md (hotfix/* branches; superseded by KB-GIT-006)"
+
+  - id: HF-PRC-002
+    title: The HardFOC handbook submodule pins a calendar release tag
+    statement: >-
+      Repositories that carry the handbook keep it at `docs/hf-development-handbook`, pinned to a calendar tag
+      such as `v2025.04.0`, and bump it in its own pull request. Handbook releases are batched, not cut per edit.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal, firmware]}
+    verify:
+      - review: The handbook gitlink is a tagged commit and moved in a pull request that changes nothing else.
+    notes: >-
+      Kokeb repositories link the handbook rather than vendor it; this applies only while HardFOC repositories
+      still carry the submodule.
+    origin:
+      - "inv:A-DOC-04, A-GHW-32, A-AG2-116"
+      - "hf:CONTRIBUTING.md:16 (pin the handbook to a commit; superseded by KB-GIT-028)"
+
+  - id: HF-PRC-003
+    title: A new board revision is a new HAL repository
+    statement: >-
+      A board revision that changes the hardware gets a new repository named `hf-hal-<board>-v<N>`. A new MCU
+      family for the same board is a new `bsp_bind/<family>/` in the existing HAL, not a fork.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: The repository name carries the board revision, and MCU families share one HAL.
+    origin: ["inv:A-PRT-13, A-PRT-14, A-AG1-140"]
+
+  - id: HF-PRC-004
+    title: HardFOC HALs add their facade and managers beside the Kokeb HAL layout
+    statement: >-
+      A HardFOC HAL keeps its `lib/api` facade, `lib/managers` and the `docs/hal/` hub next to the `lib/common`,
+      `lib/core`, `board/` and `bsp_bind/` folders that KB-REPO-010 requires.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: The HardFOC folders add to the KB-REPO-010 layout and replace none of it.
+    origin: ["inv:A-DOC-04", "hf:README.md:36-43"]
+
+  - id: HF-PRC-005
+    title: Hardware specifications keep the specifications/ layout
+    statement: >-
+      `specifications/` has `boards/`, `peripherals/`, `protocols/`, `environment/` and `templates/`, and every
+      new specification starts from its template.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [docs]}
+    verify:
+      - review: A new specification sits in its folder and keeps every section of its template.
+    origin: ["inv:A-SPC-02"]
+
+  - id: HF-PRC-006
+    title: A hardware change starts with its specification pull request
+    statement: >-
+      A change to a board lands first as a specification pull request, in the same pull request as the BOM change
+      and before hardware ships, listing every HAL repository it affects; the HAL change, HAL tag and application
+      bump follow.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [docs, hal]}
+    verify:
+      - review: The specification pull request lists the affected HAL repositories and is complete before merge.
+    notes: A's review by hardware and firmware leads is replaced by the solo review mode (KB-GIT-016).
+    origin: ["inv:A-SPC-15, A-SPC-16, A-SPC-21, A-SPC-24"]
+
+  - id: HF-PRC-007
+    title: A certified specification is frozen and tagged
+    statement: >-
+      Certifying a board sets the specification's `frozen:` field and tags `hardware-cert/<board>-<rev>-<cert>-<date>`.
+      A frozen file is never edited again; an amendment is a new file.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [docs]}
+    verify: [{check: frozen-specs}]
+    notes: >-
+      Warns until 2027-03-01, then fails CI. The release-tags ruleset matches only `v*.*.*`, so `hardware-cert/`
+      tags are not protected from deletion or moves yet.
+    origin: ["inv:A-SPC-05"]
+
+  - id: HF-PRC-008
+    title: Specifications not reviewed for a year are flagged
+    statement: >-
+      Each specification records when it was last reviewed. One older than 12 months is treated as suspect until
+      someone checks it against the hardware.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [docs]}
+    verify:
+      - review: Specifications the change relies on were reviewed within the last 12 months.
+    origin: ["inv:A-SPC-22"]
+
+  - id: HF-PRC-009
+    title: A HAL change keeps the default-toggle build green
+    statement: >-
+      A pull request to a HardFOC HAL leaves the HAL building with every toggle at its default, as an application
+      that changes nothing would build it.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: CI built the HAL with default toggles on this pull request.
+    origin: ["inv:A-REV-39"]
+
+  - id: HF-PRC-010
+    title: HardFOC release notes name the bench board and target
+    statement: >-
+      The bench status a release states (KB-GIT-022) names the HardFOC board (Vortex or Flux) and the target
+      (ESP32-S3 or ESP32-C6) it ran on, or says CI-only.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    verify:
+      - review: The release's bench line names the board and the target.
+    origin: ["inv:B-REL-10", "hf:agents/pr-engineering.md:41-43 (bench on Vortex, ESP32-S3, ESP32-C6)"]
+
+  - id: HF-PRC-011
+    title: Ask in the HardFOC channels, and ping an idle review after 48 hours
+    statement: >-
+      Build and toolchain questions go to `#hardfoc-build` on Slack, design questions to GitHub Discussions, and
+      bugs to the affected repository. A pull request idle for 48 hours gets a ping in Slack.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: Decisions reached in Slack are summarised on the issue or pull request.
+    origin:
+      - "inv:A-AG2-70, A-AG2-87"
+      - "hf:agents/onboarding.md:142-146 (kind/discussion label; superseded by the org label set)"
+
+  - id: HF-PRC-012
+    title: Process helpers live in a repository, not in an editor folder
+    statement: >-
+      Automation the HardFOC docs rely on, such as splitting work into pull requests, is a skill in the
+      repository's `.claude/skills/`, not a Cursor skill in a personal path the docs link outside the repository.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: No process page links to a skill or script outside the repository.
+    notes: A's babysit skill also squash-merges by itself, which KB-AGT rules forbid; it is not carried over.
+    origin: ["hf:process/github-workflows.md:119", "hf:agents/pr-engineering.md:103,218,284-285"]
+
+  - id: HF-PRC-013
+    title: A HardFOC repository's licence is the same everywhere it is stated
+    statement: >-
+      LICENSE, the component manifest, package metadata and README badges of a HardFOC repository name one
+      licence, the one its owner chose (KB-REPO-020).
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: LICENSE, manifest and badges agree.
+    notes: The handbook and the Vortex HAL say GPL-3.0 in places and MIT in others today.
+    origin: ["inv:A-MAN-02, A-TOP-08", "hf:README.md:49-51", "hf:standards/architecture.md:7 (MIT badge)"]
+
+  - id: HF-PRC-014
+    title: Factory configuration lives in main/factory/ and goes through the HAL
+    statement: >-
+      A product's factory configuration protocol sits in `main/factory/` and reaches the UART or USB serial port
+      through the HAL's manager, never through a `Base*` interface directly.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [firmware]}
+    verify:
+      - review: Factory code includes HAL managers only.
+    origin: ["inv:A-AG1-51 (BaseUart access; narrowed by B-PRD-04)"]

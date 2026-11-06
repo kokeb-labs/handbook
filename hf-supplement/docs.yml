@@ -1,0 +1,190 @@
+---
+area: docs
+prefix: HF-DOC
+title: Documentation (HardFOC supplement)
+intro: >-
+  What HardFOC adds to the Kokeb documentation rules: hardware and protocol specifications, how HAL and application
+  READMEs point at them, and the HAL component manifest. Every KB-DOC rule still applies.
+rules:
+  - id: HF-DOC-001
+    title: Hardware specifications are the source of truth for each board and protocol
+    statement: >-
+      Each HardFOC board and protocol has a specification in the HardFOC handbook's `specifications/`; it never
+      lives only in a HAL README. The specification and the HAL repository link each other.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, docs]}
+    verify:
+      - review: The HAL README links its board spec and the spec links the HAL repository and tag.
+    origin:
+      - "hf:specifications/README.md:3,18,199 (A-SPC-01)"
+      - "hf:specifications/README.md:198 (A-SPC-18)"
+
+  - id: HF-DOC-002
+    title: A HardFOC HAL README has a Supported hardware section
+    statement: >-
+      A HardFOC HAL's README has a "Supported hardware" section naming each board revision it supports and linking
+      its specification, alongside the quickstart, the manager list and a link to the examples.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [hal]}
+    verify: [{check: heading-skeleton/hf-hal-readme}]
+    notes: Warns until 2027-03-01, then fails CI. The section sits under KB-DOC-015's What it does.
+    origin:
+      - "hf:specifications/README.md:71,112 (A-SPC-04)"
+      - "hf:porting/custom-board.md:351 (A-PRT-34)"
+
+  - id: HF-DOC-003
+    title: An application README links the specifications it depends on
+    statement: An application's README links the board specification and each protocol specification it consumes.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [firmware]}
+    verify:
+      - review: The README links the board and protocol specs the application uses, at the revision it targets.
+    origin: ["hf:specifications/README.md:115 (A-SPC-09)"]
+
+  - id: HF-DOC-004
+    title: One specification file per hardware revision, named by revision
+    statement: >-
+      Hardware revisions are `rev<Major.Minor[.Patch]>`, each with a defined electrical meaning, and each has its
+      own file `<board>-rev<X.Y[.Z]>.md`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [docs]}
+    verify: [{check: hf-spec-names}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "hf:specifications/README.md:55-61 (A-SPC-03)"
+      - "hf:specifications/README.md:200 (A-SPC-20)"
+
+  - id: HF-DOC-005
+    title: Every specification starts with its metadata block
+    statement: >-
+      A specification starts with a metadata block giving spec type, name, revision or version, status, the HAL
+      repositories, boards or driver it covers, authored and last-reviewed dates, and whether it is frozen.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [docs]}
+    verify: [{check: hf-spec-metadata}]
+    notes: >-
+      Warns until 2027-03-01, then fails CI. A uses YAML front matter for this block; KB-DOC-041 allows front matter
+      only for `hide:` on a published site, so either the HardFOC specs site records a waiver of KB-DOC-041 or the
+      block becomes a table under the title.
+    origin:
+      - "hf:specifications/README.md:87-102 (A-SPC-06)"
+      - "hf:specifications/templates/*-template.md:1-11"
+
+  - id: HF-DOC-006
+    title: A board specification covers the board in full
+    statement: >-
+      A board specification links its status, HAL tag, schematic and mechanical files in its header, and covers
+      identity, power tree, connectors, pin allocation, chips, boot, indicators, mechanical, environment, errata and
+      history. Its pin table lists every MCU pin in order, NC and reserved pins included.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [docs]}
+    verify:
+      - check: heading-skeleton/hf-board-spec
+      - review: The pin allocation table has one row per MCU pin.
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "hf:specifications/README.md:122-134 (A-SPC-11)"
+      - "hf:specifications/templates/board-spec-template.md:16-19 (A-SPC-26)"
+      - "hf:specifications/templates/board-spec-template.md:72-80 (A-SPC-25)"
+
+  - id: HF-DOC-007
+    title: A protocol specification covers layers, objects, states, timing, errors and conformance
+    statement: >-
+      A protocol specification covers the layer map, object dictionary, state machine, timing, error codes with
+      their meaning and recovery, conformance tests and pointers to the implementation.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [docs]}
+    verify: [{check: heading-skeleton/hf-protocol-spec}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "hf:specifications/README.md:157-164 (A-SPC-14)"
+      - "hf:specifications/templates/protocol-spec-template.md:85-91 (A-SPC-31)"
+
+  - id: HF-DOC-008
+    title: Specifications start from a template and keep every section
+    statement: >-
+      A new specification copies its template and keeps every section; a section that does not apply says "Not
+      applicable" and why. The templates themselves change only through a reviewed pull request by their owners.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [docs]}
+    verify:
+      - review: The new spec has every template section; templates/ changes are approved by CODEOWNERS.
+    origin:
+      - "hf:specifications/README.md:192 (A-SPC-17)"
+      - "hf:specifications/templates/README.md:3,15 (A-SPC-23)"
+
+  - id: HF-DOC-009
+    title: Specifications record which HAL tag supports each hardware revision
+    statement: >-
+      Each board specification names the HAL repository and the tags that support that revision, and is updated
+      when a HAL release adds or drops one.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, docs]}
+    verify:
+      - review: A HAL release that changes supported revisions updates the spec's HAL repositories and tags.
+    origin: ["hf:porting/README.md:121 (A-PRT-15)", "hf:specifications/README.md:63-69"]
+
+  - id: HF-DOC-010
+    title: The specification's pin table agrees with the HAL's pin table
+    statement: >-
+      The pin table in `board/<board>/` of the HAL is the one code reads; the board specification's pin allocation
+      agrees with it, and code comments link the specification rather than copy pins.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: Changed pins match between board/<board>/ and the board spec.
+    notes: >-
+      A made the specification the single source of the pinout; the Kokeb HAL standard makes the board pin table in
+      code the single source, and that wins. The two are checked against each other instead.
+    origin: ["hf:specifications/README.md:199 (narrowed; B-HAL-23 wins) (A-SPC-19)"]
+
+  - id: HF-DOC-011
+    title: A new HAL manager is documented and listed in the component manifest
+    statement: >-
+      A new or extended manager in a HardFOC HAL gets a row in the component manifest (tags, description,
+      dependencies) and appears on the HAL's Architecture page.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: The component manifest and Architecture page list the new manager.
+    origin:
+      - "hf:agents/manager-design.md:309 (A-AG2-49; header docs covered by KB-DOC-004)"
+      - "hf:process/component-manifest.md:214-221,320 (A-MAN-09)"
+
+  - id: HF-DOC-012
+    title: HardFOC handbook pages go in the folder for their kind
+    statement: >-
+      In the HardFOC handbook a concept goes in `process/`, an agent playbook in `agents/`, a walkthrough in
+      `porting/`, a style rule in `standards/` and a hardware description in `specifications/`.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [docs]}
+    origin: ["hf:standards/review-checklist.md:140-144,252 (A-REV-46)", "hf:agents/documentation-agent.md:28-76"]

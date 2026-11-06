@@ -1,0 +1,61 @@
+---
+area: agents
+prefix: HF-AGT
+title: Coding agents (HardFOC supplement)
+intro: >-
+  What agents working in HardFOC repositories add to the Kokeb agents rules: the HardFOC repository graph, the
+  bench boards and where people talk. Every KB-AGT rule still applies.
+rules:
+  - id: HF-AGT-001
+    title: Bench steps name the HardFOC board and target
+    statement: >-
+      When a HardFOC pull request is marked not verified on hardware (KB-AGT-012), the bench steps name the board
+      (Vortex or Flux) and target (ESP32-S3 or ESP32-C6) to run them on, and the build the person should flash.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    verify:
+      - review: The bench steps name the board, the target and the build to flash.
+    page: standards/agents.md#hardware-and-safety
+    origin: ["hf:agents/pr-engineering.md:41-43 (Verification: ESP32-S3, ESP32-C6, Vortex bench)"]
+
+  - id: HF-AGT-002
+    title: Cross-repository HardFOC changes follow the pin graph bottom-up
+    statement: >-
+      A change that spans HardFOC repositories lands in pin order: `hf-<chip>-driver`, then `hf-core` (and
+      `hf-internal-interface-wrap`, `hf-pincfg`), then each `hf-hal-<board>`, then applications. Each pin bump is its
+      own pull request.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: The pull request links the lower-layer pull request or release it depends on.
+    page: standards/agents.md#working-across-repositories
+    origin: ["hf:agents/release-and-submodules.md:14-34 (repo graph and release kinds)"]
+
+  - id: HF-AGT-003
+    title: An agent moves a stuck discussion to a person, not to more comments
+    statement: >-
+      When a review thread runs past about six round trips, the agent stops replying, summarises the open question
+      on the pull request and asks the owner to take it to the HardFOC Slack or a call; the outcome is written back
+      on the pull request.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    page: standards/agents.md
+    origin: ["hf:agents/pr-engineering.md:178", "hf:agents/onboarding.md:142 (#hardfoc-build)"]
+
+  - id: HF-AGT-004
+    title: An agent new to HardFOC can place a file in its layer before it changes code
+    statement: >-
+      Before a first change in HardFOC code an agent can say which layer a file belongs to and why, and tell CRTP
+      drivers from NVI interfaces, handlers from managers, and the HAL initialisation steps.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    page: standards/agents.md#what-to-read-first
+    origin: ["hf:agents/onboarding.md:154-158 (A-AG2-71)"]

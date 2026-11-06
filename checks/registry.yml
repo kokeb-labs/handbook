@@ -145,3 +145,404 @@ checks:
   - id: agents-files
     status: planned
     summary: AGENTS.md and CLAUDE.md exist and the handbook sections generated into them are current
+
+  # -- C and C++ (rule loading) ---------------------------------------------------------------------------------
+  - id: include-allowlist
+    status: planned
+    parametric: true
+    summary: a script over the include graph that fails on a header outside the allowed set for the
+      directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+  - id: ast-rules
+    status: planned
+    parametric: true
+    summary: a clang-query or libclang script over the compile database for one structural rule; the
+      parameter names it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi,
+      base-tostatus, detail-branch, deadline-compare, isr-calls, bitfield-frames)
+  - id: mcu-header-guards
+    status: planned
+    summary: 'every header under interfaces/mcu/<family>/ starts with an #error guard on KB_MCU_<FAMILY>'
+  - id: driver-names
+    status: planned
+    summary: the driver's namespace, class, CMake target, macro prefix and Kconfig prefix all derive
+      from the chip name in the repository name (driver-<chip>)
+  - id: error-enum-values
+    status: planned
+    parametric: true
+    summary: a compiled test asserts the enumerator values of an error enum against the table on the
+      errors page; the parameter names the enum (driver, kb-status)
+  - id: unused-error-codes
+    status: planned
+    summary: every chip-specific Error enumerator (16 and up) is returned somewhere in src/ or inc/
+  - id: result-type-traits
+    status: planned
+    summary: static_asserts that the driver's Result<T> is [[nodiscard]], has ok() and an explicit bool
+      conversion, and that T is default-constructible and trivially copyable
+  - id: kb-rtos-matrix
+    status: planned
+    summary: kb-core builds and its host tests pass with KB_RTOS set to FREERTOS (host shim), THREADX
+      and NONE
+  - id: stack-usage
+    status: planned
+    summary: the target build with -fstack-usage reports every task entry and ISR within the stack budget
+      in the repository's budget file; unbounded (dynamic) frames fail
+  - id: fuzzing
+    status: planned
+    summary: each parser's libFuzzer target runs on the host for a fixed time under ASan and UBSan without
+      a finding
+  - id: allocation-allowlist
+    status: planned
+    summary: a host run with malloc and operator new wrapped records every allocation; any outside start-up
+      or not on the HAL's allowlist fails
+  - id: c-naming
+    status: planned
+    summary: clang-tidy readability-identifier-naming with C options (snake_case functions and variables,
+      *_t typedefs, UPPER_CASE enumerators, repository prefix) run on .c files and C API headers
+  - id: vendor-regen-diff
+    status: planned
+    summary: CI regenerates vendor code (CubeMX) from the committed project file and fails if the result
+      differs from the committed sources outside user-code markers and PATCHES.md
+
+  # -- Build and testing (rule loading) -------------------------------------------------------------------------
+  - id: cmake-configure
+    status: planned
+    parametric: true
+    summary: 'a CMake configure test asserts the named property: standard-options, dev-warnings, kb-core-targets,
+      backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults, single-toggles'
+  - id: esp-idf-examples
+    status: planned
+    summary: every app in examples/esp32 builds with the pinned ESP-IDF, using the repository root as
+      its component (runs today in driver-template esp32-examples-build-ci.yml through ci-tools ru-build)
+  - id: version-copies
+    status: planned
+    summary: project(), the package version, the generated version header, Doxyfile PROJECT_NUMBER,
+      driver.yml and the version getter all equal the version in the build settings (driver-template
+      version ctests, less driver.yml)
+  - id: kconfig-symbols
+    status: planned
+    summary: every CONFIG_ symbol the sources read is defined in _config/Kconfig or by ESP-IDF
+  - id: exported-target-flags
+    status: planned
+    summary: the library target's own sources and every public header compile with <CHIP>_ENABLE_WARNINGS=ON,
+      the org warning set and -Werror
+  - id: toolchain-pins
+    status: planned
+    summary: the repository lists exact versions of every supported compiler and ESP-IDF, and every
+      CI build uses exactly those versions
+  - id: reproducible-build
+    status: planned
+    summary: two clean builds of the same commit in different directories produce byte-identical artefacts
+  - id: size-budget
+    status: planned
+    summary: flash and RAM use of each built image stays within the budget recorded in the repository
+  - id: provenance-header
+    status: planned
+    summary: the firmware's generated provenance header names its version, release train and the tag
+      and SHA of every submodule, matching .gitmodules and git describe
+  - id: sdkconfig-defaults
+    status: planned
+    parametric: true
+    summary: sdkconfig.defaults of every ESP-IDF project sets the named value (freertos-hz is CONFIG_FREERTOS_HZ=1000)
+  - id: installed-header-collisions
+    status: planned
+    summary: the install trees of the kb-core packages contain no path twice
+  - id: doc-snippets
+    status: planned
+    summary: every C++ block on the documentation site is a snippet from tests/docs/ and those files
+      compile against the current headers (driver-template doc_snippets ctest and the kokeb-docs check)
+  - id: error-paths-tested
+    status: planned
+    summary: every error value the public API can return is asserted by at least one host test
+  - id: host-tests-matrix
+    status: planned
+    parametric: true
+    summary: 'the host tests pass with gcc and clang for each configuration of the named matrix (kb-rtos:
+      KB_RTOS=FREERTOS host shim and KB_RTOS=NONE, with KB_MCU=HOST)'
+  - id: test-presence
+    status: planned
+    parametric: true
+    summary: 'every unit of the named kind has a test (handler: tests/host/test_<chip>_handler.cpp;
+      public-function: each public function is called by a host test)'
+  - id: test-repeat
+    status: planned
+    summary: ctest --repeat until-fail:20 --schedule-random passes, so no test depends on luck or order
+  - id: ctest-timeouts
+    status: planned
+    summary: every test ctest lists has a TIMEOUT property
+  - id: test-naming
+    status: planned
+    summary: host test sources are named test_<unit>.cpp after an existing unit of the library
+  - id: conformance-tests
+    status: planned
+    summary: every kb::interfaces method has a conformance test, and each mcu/<family> port runs and
+      passes the suite
+  - id: hil-evidence
+    status: planned
+    summary: a hardware test record (commit, board and revision, toolchain, tests, results, date) exists
+      for the release and each supported board, in the evidence format
+  - id: timing-budget
+    status: planned
+    summary: an on-target benchmark job compares measured worst-case times with the stored baseline
+      and fails beyond its margin
+  - id: tsan
+    status: planned
+    summary: the concurrency host tests pass under ThreadSanitizer
+
+  # -- Architecture and hardware (rule loading) -----------------------------------------------------------------
+  - id: include-graph
+    status: planned
+    parametric: true
+    summary: 'every #include in library code is allowed by the Layers include table for its folder;
+      the parameter names the layer (driver, utils, rtos, interfaces, mcu, handlers, hal, product) or
+      `all`'
+  - id: layer-deps
+    status: planned
+    summary: kb-core's CMake targets link only downward (kb::utils <- kb::rtos <- kb::interfaces <-
+      kb::handlers), read from the CMake file API, and each builds alone with KB_MCU=NONE and KB_MCU=HOST
+  - id: submodule-graph
+    status: planned
+    summary: walking .gitmodules across the org's repositories finds no cycle and no submodule that
+      points up the stack (product -> board HAL -> kb-hal-common and kb-core -> drivers)
+  - id: kb-core-catalog
+    status: planned
+    summary: every drivers/driver-<chip> gitlink is the commit of a v* release tag, has a handlers/<chip>/
+      folder and a catalog/compat.yml entry, and regenerating compat.yml and the MCU gate table from
+      the pinned driver.yml files changes nothing
+  - id: hal-lint
+    status: planned
+    parametric: true
+    summary: the kb-hal-common lints run in a board HAL's or product's CI; the parameter names the lint
+      (boundary, driver-access, allocation, lock)
+  - id: hal-startup-test
+    status: planned
+    summary: a HAL host test with the host bind injects a failure into each manager in turn and checks
+      that start-up stops, deinitialises the started managers in reverse and reports the failing ManagerId
+  - id: duplicate-code
+    status: planned
+    summary: jscpd finds no block in a board HAL that duplicates kb-hal-common code above the configured
+      threshold
+  - id: mcu-foundation-set
+    status: planned
+    summary: each real family under interfaces/mcu/ implements the eight foundation Base* interfaces,
+      and enabling an optional one the family lacks fails at CMake configure time
+  - id: port-conformance
+    status: planned
+    parametric: true
+    summary: the Base* conformance suite passes for the named MCU family, on the host against a mocked
+      SDK and, on a scheduled job with a board, as loopback tests
+  - id: cubemx-discipline
+    status: planned
+    summary: the .ioc sets ProjectManager.CoupleFile=true and the library-copy option, and regenerating
+      from the .ioc reproduces the committed tree except for USER CODE blocks and the patches listed
+      in PATCHES.md
+  - id: pin-table-lint
+    status: planned
+    summary: a HardFOC pin table compiles in a host test that rejects names longer than 32 characters
+      or starting with CORE_, COMM_, SYS_ or INTERNAL_
+
+  # -- Documentation (rule loading) -----------------------------------------------------------------------------
+  - id: docs-nav
+    status: planned
+    summary: docs/.nav.yml has exactly the five tabs Home, Get started, Concepts, Guides, Reference
+      in order, and contract.md sits under Concepts right after Architecture
+  - id: docs-page-set
+    status: planned
+    summary: docs/ has every page the documentation standard requires for the repository's declared
+      kind, and each is in the navigation
+  - id: heading-skeleton
+    status: planned
+    parametric: true
+    summary: 'a Markdown file''s headings match a required skeleton in order (parameter: contract, readme,
+      adr, hf-hal-readme, hf-board-spec, hf-protocol-spec)'
+  - id: docs-drift
+    status: planned
+    summary: kokeb-docs check finds no generated region (README quickstart, examples list) or figure
+      that differs from what the code generates
+  - id: docs-inline-code
+    status: planned
+    summary: no C++ fence longer than one line in docs/ or README.md is written inline; each comes from
+      tests/docs via a --8<-- include or a generated region
+  - id: docs-touched
+    status: planned
+    summary: warns when a pull request changes inc/, a Kconfig or a CMake option without touching README.md,
+      docs/ or CHANGELOG.md
+  - id: changelog-frozen
+    status: planned
+    summary: a pull request's diff of CHANGELOG.md changes only the [Unreleased] section, a new release
+      section and link lines
+  - id: doxyfile-baseline
+    status: planned
+    summary: _config/Doxyfile exists and sets INPUT to the public headers, EXTRACT_ALL and EXTRACT_PRIVATE
+      to NO, WARN_NO_PARAMDOC to YES and the org mainpage, compared with the ci-tools baseline
+  - id: doc-file-names
+    status: planned
+    summary: every file under docs/ is lower-case kebab-case; root README, CHANGELOG, CONTRIBUTING,
+      AGENTS, CLAUDE and LICENSE are exempt
+  - id: lighthouse
+    status: planned
+    summary: Lighthouse scores of the built site meet the org budget for accessibility, performance,
+      best practices and SEO (ru-mkdocs-publish runs Lighthouse; register it as implemented once its
+      failing job is confirmed)
+  - id: hf-spec-names
+    status: planned
+    summary: HardFOC board specification files are named <board>-rev<X.Y[.Z]>.md, one file per revision
+  - id: hf-spec-metadata
+    status: planned
+    summary: each HardFOC specification starts with the metadata block (spec type, name, revision, status,
+      covered repos or boards, authored, last reviewed, frozen) and the values validate against a schema
+
+  # -- Git, CI and repository (rule loading) --------------------------------------------------------------------
+  - id: branch-name
+    status: planned
+    summary: the pull request's head branch matches ^(feat|fix|docs|ci|chore)/[a-z0-9-]+$ or release/<x>.<y>
+  - id: release-branch-protection
+    status: planned
+    summary: a ruleset on release/* allows changes only by pull request, squash, linear history and
+      no deletion
+  - id: pr-title
+    status: planned
+    summary: the pull request title is at most 72 characters, has no trailing period and no Conventional
+      Commits prefix; a release pull request is titled `Release vX.Y.Z` with the version of the new
+      changelog section
+  - id: pr-template
+    status: planned
+    summary: the pull request body keeps the template's summary, why and verification headings, each
+      non-empty, and every checklist box is ticked or marked not applicable
+  - id: changelog-entry
+    status: planned
+    summary: a pull request that changes files outside docs/ and .github/ changes CHANGELOG.md under
+      [Unreleased], unless it carries the no-changelog label
+  - id: changelog-breaking
+    status: planned
+    summary: a pull request labelled breaking adds an entry under
+  - id: release-tag
+    status: planned
+    summary: 'on a v* tag: the tag matches the declared version, the commit is on main or release/*,
+      its CI gate passed, and a final tag points at the same commit as the latest rc of that version'
+  - id: release-notes
+    status: planned
+    summary: the GitHub Release body equals the version's changelog section and has a `Bench status:`
+      line
+  - id: release-artifacts
+    status: planned
+    summary: a product release has .bin, .elf, SHA-256 sums and the effective sdkconfig attached, or
+      fails
+  - id: sbom
+    status: planned
+    summary: the release attaches an SPDX SBOM listing every component and submodule the build contains
+  - id: signed-tags
+    status: planned
+    summary: the release tag is a signed annotated tag and the evidence package has a valid signature
+      (safety level)
+  - id: open-safety-issues
+    status: planned
+    summary: the release workflow fails while an open issue labelled safety names the version or its
+      milestone
+  - id: anomaly-list
+    status: planned
+    summary: the evidence package lists every open bug affecting the release, with impact and workaround
+  - id: pin-check
+    status: planned
+    summary: every submodule points at a commit tagged v*.*.* on its own main and matching the manifest
+      or catalog/compat.yml; warns on pull requests to main, fails on release/* and tag pushes
+  - id: pin-bump-isolated
+    status: planned
+    summary: a pull request that moves a gitlink changes nothing else except version_lock.txt, compat.yml
+      and CHANGELOG
+  - id: shared-workflows
+    status: planned
+    summary: every lint, analysis, build, docs and release job calls a kokeb-labs/ci-tools reusable
+      workflow at @v1, and none at @main
+  - id: dependabot-config
+    status: planned
+    summary: .github/dependabot.yml updates github-actions weekly with label dependencies and prefix
+      ci, pip where Python tooling exists, and has no gitsubmodule ecosystem
+  - id: org-settings-drift
+    status: planned
+    summary: a scheduled `kokeb_org.py --check` finds no drift between org/ and the repository's live
+      settings
+  - id: secret-scan
+    status: planned
+    summary: gitleaks finds no secret in the pull request's commits
+  - id: examples-build
+    status: planned
+    summary: every examples/<platform>/ folder is built by a job of the repository's CI
+  - id: mcu-matrix
+    status: planned
+    summary: kb-core CI builds every target for each MCU family (STM32 with stub headers), KB_MCU=HOST
+      and NONE
+  - id: compat-table
+    status: planned
+    summary: regenerating the tables derived from catalog/compat.yml leaves the tree unchanged
+  - id: hal-lints
+    status: planned
+    summary: the kb-hal-common boundary, driver-access, allocation and lock lints pass in the board
+      HAL
+  - id: version-lock
+    status: planned
+    summary: each version_lock.txt line REF_<repo>=vX.Y.Z@<sha> matches the submodule's pinned commit
+      and its tag
+  - id: test-report
+    status: planned
+    summary: host test jobs upload a JUnit report and a line and branch coverage report as artifacts
+  - id: tracked-files
+    status: planned
+    parametric: true
+    summary: >-
+      git tracks no file of a banned kind; the parameter names it (tracked-files/symlinks,
+      tracked-files/sdkconfig, tracked-files/idf-component)
+  - id: file-names
+    status: planned
+    summary: source and test file names match the pattern for the repository's kind
+  - id: config-drift
+    status: planned
+    summary: _config/.clang-format and _config/.clang-tidy equal the handbook's config/ files apart
+      from the header
+  - id: driver-manifest
+    status: planned
+    summary: driver.yml exists, validates against its schema, and its version, MCUs and examples match
+      the build settings and the examples folder
+  - id: third-party-licences
+    status: planned
+    summary: every third_party/<name>/ has a licence file, and REUSE or scancode finds only MIT-compatible
+      licences
+  - id: codeowners
+    status: planned
+    summary: .github/CODEOWNERS has a `*` rule naming at least one owner
+  - id: security-policy
+    status: planned
+    summary: SECURITY.md exists in .github/ or is inherited from the organisation and names private
+      reporting
+  - id: frozen-specs
+    status: planned
+    summary: a pull request changes no specification file whose `frozen:` field is set
+
+  # -- Agents (rule loading) ------------------------------------------------------------------------------------
+  - id: claude-md-pointer
+    status: planned
+    summary: CLAUDE.md contains exactly the line `@AGENTS.md` and nothing else
+  - id: skills-present
+    status: planned
+    summary: '.claude/skills has the skills the repository''s kind requires: verify in code repositories,
+      bump-pin when .gitmodules is not empty, release when released, add-driver-feature in drivers'
+  - id: skill-format
+    status: planned
+    summary: every .claude/skills/<name>/SKILL.md has YAML front matter with `name` equal to the kebab-case
+      folder and a one-line `description`, followed by steps
+  - id: skill-content-scan
+    status: planned
+    summary: gitleaks finds no secret under .claude/, and no SKILL.md tells an agent to merge, use an
+      admin bypass, --no-verify, a bare NOLINT or skip a check
+  - id: pr-body-dod
+    status: planned
+    summary: the pull-request body has the definition-of-done checklist with every item ticked or marked
+      not applicable with a reason, and the hardware line filled (verified, or not verified on hardware
+      with bench steps)
+  - id: no-attribution
+    status: planned
+    summary: no commit message, pull-request body or review comment carries a Co-Authored-By trailer
+      naming a tool or model, a "Generated with" footer, an AI-disclosure line or a tool banner (runs
+      beside dco)
+  - id: safety-label
+    status: planned
+    summary: a pull request touching actuator, power-sequencing, OTP or peripheral-flash paths (labeler
+      config) has the safety label, and a safety-labelled pull request has a human approval before merge

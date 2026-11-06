@@ -1,0 +1,103 @@
+---
+area: hf-cpp
+prefix: HF-CPP
+title: C++ code (HardFOC supplement)
+intro: >-
+  Rules that apply only to HardFOC board HALs and products (Flux, Vortex and their managers). They add to the Kokeb
+  Labs C++ rules and never relax them: where an older HardFOC rule contradicted the Kokeb standard (manager
+  singletons, smart-pointer ownership, `HF_`/`HARDFOC_` macros in shared code, `hf_*_err_t` names), it was dropped.
+rules:
+  - id: HF-CPP-001
+    title: The board HAL is one function-local static reached through one accessor
+    statement: >-
+      A HardFOC board HAL is a single object created on first use as a function-local static and reached through
+      its one accessor (`GetHardFOC()` or the `HARDFOC_API` macro). Application code takes the reference once at
+      start-up and keeps it, rather than calling the accessor on every use.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify: [{review: The HAL has one accessor and the application caches the reference it returns.}]
+    rationale: >-
+      The managers themselves stay in static storage owned by the facade (KB-CPP-091); only the facade is reached
+      this way.
+    origin:
+      - "hf:process/hal-pattern.md:33-37,113-117"
+      - "hf:agents/application-engineering.md:80"
+
+  - id: HF-CPP-002
+    title: HAL shutdown is noexcept, idempotent and safe from a watchdog or panic handler
+    statement: >-
+      The HAL's and every manager's `Shutdown()` is `noexcept`, allocates nothing, can run twice, and is safe to call
+      from a watchdog or panic handler. It drops lent references, shuts down its handlers and clears the initialised
+      flag.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - check: host-tests
+      - review: Shutdown allocates nothing and a second call is harmless.
+    origin:
+      - "hf:process/hal-pattern.md:297,357"
+      - "hf:process/manager-pattern.md:229-236 (resetting unique_ptrs; dropped, see KB-CPP-091)"
+
+  - id: HF-CPP-003
+    title: Per-manager initialised flags are atomic
+    statement: >-
+      A HardFOC manager's initialised flag is a `std::atomic<bool>`, so it can be read from any task without taking
+      the manager's lock.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify: [{review: New manager init flags are std::atomic<bool>.}]
+    origin: ["hf:agents/hal-authoring.md:105,281"]
+
+  - id: HF-CPP-004
+    title: Component handles are looked up and checked once, in Initialize
+    statement: >-
+      Code that obtains a component from a HardFOC manager (`Get()` may return null) looks it up once in its own
+      `Initialize()`, checks it for null there, and keeps it as a member; it never looks it up again inside a loop.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify: [{review: Component handles are fetched and null-checked once in Initialize.}]
+    origin: ["hf:process/performance.md:93-97,476-502,717"]
+
+  - id: HF-CPP-005
+    title: Failed components are reported as static strings
+    statement: >-
+      When the HAL reports which components failed to start, it names them with static string literals that the
+      application may log but never parses or compares.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    origin: ["hf:process/hal-pattern.md:234-236"]
+
+  - id: HF-CPP-006
+    title: HAL headers follow the HardFOC section layout
+    statement: >-
+      HardFOC HAL and manager headers keep the template's `//===` section banners and section order: access,
+      initialisation, core operations, diagnostics, then private members.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    origin:
+      - "hf:standards/coding-style.md:124-192"
+      - "hf:process/architecture.md:231-268 (singleton accessor and bool returns; dropped)"
+
+  - id: HF-CPP-007
+    title: The pin map header links to the board specification
+    statement: >-
+      Each HardFOC board's pin map header has a comment linking to the `#pin-allocation` section of that board's
+      specification.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify: [{review: The pin map header links to the board spec's pin allocation section.}]
+    origin: ["hf:specifications/README.md:113"]

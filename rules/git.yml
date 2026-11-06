@@ -49,3 +49,514 @@ rules:
     verify: [{check: changelog}]
     page: standards/release.md
     notes: Enforced in ci-tools today; the reusable check for every repository is planned.
+
+  # -- Branches and commits ---------------------------------------------------------------------------------------
+  - id: KB-GIT-005
+    title: main is the only long-lived branch; work branches name their kind
+    statement: >-
+      Work happens on short-lived branches named `feat/`, `fix/`, `docs/`, `ci/` or `chore/` plus a kebab-case
+      topic. There is no `develop`, `hotfix/` or long-lived feature branch.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: branch-name}]
+    refs: [{adr: 15}]
+    page: standards/repo-governance.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "inv:B-GOV-01, B-GOV-02, A-GHW-01, A-GHW-33, A-AG1-80, A-AG2-68"
+      - "hf:process/github-workflows.md (develop, release and hotfix branches; superseded)"
+
+  - id: KB-GIT-006
+    title: A maintenance branch is cut from its release tag and changed only by pull request
+    statement: >-
+      A `release/x.y` branch is created by a maintainer from the `vX.Y.0` tag when an older line needs a fix. It
+      takes `fix/` pull requests under the same rules as main and is never merged back.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: release-branch-protection
+      - review: The branch was created from its release tag and every change on it came through a pull request.
+    refs: [{adr: 15}, {std: IEC-62304, id: "8.2", note: "change control"}]
+    page: standards/repo-governance.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. The org rulesets protect the default branch only; a ruleset for
+      `release/*` does not exist yet.
+    origin:
+      - "inv:B-GOV-03, A-GHW-24, A-AG2-103"
+      - "hf:process/github-workflows.md:248-260 (release branches merged with --no-ff; superseded)"
+      - "hf:agents/release-and-submodules.md (merge main back into develop; superseded)"
+
+  - id: KB-GIT-007
+    title: Commits on main are signed; work-branch commits need not be
+    statement: >-
+      The main-integrity ruleset requires signed commits on main. GitHub signs the squash commit it creates, so
+      contributors do not have to sign the commits on their work branch.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: rulesets}]
+    refs: [{adr: 15}, {std: IEC-62304, id: "8.1", note: "identification of each change"}]
+    page: standards/repo-governance.md
+    origin: ["inv:B-GOV-26, B-GOV-28, A-GHW-04"]
+
+  - id: KB-GIT-008
+    title: Repair a work branch by rebasing it; never rewrite main
+    statement: >-
+      A missing sign-off or a needed rebase is fixed with `git rebase --signoff` and a force-push of the work branch.
+      Otherwise, during review, push new commits so reviewers see what changed; the squash merge tidies them.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: The branch history was rewritten only to repair sign-off or to rebase, not to hide review changes.
+    page: standards/repo-governance.md
+    origin: ["inv:B-GOV-20, A-AG2-95"]
+
+  # -- Pull requests and review -----------------------------------------------------------------------------------
+  - id: KB-GIT-009
+    title: Pull request titles are short imperative sentences
+    statement: >-
+      The title becomes the squash commit's subject, so it reads as a command ("Add FIFO read to the BMP390
+      driver"), stays under 72 characters, has no trailing period and no Conventional Commits prefix.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: pr-title
+      - review: The title says what the change does, in the imperative.
+    page: standards/repo-governance.md
+    notes: Warns until 2027-03-01, then fails CI. The check covers length, period and prefix; mood is reviewed.
+    origin:
+      - "inv:B-GOV-06, B-GOV-07, A-REV-03, A-GHW-29, A-AG1-113, A-AG2-74, A-AG2-92"
+      - "hf:process/github-workflows.md:309-328 (Conventional Commits titles; superseded)"
+
+  - id: KB-GIT-010
+    title: One logical change per pull request
+    statement: >-
+      A pull request does one thing, ideally in under about 400 changed lines; larger work is split into a series
+      of green pull requests. Docs-only pull requests change no code, and reformatting or fixing old findings goes
+      in its own pull request.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: The pull request has one purpose, and mechanical clean-ups are not mixed into it.
+    page: standards/repo-governance.md
+    origin: ["inv:B-GOV-08, A-REV-02, A-GHW-11, A-AG2-72, A-AG2-73, A-AG2-84, A-REV-79, B-NAM-26, B-ADR-38"]
+
+  - id: KB-GIT-011
+    title: The pull request template is filled in
+    statement: >-
+      Every pull request states what changed, why, and how it was verified (CI, host tests, MCU and board, or not
+      verified on hardware), and ticks or marks not applicable each item of the template's checklist.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: pr-template
+      - review: The verification section says what was actually run.
+    refs: [{std: IEC-62304, id: "8.2", note: "change requests are documented"}]
+    page: standards/repo-governance.md
+    notes: Warns until 2027-03-01, then fails CI. The org template exists in kokeb-labs/.github; nothing checks it.
+    origin: ["inv:B-GOV-09, A-REV-04, A-GHW-05, A-AG2-75, A-AG2-78"]
+
+  - id: KB-GIT-012
+    title: Every change in behaviour adds a changelog entry under Unreleased
+    statement: >-
+      A pull request that changes what a user of the repository sees adds an entry under `## [Unreleased]` in
+      CHANGELOG.md, written for that user. A pull request with nothing to record says so with the `no-changelog`
+      label.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: changelog-entry}]
+    refs: [{std: IEC-62304, id: "8.3", note: "configuration status accounting"}]
+    page: standards/release.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. ci-tools' changelog.py checks its own changelog only; the reusable
+      check is not built.
+    origin: ["inv:B-GOV-11, A-REV-05, A-PRT-62, A-AG1-87, A-AG1-112"]
+
+  - id: KB-GIT-013
+    title: Every breaking change is listed under Breaking with what a caller must change
+    statement: >-
+      A breaking change, including a change to a stored settings layout such as NVS, gets a `### Breaking` entry
+      that tells a caller what to change. A pull request labelled `breaking` without one is not merged.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: changelog-breaking
+      - review: Public API, build-setting and stored-layout changes are either absent or listed under Breaking.
+    refs: [{std: IEC-62304, id: "8.2", note: "impact of a change is recorded"}]
+    page: standards/release.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inv:B-GOV-24, B-REL-16, B-PRD-13, A-REV-74, A-AG1-50, A-DSP-13"]
+
+  - id: KB-GIT-014
+    title: A pull request names every rule it does not follow
+    statement: >-
+      Not following a `should` rule is stated in the pull request with the rule ID and the reason. A `must` rule is
+      set aside only by a waiver (KB-REPO-003) linked from the pull request with its tracking issue.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: Every rule the change does not follow is named with its ID, and each `must` has a waiver.
+    page: deviations.md
+    origin: ["inv:B-GOV-12"]
+
+  - id: KB-GIT-015
+    title: Every review conversation is resolved before merge
+    statement: The main-review ruleset blocks the merge while a review thread is open.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: rulesets}]
+    refs: [{adr: 15}]
+    page: standards/repo-governance.md
+    origin: ["inv:B-GOV-15, A-AG2-88, A-AG2-140"]
+
+  - id: KB-GIT-016
+    title: Approvals follow the organisation's review mode
+    statement: >-
+      In solo mode the owner merges their own pull requests with no approval once the gate is green. With two or
+      more maintainers, one code-owner approval is required and a new push dismisses it. Auto-merge is allowed.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: rulesets}]
+    refs: [{adr: 15}, {std: IEC-62304, id: "8.2", note: "approval of changes"}]
+    page: standards/repo-governance.md
+    origin:
+      - "inv:B-GOV-16, A-TST-17, A-GHW-12, A-AG2-97"
+      - "hf:standards/review-checklist.md:3-7 (mandatory human review; superseded by solo mode)"
+
+  - id: KB-GIT-017
+    title: Review starts with architecture and layering, then the details
+    statement: >-
+      A reviewer first checks that the change sits in the right layer and obeys the include table and the kind's
+      checklist, and asks for changes if it does not. A design that is wrong at the root is closed and redone, not
+      patched in review.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: The layer, include and checklist questions were answered before line-level comments.
+    page: standards/layers.md
+    origin: ["inv:B-LAY-23, A-AG1-15, A-REV-82, A-AG2-98"]
+
+  - id: KB-GIT-018
+    title: Contributions come in under the repository's licence, with no CLA
+    statement: >-
+      The DCO sign-off (KB-GIT-001) is the only contributor agreement. Kokeb Labs asks for no CLA and no copyright
+      assignment.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: No contributor was asked to sign anything beyond the DCO.
+    refs: [{adr: 9}, {adr: 15}]
+    page: standards/repo-governance.md
+    origin: ["inv:B-GOV-17"]
+
+  # -- Versions, tags and releases --------------------------------------------------------------------------------
+  - id: KB-GIT-019
+    title: Each repository has its own SemVer, starting at 0.1.0
+    statement: >-
+      Versions are independent per repository. While at 0.x a breaking change bumps the minor and anything else
+      the patch; 1.0.0 is declared by decision record when the API is meant to hold.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: changelog}]
+    refs: [{adr: 7}, {std: IEC-62304, id: "8.1", note: "version identification"}]
+    page: standards/release.md
+    notes: Warns until 2027-03-01, then fails CI. ci-tools is the exception, at 1.x (KB-CI-003).
+    origin:
+      - "inv:B-DRV-69, B-REL-01, B-REL-03, A-REV-19, A-REV-57, A-TOP-05, A-GHW-23, A-AG1-104, A-AG1-122, A-AG2-102"
+      - "hf:process/component-manifest.md (starts at 1.0.0; superseded)"
+      - "hf:agents/hal-authoring.md:229-235 (HAL major bumps; superseded by the 0.x rule)"
+
+  - id: KB-GIT-020
+    title: A release tag matches the declared version on a green commit of main
+    statement: >-
+      `vX.Y.Z` (or `vX.Y.Z-rc.N`) tags a commit on main or `release/x.y` whose CI gate passed and whose declared
+      version is X.Y.Z. A release candidate is promoted by tagging the same commit; any change makes the next rc.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: release-tag}]
+    refs: [{std: IEC-62304, id: "5.8", note: "software release"}, {std: IEC-62304, id: "8.1"}]
+    page: standards/release.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. The standard describes release.yml failing on a version mismatch or a
+      commit off main; ru-release-with-artifacts has neither check yet.
+    origin: ["inv:B-REL-06, B-REL-07, B-REL-12, B-REL-21"]
+
+  - id: KB-GIT-021
+    title: A release is a `Release vX.Y.Z` pull request
+    statement: >-
+      The release pull request rolls `[Unreleased]` into the dated `[X.Y.Z]` section, bumps every version
+      declaration, is signed off, passes the gate and is squash-merged; merging it tags the commit.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: pr-title
+      - review: Every version declaration in the repository names the new version.
+    page: standards/release.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. The prepare-release workflow the standard names is not built; until
+      it is, the maintainer does each step by hand (ci-tools uses `changelog.py bump`).
+    origin: ["inv:B-REL-20, B-REL-44, B-REL-08, A-AG2-114, A-GHW-38"]
+
+  - id: KB-GIT-022
+    title: Release notes are the changelog section and state the bench status
+    statement: >-
+      The GitHub Release body is the version's changelog section, not generated notes, and says where it ran: MCU,
+      board and tests, or CI-only. A repository no board has run yet releases as CI-only.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: release-notes}]
+    refs: [{std: IEC-62304, id: "5.8", note: "documented release"}]
+    page: standards/release.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. ci-tools' own release.yml publishes the changelog section;
+      ru-release-with-artifacts, which other repositories call, still generates notes.
+    origin:
+      - "inv:B-REL-19, B-REL-10, B-REL-11, A-TST-03, A-PRT-60, A-AG2-104"
+      - "hf:process/github-workflows.md:262-268 (changelog generated from commits; superseded)"
+
+  - id: KB-GIT-023
+    title: A product release attaches its binaries, checksums and effective sdkconfig
+    statement: >-
+      A product release tag builds the firmware and attaches `.bin`, `.elf`, their SHA-256 and the effective
+      sdkconfig; a missing artifact fails the release. A release that changes NVS or partitions states the erase
+      or migration step.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [firmware]}
+    verify:
+      - check: release-artifacts
+      - review: A release that changes NVS or the partition table states the erase or migration step.
+    refs: [{std: IEC-62304, id: "5.8", note: "archived release artifacts"}]
+    page: standards/product.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. ru-release-with-artifacts has `fail_on_no_artifacts`, but it defaults
+      to false.
+    origin: ["inv:B-PRD-14, B-REL-22, B-REL-39, A-SPC-10"]
+
+  - id: KB-GIT-024
+    title: Releases at high level carry checksums, provenance and an SBOM
+    statement: >-
+      Each release of a high or safety component attaches `SHA256SUMS`, build provenance and an SPDX SBOM of
+      everything it contains or pulls in, all produced by the release workflow.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware], from_level: high}
+    verify: [{check: release-evidence}, {check: sbom}]
+    refs: [{std: IEC-62304, id: "5.8"}, {std: IEC-62304, id: "8.1", note: "SOUP and configuration items"}]
+    page: evidence.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["gap 12: SBOM and supply chain", "kb:evidence.md"]
+
+  - id: KB-GIT-025
+    title: At safety level, release tags and the evidence package are signed
+    statement: >-
+      A safety component's release tag is a signed annotated tag, and its evidence package carries a signature
+      over the whole package that a manufacturer can verify.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware], from_level: safety}
+    verify: [{check: signed-tags}]
+    refs: [{std: IEC-62304, id: "5.8"}, {std: IEC-62304, id: "8.1"}]
+    page: evidence.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["kb:evidence.md (signature over the whole package)"]
+
+  - id: KB-GIT-026
+    title: Safety issues come first, and no release ships with one open against it
+    statement: >-
+      An issue labelled `safety` is fixed before other work. A version is not released while a `safety` issue is
+      open against it.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: open-safety-issues
+      - review: Open safety issues were triaged before any other work in the release.
+    refs: [{std: IEC-62304, id: "9", note: "problem resolution"}, {std: IEC-62304, id: "5.8"}]
+    page: checklists/release.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inv:B-REL-41, B-GOV-23"]
+
+  - id: KB-GIT-027
+    title: At safety level, a release lists its known anomalies
+    statement: >-
+      A safety release exports every open defect that affects the released code, with its impact and workaround,
+      into its evidence package.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware], from_level: safety}
+    verify: [{check: anomaly-list}]
+    refs: [{std: IEC-62304, id: "5.8", note: "known residual anomalies"}, {std: IEC-62304, id: "9"}]
+    page: evidence.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["kb:evidence.md (known anomalies)"]
+
+  # -- Pins and the stack -----------------------------------------------------------------------------------------
+  - id: KB-GIT-028
+    title: Submodules pin release-tag commits, and code is never edited inside one
+    statement: >-
+      Every submodule points at a commit that carries a release tag on the submodule's main, never at a branch or
+      an untagged commit. A fix to a submodule is made in its own repository first.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: pin-check}]
+    refs: [{adr: 7}, {std: IEC-62304, id: "8.1", note: "identification of configuration items"}]
+    page: standards/release.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. The standard lists a pin-check workflow in ci-tools; it does not exist
+      yet.
+    origin:
+      - "inv:B-GOV-05, B-HAL-04, B-REL-24, B-REL-36, A-GHW-21, A-AG2-101, A-AG2-108, B-ADR-24"
+      - "hf:CONTRIBUTING.md:16 and porting/custom-board.md:62 (pin to a commit; superseded)"
+      - "hf:process/component-manifest.md:232-253 (ESP Component Registry; superseded)"
+
+  - id: KB-GIT-029
+    title: A pin bump is its own pull request, opened by the bump bot or by hand
+    statement: >-
+      A pull request that moves a submodule changes nothing else except the lock or compatibility files, links the
+      release it pulls in and notes its API and build-setting changes. Dependabot never bumps submodules.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: pin-bump-isolated
+      - review: The pull request links the release it pulls in and lists what callers must change.
+    refs: [{adr: 7}, {std: IEC-62304, id: "8.2"}]
+    page: standards/release.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. The bump bot that opens these pull requests after a release is not
+      built; until it is, the maintainer opens them.
+    origin: ["inv:B-GOV-13, B-GOV-36, B-REL-25, B-REL-45, A-REV-77, A-REV-78, A-AG2-91, A-AG2-105, A-PRT-40"]
+
+  - id: KB-GIT-030
+    title: Changes and releases travel up the stack one layer at a time
+    statement: >-
+      A change across layers is one pull request per repository, merged bottom-up: ci-tools, drivers, kb-core,
+      kb-hal-common, board HALs, products. Each layer re-pins and releases before the one above it.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: Every repository below this one is merged, released and re-pinned first.
+    refs: [{adr: 7}]
+    page: standards/release.md
+    origin: ["inv:B-REL-35, B-REL-37, A-GHW-19, A-LAY-17, A-AG2-85, A-AG2-107, A-AG2-112"]
+
+  - id: KB-GIT-031
+    title: A release wave stabilises through release candidates
+    statement: >-
+      Drivers a board uses get an rc in each wave; the wave tags rc.1 bottom-up, runs the bench, then promotes the
+      same commits or cuts rc.2. Drivers only CI has run may skip the rc.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: Each benched driver in the wave was released from a promoted release candidate.
+    page: standards/release.md
+    origin: ["inv:B-REL-38, B-REL-40, A-TST-19"]
+
+  - id: KB-GIT-032
+    title: A release train names one kb-core release and the drivers it pins
+    statement: >-
+      A train is called `kb YYYY.N` and is cut from that kb-core release's `catalog/compat.yml`. Trains are never
+      patched: a fix makes a new kb-core release and a new train.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library]}
+    verify:
+      - review: The train name and its driver list come from the tagged compat.yml.
+    refs: [{adr: 7}, {adr: 13}, {std: IEC-62304, id: "8.1"}]
+    page: standards/release.md
+    origin: ["inv:B-REL-31, B-REL-34"]
+
+  # -- Changing the handbook --------------------------------------------------------------------------------------
+  - id: KB-GIT-033
+    title: A change of decision comes with its decision record, in the same pull request
+    statement: >-
+      A handbook change that alters a decision adds a new or superseding ADR, updates every page, checklist and
+      config it touches, and stays open for comment at least seven days unless it fixes a defect.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [docs]}
+    verify:
+      - review: The ADR, pages, checklists and configs agree, and the comment period was kept or waived as a defect.
+    page: adr/index.md
+    origin: ["inv:B-GOV-61, B-GOV-62, B-GOV-63, B-ADR-66, B-NAM-28"]
+
+  - id: KB-GIT-034
+    title: When a repository and the handbook disagree, the handbook wins
+    statement: >-
+      New code follows the handbook at once. An existing repository that does not yet comply gets an issue that
+      tracks the gap; it is not silently exempted.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: Each known gap between the repository and the handbook has an open issue or a waiver.
+    page: how-rules-work.md
+    origin: ["inv:B-GOV-55, B-GOV-56, B-GOV-57"]

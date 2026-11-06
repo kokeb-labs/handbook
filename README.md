@@ -8,6 +8,9 @@ verifies it, so what the handbook says is what CI enforces.
 - Rules as data: [`rules/`](rules/), one file per area; the pages under `docs/rules/` are generated from them
 - Checks: [`checks/registry.yml`](checks/registry.yml) lists every check a rule may name, implemented or planned
 - Tool configuration: [`config/`](config/), the `.clang-format` and `.clang-tidy` every repository uses
+- HardFOC supplement: [`hf-supplement/`](hf-supplement/), the HF-* rules for HardFOC products only; they move
+  to `hardfoc/hf-development-handbook` once its own CI validates them
+- Open configuration work: [`checks/backlog.yml`](checks/backlog.yml)
 
 ## Change a rule
 

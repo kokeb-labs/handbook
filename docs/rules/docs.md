@@ -9,6 +9,66 @@ How documentation is written, built and checked.
 | [KB-DOC-002](#kb-doc-002) The documentation site builds strictly | must | driver, library, hal, tooling, docs, template | checked |
 | [KB-DOC-003](#kb-doc-003) No broken links on the built site | must | driver, library, hal, tooling, docs, template | checked |
 | [KB-DOC-004](#kb-doc-004) Every public API is documented and Doxygen is warning-free | must | driver, library, hal, template | planned |
+| [KB-DOC-005](#kb-doc-005) Every public repository publishes a versioned MkDocs site | must | driver, library, hal, firmware, tooling, docs, template | checked |
+| [KB-DOC-006](#kb-doc-006) Pages live in docs/ and the site config in \_config/mkdocs.yml | must | driver, library, hal, firmware, tooling, docs, template | checked |
+| [KB-DOC-007](#kb-doc-007) The navigation has the five standard tabs | must | driver, library, hal, firmware, tooling, docs, template | planned |
+| [KB-DOC-008](#kb-doc-008) The site has the page set for its kind | must | driver, library, hal, firmware, tooling, template | planned |
+| [KB-DOC-009](#kb-doc-009) Every code repository has a Contract page under Concepts | must | driver, library, hal, firmware, template | planned |
+| [KB-DOC-010](#kb-doc-010) The Contract page has the standard sections in order | must | driver, library, hal, firmware, template | planned |
+| [KB-DOC-011](#kb-doc-011) The Contract page lists every handbook rule the repository does not meet | must | driver, library, hal, firmware, template | review |
+| [KB-DOC-012](#kb-doc-012) Repository docs link the handbook instead of restating it | should | all | review |
+| [KB-DOC-013](#kb-doc-013) CONTRIBUTING.md links the handbook | should | all | review |
+| [KB-DOC-014](#kb-doc-014) A change to behaviour or API updates its docs in the same pull request | should | all | planned |
+| [KB-DOC-015](#kb-doc-015) The README has the standard sections in order | should | driver, library, hal, firmware, tooling, template | planned |
+| [KB-DOC-016](#kb-doc-016) The README is short and leaves the reference to the site | should | all | planned |
+| [KB-DOC-017](#kb-doc-017) A driver's README names the chip and the part, not the organisation | must | driver, template | planned |
+| [KB-DOC-018](#kb-doc-018) The README licence line matches LICENSE and the package metadata | must | all | review |
+| [KB-DOC-019](#kb-doc-019) A family driver is named after the member it was written for | should | driver | review |
+| [KB-DOC-020](#kb-doc-020) Every C++ block on the site compiles | must | driver, library, hal, template | checked |
+| [KB-DOC-021](#kb-doc-021) Examples check every result | must | driver, library, hal, firmware, template | checked |
+| [KB-DOC-022](#kb-doc-022) Generated regions and figures match the code | must | driver, library, hal, firmware, template | planned |
+| [KB-DOC-023](#kb-doc-023) The Porting page shows a complete, compiled port for each bus | must | driver, template | checked |
+| [KB-DOC-024](#kb-doc-024) The API guide lists the errors each call can return | should | driver, template | review |
+| [KB-DOC-025](#kb-doc-025) Every image has alt text | must | all | checked |
+| [KB-DOC-026](#kb-doc-026) Figures are generated, themed, and drawn with the right tool | should | all | review |
+| [KB-DOC-027](#kb-doc-027) A figure has one reading direction, verbs on its arrows and three tones at most | guide | all | none |
+| [KB-DOC-028](#kb-doc-028) The site's changelog page includes CHANGELOG.md | must | driver, library, hal, firmware, tooling, template | review |
+| [KB-DOC-029](#kb-doc-029) The changelog keeps [Unreleased] first and the standard subsections in order | must | all | planned |
+| [KB-DOC-030](#kb-doc-030) A released changelog section is never edited | must | all | planned |
+| [KB-DOC-031](#kb-doc-031) Changelog entries describe what a user sees | guide | all | none |
+| [KB-DOC-032](#kb-doc-032) ADRs use the standard format and are numbered in acceptance order | must | all | planned |
+| [KB-DOC-033](#kb-doc-033) An accepted decision is superseded, never rewritten | must | all | review |
+| [KB-DOC-034](#kb-doc-034) Cross-repository decisions are handbook ADRs; local ones stay in the repository | should | all | review |
+| [KB-DOC-035](#kb-doc-035) Datasheets are linked, and committed only where their licence allows | should | driver, hal, template | review |
+| [KB-DOC-036](#kb-doc-036) Markdown wraps at 120 columns | must | all | checked |
+| [KB-DOC-037](#kb-doc-037) Every page has one title, a purpose line and sections in reading order | should | all | checked |
+| [KB-DOC-038](#kb-doc-038) Headings step one level at a time and code fences name their language | must | all | checked |
+| [KB-DOC-039](#kb-doc-039) Links are relative, by file, with descriptive text | should | all | checked |
+| [KB-DOC-040](#kb-doc-040) Documentation is Markdown | should | all | planned |
+| [KB-DOC-041](#kb-doc-041) No Jekyll front matter or Liquid; front matter only for hide | must | all | checked |
+| [KB-DOC-042](#kb-doc-042) Page file names are lower-case kebab-case | should | all | planned |
+| [KB-DOC-043](#kb-doc-043) Write in the second person, present tense and active voice | should | all | planned |
+| [KB-DOC-044](#kb-doc-044) No hype or filler words | should | all | planned |
+| [KB-DOC-045](#kb-doc-045) No emoji, exclamation marks or walls of bold | should | all | planned |
+| [KB-DOC-046](#kb-doc-046) Titles and headings are in sentence case | should | all | planned |
+| [KB-DOC-047](#kb-doc-047) Pages never mention how they were produced | must | all | planned |
+| [KB-DOC-048](#kb-doc-048) Spelling is correct and one variant is used per repository | should | all | planned |
+| [KB-DOC-049](#kb-doc-049) Every name and number on a page is checked against its source | must | all | review |
+| [KB-DOC-050](#kb-doc-050) Use a table for three or more like items, with units in the header | guide | all | none |
+| [KB-DOC-051](#kb-doc-051) Use the theme's components instead of inventing markup | guide | all | none |
+| [KB-DOC-052](#kb-doc-052) Guides teach a task with complete examples and say why | guide | all | none |
+| [KB-DOC-053](#kb-doc-053) No undated future-plans sections | guide | all | none |
+| [KB-DOC-054](#kb-doc-054) The site meets the Lighthouse accessibility budget | should | driver, library, hal, firmware, tooling, docs, template | planned |
+| [KB-DOC-055](#kb-doc-055) Interrupt wiring is documented | should | driver, hal, template | review |
+| [KB-DOC-056](#kb-doc-056) kb-core has one page per handler | must | library | review |
+| [KB-DOC-057](#kb-doc-057) A utility collection has one guide page per utility | should | library | review |
+| [KB-DOC-058](#kb-doc-058) A product documents its fault catalogue on the Operation page | must | firmware | review |
+| [KB-DOC-059](#kb-doc-059) Release trains are announced with their bench status | should | library | review |
+| [KB-DOC-060](#kb-doc-060) Patches to vendor-generated code are listed in PATCHES.md | should | hal | review |
+| [KB-DOC-061](#kb-doc-061) The Doxyfile lives in \_config/ and Doxygen runs from the root | must | driver, library, hal, template | planned |
+| [KB-DOC-062](#kb-doc-062) Doxygen reads only the public headers and keeps private members out | must | driver, library, hal, template | planned |
+| [KB-DOC-063](#kb-doc-063) A public function's comment gives units, errors and whether it blocks | must | driver, library, hal, template | planned |
+| [KB-DOC-064](#kb-doc-064) Each test says what it verifies, with its data and expected result | should | driver, library, hal, firmware, template (safety level and above) | review |
 
 ## KB-DOC-001: Markdown passes the org lint configuration { #kb-doc-001 }
 
@@ -51,7 +111,7 @@ Every link on the built site resolves, internal and external.
 
 !!! note "Proposed"
 
-    Warns until 2027-01-15, then fails CI. ci-tools' Doxyfile has WARN_AS_ERROR = NO today.
+    Warns until 2027-01-15, then fails CI. ci-tools' Doxyfile has WARN\_AS\_ERROR = NO today.
 
 **MUST** · driver, library, hal, template · since 1.0 · enforced from 2027-01-15
 
@@ -60,6 +120,914 @@ YES` and `WARN_AS_ERROR = FAIL_ON_WARNINGS`.
 
 *Verified by:*
 
-- `doxygen-warnings` (planned): Doxygen with WARN_AS_ERROR = FAIL_ON_WARNINGS and WARN_IF_UNDOCUMENTED reports nothing
+- `doxygen-warnings` (planned): Doxygen with WARN\_AS\_ERROR = FAIL\_ON\_WARNINGS and WARN\_IF\_UNDOCUMENTED reports
+  nothing
 
 *Explained in:* [standards/docs.md](../standards/docs.md)
+
+## KB-DOC-005: Every public repository publishes a versioned MkDocs site { #kb-doc-005 }
+
+**MUST** · driver, library, hal, firmware, tooling, docs, template · since 1.0
+
+Every public repository publishes its documentation at `https://kokeb-labs.github.io/<repo>/` through
+`ru-mkdocs-publish`, built with `kokeb-mkdocs-theme` and versioned per `v*` tag; a code repository merges its Doxygen
+reference under `api/`. A `-rc` tag publishes its version without moving the `latest` alias.
+
+*Why:* One platform and one theme mean a reader finds the same layout on every site, and a pinned version per tag means
+the page a user reads matches the code they built.
+
+*Verified by:*
+
+- `mkdocs-strict` (implemented): the documentation site builds with mkdocs --strict (no broken internal link, every page
+  in the nav)
+- review: The docs workflow calls ru-mkdocs-publish and the site is live at kokeb-labs.github.io/&lt;repo&gt;/.
+
+*Explained in:* [standards/docs.md](../standards/docs.md)
+
+## KB-DOC-006: Pages live in docs/ and the site config in \_config/mkdocs.yml { #kb-doc-006 }
+
+**MUST** · driver, library, hal, firmware, tooling, docs, template · since 1.0
+
+Pages live in `docs/`. The site configuration is `_config/mkdocs.yml` with `docs_dir: ../docs`, and the docs workflow is
+passed `mkdocs_config: _config/mkdocs.yml` and, in a code repository, `doxygen_config: _config/Doxyfile`.
+
+*Verified by:*
+
+- `mkdocs-strict` (implemented): the documentation site builds with mkdocs --strict (no broken internal link, every page
+  in the nav)
+- review: The docs workflow passes mkdocs\_config and doxygen\_config with the \_config/ paths.
+
+*See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/docs.md](../standards/docs.md)
+
+## KB-DOC-007: The navigation has the five standard tabs { #kb-doc-007 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, tooling, docs, template · since 1.0 · enforced from 2027-03-01
+
+`docs/.nav.yml` has exactly five top-level tabs, in this order: Home, Get started, Concepts, Guides, Reference. Deep
+dives go under Concepts and configuration references under Guides.
+
+*Verified by:*
+
+- `docs-nav` (planned): docs/.nav.yml has exactly the five tabs Home, Get started, Concepts, Guides, Reference in order,
+  and contract.md sits under Concepts right after Architecture
+
+*Explained in:* [standards/docs.md](../standards/docs.md)
+
+## KB-DOC-008: The site has the page set for its kind { #kb-doc-008 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, tooling, template · since 1.0 · enforced from 2027-03-01
+
+`docs/` holds every page the documentation standard lists for the repository's kind (driver, standalone library,
+kb-core, HAL, product, CI and tools). A page that cannot apply, such as Configuration for a driver with no `Config`, is
+left out rather than kept empty.
+
+*Why:* A fixed page set lets a reader move between repositories without relearning where things are, and lets a check
+say what is missing.
+
+*Verified by:*
+
+- `docs-page-set` (planned): docs/ has every page the documentation standard requires for the repository's declared
+  kind, and each is in the navigation
+
+*Explained in:* [standards/docs.md](../standards/docs.md)
+
+## KB-DOC-009: Every code repository has a Contract page under Concepts { #kb-doc-009 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+Every driver, library, kb-core, HAL and product has `docs/contract.md`, listed under Concepts right after Architecture.
+
+*Verified by:*
+
+- `docs-page-set` (planned): docs/ has every page the documentation standard requires for the repository's declared
+  kind, and each is in the navigation
+- `docs-nav` (planned): docs/.nav.yml has exactly the five tabs Home, Get started, Concepts, Guides, Reference in order,
+  and contract.md sits under Concepts right after Architecture
+
+*Explained in:* [standards/docs.md](../standards/docs.md#the-contract-page)
+
+## KB-DOC-010: The Contract page has the standard sections in order { #kb-doc-010 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+`docs/contract.md` has the sections Promises, Depends on, Threading, Errors, Memory, Platform and Deviations from the
+standard, in that order, after a one-line purpose.
+
+*Why:* The Contract is the short normative summary a caller or an auditor reads first; fixed sections make a missing
+promise visible.
+
+*Verified by:*
+
+- `heading-skeleton/contract` (planned): a Markdown file's headings match a required skeleton in order (parameter:
+  contract, readme, adr, hf-hal-readme, hf-board-spec, hf-protocol-spec)
+
+*See also:* IEC 62304:2006+A1:2015 5.4.3 (detailed design of software unit interfaces)
+
+*Explained in:* [standards/docs.md](../standards/docs.md#the-contract-page)
+
+## KB-DOC-011: The Contract page lists every handbook rule the repository does not meet { #kb-doc-011 }
+
+**MUST** · driver, library, hal, firmware, template · since 1.0
+
+The Deviations section names, by rule ID, each handbook rule the repository does not meet yet, with its issue or waiver.
+An empty section says "None".
+
+*Verified by:*
+
+- review: Every waiver in .kokeb/handbook.yml and every known unmet rule appears in the Deviations section with its
+  issue.
+
+*Explained in:* [deviations.md](../deviations.md)
+
+## KB-DOC-012: Repository docs link the handbook instead of restating it { #kb-doc-012 }
+
+**SHOULD** · all · since 1.0
+
+The handbook is the single source of the rules. A repository's docs, Contract page, templates and CI link the rule they
+follow and state only what is specific to the repository; no repository keeps a copy of the handbook or of its pages.
+
+*Why:* A copied rule drifts from the original the first time either is edited.
+
+*Verified by:*
+
+- review: No page restates a handbook rule that it could link; no vendored copy of handbook pages.
+
+*Explained in:* [standards/docs.md](../standards/docs.md#the-contract-page)
+
+## KB-DOC-013: CONTRIBUTING.md links the handbook { #kb-doc-013 }
+
+**SHOULD** · all · since 1.0
+
+A repository's CONTRIBUTING.md, or the organisation default it inherits, links the handbook. AGENTS.md links it as
+KB-AGT-005 requires.
+
+*Verified by:*
+
+- review: CONTRIBUTING.md (own or the org default) links kokeb-labs.github.io/handbook.
+
+
+## KB-DOC-014: A change to behaviour or API updates its docs in the same pull request { #kb-doc-014 }
+
+**SHOULD** · all · since 1.0
+
+A pull request that changes behaviour, the public API, a pin, a default or a build option updates the README, the pages
+under `docs/` and the CHANGELOG entry that describe it, in the same pull request.
+
+*Why:* Docs updated later are docs that are wrong in between, and usually stay wrong.
+
+*Verified by:*
+
+- `docs-touched` (planned): warns when a pull request changes inc/, a Kconfig or a CMake option without touching
+  README.md, docs/ or CHANGELOG.md
+- review: Every page that describes the changed behaviour is updated in this pull request.
+
+
+## KB-DOC-015: The README has the standard sections in order { #kb-doc-015 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · driver, library, hal, firmware, tooling, template · since 1.0 · enforced from 2027-03-01
+
+The README has, in order and only where they apply: title and hero line, true badges, the bold docs link, one figure, In
+30 seconds, What it does, Install, Documentation, Tests and License.
+
+*Verified by:*
+
+- `heading-skeleton/readme` (planned): a Markdown file's headings match a required skeleton in order (parameter:
+  contract, readme, adr, hf-hal-readme, hf-board-spec, hf-protocol-spec)
+
+*Explained in:* [standards/docs.md](../standards/docs.md#readme)
+
+## KB-DOC-016: The README is short and leaves the reference to the site { #kb-doc-016 }
+
+**SHOULD** · all · since 1.0
+
+A README has no table of contents, no emoji walls, no check-mark feature lists, no badge that links nowhere or states
+something untrue, and no API tables that duplicate the site.
+
+*Verified by:*
+
+- `prose-style/emoji` (planned): Vale with the Kokeb style; the parameter names the style rule
+- review: The README has none of the banned elements and every badge is live and true.
+
+*Explained in:* [standards/docs.md](../standards/docs.md#readme)
+
+## KB-DOC-017: A driver's README names the chip and the part, not the organisation { #kb-doc-017 }
+
+**MUST** · driver, template · since 1.0
+
+A driver's README and site name the chip and part it drives; the organisation appears only in links and the licence
+line, so the driver reads as usable on its own.
+
+*Verified by:*
+
+- `forbidden-patterns/readme-org-name` (planned): a source scan for a construct the handbook bans; the parameter names
+  the pattern set
+- review: The README names the chip and part; no Kokeb Labs or HardFOC branding outside links.
+
+*See also:* [ADR-0012](../adr/0012-unbranded-drivers.md)
+
+*Explained in:* [standards/docs.md](../standards/docs.md#readme)
+
+## KB-DOC-018: The README licence line matches LICENSE and the package metadata { #kb-doc-018 }
+
+**MUST** · all · since 1.0
+
+The README's License line, LICENSE and every package manifest (`idf_component.yml`, `library.json` and the like) name
+the same licence: MIT for code, CERN-OHL-P-2.0 for a hardware design.
+
+*Verified by:*
+
+- review: README License line, LICENSE and package manifests name the same licence.
+
+*See also:* [ADR-0009](../adr/0009-licensing.md)
+
+
+## KB-DOC-019: A family driver is named after the member it was written for { #kb-doc-019 }
+
+**SHOULD** · driver · since 1.0
+
+A driver that covers a chip family is named after the part it was written and tested for; the README lists the other
+members it supports and how far each is tested.
+
+*Verified by:*
+
+- review: The repository name is the tested part; the README lists the other family members and their status.
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-DOC-020: Every C++ block on the site compiles { #kb-doc-020 }
+
+**MUST** · driver, library, hal, template · since 1.0
+
+A C++ snippet longer than one line lives in `tests/docs/*.cpp` between `--8<--` section markers, is built by the host
+build with warnings on, and is included in the page; it is never pasted inline.
+
+*Why:* An example that does not compile teaches the wrong API, and nobody notices until a user pastes it.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- `docs-inline-code` (planned): no C++ fence longer than one line in docs/ or README.md is written inline; each comes
+  from tests/docs via a --8&lt;-- include or a generated region
+
+*Explained in:* [standards/docs.md](../standards/docs.md#code-on-the-site)
+
+## KB-DOC-021: Examples check every result { #kb-doc-021 }
+
+**MUST** · driver, library, hal, firmware, template · since 1.0
+
+Every example on the site and in the README checks each `Result` and `Status` it gets and shows what to do with an
+error; no example ignores a return value or elides code with `// ...`.
+
+*Verified by:*
+
+- `compiler-warnings/-Wunused-result` (implemented): the build is warning-free with the named flag and -Werror
+- review: Each example handles every returned Result or Status.
+
+*Explained in:* [standards/docs.md](../standards/docs.md#code-on-the-site)
+
+## KB-DOC-022: Generated regions and figures match the code { #kb-doc-022 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. ru-mkdocs-publish runs the drift check today; once its job is named in the
+    registry the check is implemented and this rule can be active.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+The README quickstart, examples lists and figures are generated regions (`kokeb-docs`), and CI fails when one no longer
+matches the code it is generated from. `kokeb-docs check` runs the same check locally.
+
+*Verified by:*
+
+- `docs-drift` (planned): kokeb-docs check finds no generated region (README quickstart, examples list) or figure that
+  differs from what the code generates
+
+*Explained in:* [standards/docs.md](../standards/docs.md#the-site)
+
+## KB-DOC-023: The Porting page shows a complete, compiled port for each bus { #kb-doc-023 }
+
+**MUST** · driver, template · since 1.0
+
+A driver's Porting page shows the full port for every bus it supports, compiled from `tests/docs/`, and lists every
+extra protocol hook with the same contract as the core interface methods.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: Each supported bus has a compiled port on the Porting page; every extra hook is listed.
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-DOC-024: The API guide lists the errors each call can return { #kb-doc-024 }
+
+**SHOULD** · driver, template · since 1.0
+
+A driver's API guide lists, for each call, the error values it can return and what each means, matching the `@retval`
+lines in the headers.
+
+*Verified by:*
+
+- review: The API guide's error table matches the @return/@retval documentation in inc/.
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-DOC-025: Every image has alt text { #kb-doc-025 }
+
+**MUST** · all · since 1.0
+
+Every image and figure has alt text: one sentence saying what it shows, never just "diagram" or "image".
+
+*Verified by:*
+
+- `markdownlint/MD045` (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)
+- review: Alt text says what the figure shows.
+
+*Explained in:* [standards/docs.md](../standards/docs.md#code-on-the-site)
+
+## KB-DOC-026: Figures are generated, themed, and drawn with the right tool { #kb-doc-026 }
+
+**SHOULD** · all · since 1.0
+
+Architecture and code-derived figures are figkit figures with light and dark variants; sequences and state machines are
+Mermaid. A vendor image is an SVG or compressed PNG on a `.kb-plate`, never a screenshot of a PDF.
+
+*Verified by:*
+
+- review: New figures use figkit or Mermaid; vendor images are SVG/PNG with .kb-plate.
+
+*Explained in:* [standards/docs.md](../standards/docs.md#code-on-the-site)
+
+## KB-DOC-027: A figure has one reading direction, verbs on its arrows and three tones at most { #kb-doc-027 }
+
+**GUIDE** · all · since 1.0
+
+A figure reads in one direction, stated in its subtitle; solid arrows call, dashed arrows carry data, and an arrow is
+labelled when its verb is not obvious. Colour shows ownership in at most three tones, with about eight cards at most.
+
+
+## KB-DOC-028: The site's changelog page includes CHANGELOG.md { #kb-doc-028 }
+
+**MUST** · driver, library, hal, firmware, tooling, template · since 1.0
+
+`docs/changelog.md` has a title and purpose line and pulls in `CHANGELOG.md` with a snippet include; it never holds a
+copy.
+
+*Verified by:*
+
+- review: docs/changelog.md uses --8&lt;-- "CHANGELOG.md" and has no copied entries.
+
+*Explained in:* [standards/docs.md](../standards/docs.md#changelog-and-decisions)
+
+## KB-DOC-029: The changelog keeps [Unreleased] first and the standard subsections in order { #kb-doc-029 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. The planned changelog check must cover the [Unreleased]-first and
+    subsection-order rules (Breaking is not a Keep a Changelog heading).
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+`## [Unreleased]` is always the first section. Within a section the subsections are Breaking, Added, Changed,
+Deprecated, Removed, Fixed and Security, in that order, each only when it has an entry.
+
+*Verified by:*
+
+- `changelog` (planned): CHANGELOG.md follows Keep a Changelog; a new version section is the next SemVer step, dated,
+  not empty
+
+*Explained in:* [standards/release.md](../standards/release.md)
+
+## KB-DOC-030: A released changelog section is never edited { #kb-doc-030 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+A released section `## [X.Y.Z] - YYYY-MM-DD` is not edited after its release, except for its link lines; a correction
+goes in the next release's entry.
+
+*Verified by:*
+
+- `changelog-frozen` (planned): a pull request's diff of CHANGELOG.md changes only the [Unreleased] section, a new
+  release section and link lines
+
+*Explained in:* [standards/release.md](../standards/release.md)
+
+## KB-DOC-031: Changelog entries describe what a user sees { #kb-doc-031 }
+
+**GUIDE** · all · since 1.0
+
+A changelog entry says what changes for the user of the release (an API, a behaviour, a default, a fix to a symptom),
+not which commits went in.
+
+*Explained in:* [standards/release.md](../standards/release.md)
+
+## KB-DOC-032: ADRs use the standard format and are numbered in acceptance order { #kb-doc-032 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+A decision record has a Status line and the sections Context, Decision and Consequences, and is numbered
+`NNNN-<slug>.md` in the order decisions are accepted.
+
+*Verified by:*
+
+- `heading-skeleton/adr` (planned): a Markdown file's headings match a required skeleton in order (parameter: contract,
+  readme, adr, hf-hal-readme, hf-board-spec, hf-protocol-spec)
+
+*Explained in:* [standards/docs.md](../standards/docs.md#changelog-and-decisions)
+
+## KB-DOC-033: An accepted decision is superseded, never rewritten { #kb-doc-033 }
+
+**MUST** · all · since 1.0
+
+Once an ADR is accepted its Decision is not edited to change it; a new ADR supersedes it, and the old one's Status links
+its successor.
+
+*Why:* The record is only useful if it shows what was decided at the time, and why.
+
+*Verified by:*
+
+- review: A pull request that edits an accepted ADR changes only its Status, links or typos.
+
+*Explained in:* [standards/docs.md](../standards/docs.md#changelog-and-decisions)
+
+## KB-DOC-034: Cross-repository decisions are handbook ADRs; local ones stay in the repository { #kb-doc-034 }
+
+**SHOULD** · all · since 1.0
+
+A decision that affects more than one repository is an ADR in the handbook's `docs/adr/`. A decision local to one
+repository, including a product's, is an ADR in its own `docs/adr/` in the same format.
+
+*Verified by:*
+
+- review: A new ADR is in the handbook when it binds other repositories.
+
+*Explained in:* [standards/docs.md](../standards/docs.md#changelog-and-decisions)
+
+## KB-DOC-035: Datasheets are linked, and committed only where their licence allows { #kb-doc-035 }
+
+**SHOULD** · driver, hal, template · since 1.0
+
+A datasheet or manual is linked from the page, never embedded. It is committed under `docs/datasheet/` only when its
+licence allows redistribution; otherwise the page links the vendor's copy.
+
+*Verified by:*
+
+- review: Any PDF under docs/datasheet/ has a licence that allows redistribution; none is embedded.
+
+
+## KB-DOC-036: Markdown wraps at 120 columns { #kb-doc-036 }
+
+**MUST** · all · since 1.0
+
+Prose lines in Markdown are at most 120 characters; tables and code blocks are exempt.
+
+*Verified by:*
+
+- `markdownlint/MD013` (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-DOC-037: Every page has one title, a purpose line and sections in reading order { #kb-doc-037 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. config/.markdownlint.json must enable MD025 and MD041 (MD041 with front matter
+    allowed, for `hide:`).
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+A page starts with exactly one `#` title matching its navigation entry, then a one-sentence purpose line, then `##`
+sections in the order a reader needs them, ending with a next step when there is an obvious one.
+
+*Verified by:*
+
+- `markdownlint/MD025` (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)
+- `markdownlint/MD041` (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)
+- review: The page has a purpose line under its title.
+
+
+## KB-DOC-038: Headings step one level at a time and code fences name their language { #kb-doc-038 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. config/.markdownlint.json must enable MD040.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+Heading levels go down one at a time and use `#` style throughout. Every fenced code block names its language (`cpp`,
+`yaml`, `mermaid`, `text`).
+
+*Verified by:*
+
+- `markdownlint/MD001` (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)
+- `markdownlint/MD003` (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)
+- `markdownlint/MD040` (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)
+
+
+## KB-DOC-039: Links are relative, by file, with descriptive text { #kb-doc-039 }
+
+**SHOULD** · all · since 1.0
+
+Pages link other pages by file (`porting.md#threads`), repository files relatively, and the API reference by
+`api/...html`; no page links its own site or repository by absolute URL. Link text says where it goes, and external
+links go to the primary source.
+
+*Verified by:*
+
+- `markdownlint/MD059` (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)
+- `forbidden-patterns/absolute-self-links` (planned): a source scan for a construct the handbook bans; the parameter
+  names the pattern set
+- review: External links point at the primary source (vendor, datasheet, specification).
+
+*Explained in:* [standards/docs.md](../standards/docs.md)
+
+## KB-DOC-040: Documentation is Markdown { #kb-doc-040 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+Documentation is written in Markdown in the repository; no Word, PDF or slide files stand in for pages. Vendor
+datasheets (KB-DOC-035) are the only exception.
+
+*Verified by:*
+
+- `forbidden-patterns/office-docs` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+
+
+## KB-DOC-041: No Jekyll front matter or Liquid; front matter only for hide { #kb-doc-041 }
+
+**MUST** · all · since 1.0
+
+Pages have no Jekyll front matter and no Liquid tags. Material front matter is used only for `hide:`, for example on the
+home page.
+
+*Verified by:*
+
+- `mkdocs-strict` (implemented): the documentation site builds with mkdocs --strict (no broken internal link, every page
+  in the nav)
+
+*Explained in:* [standards/docs.md](../standards/docs.md)
+
+## KB-DOC-042: Page file names are lower-case kebab-case { #kb-doc-042 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+Files under `docs/` are named in lower-case kebab-case (`api-guide.md`, `contract.md`). The conventional root files
+(README.md, CHANGELOG.md, CONTRIBUTING.md, AGENTS.md, CLAUDE.md, LICENSE) keep their upper-case names.
+
+*Verified by:*
+
+- `doc-file-names` (planned): every file under docs/ is lower-case kebab-case; root README, CHANGELOG, CONTRIBUTING,
+  AGENTS, CLAUDE and LICENSE are exempt
+
+
+## KB-DOC-043: Write in the second person, present tense and active voice { #kb-doc-043 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. The Vale rules report at warning level for passive voice.
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+Pages address the reader as "you", in the present tense and active voice, in short sentences of one idea each. A page
+does not describe itself ("this document describes").
+
+*Verified by:*
+
+- `prose-style/passive-voice` (planned): Vale with the Kokeb style; the parameter names the style rule
+- `prose-style/future-tense` (planned): Vale with the Kokeb style; the parameter names the style rule
+- `prose-style/self-reference` (planned): Vale with the Kokeb style; the parameter names the style rule
+
+*Explained in:* [standards/docs.md](../standards/docs.md)
+
+## KB-DOC-044: No hype or filler words { #kb-doc-044 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+Pages are plain and specific: numbers, names and units instead of "simply", "just", "easily", "powerful",
+"comprehensive", "seamless" or "robust".
+
+*Verified by:*
+
+- `prose-style/hype-words` (planned): Vale with the Kokeb style; the parameter names the style rule
+
+
+## KB-DOC-045: No emoji, exclamation marks or walls of bold { #kb-doc-045 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+Headings, lists and tables carry no emoji; prose has no exclamation marks and no runs of bold text.
+
+*Verified by:*
+
+- `prose-style/emoji` (planned): Vale with the Kokeb style; the parameter names the style rule
+- `prose-style/exclamation` (planned): Vale with the Kokeb style; the parameter names the style rule
+
+
+## KB-DOC-046: Titles and headings are in sentence case { #kb-doc-046 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+Every title and heading, the page title included, is in sentence case ("Bus settings").
+
+*Verified by:*
+
+- `prose-style/sentence-case` (planned): Vale with the Kokeb style; the parameter names the style rule
+
+
+## KB-DOC-047: Pages never mention how they were produced { #kb-doc-047 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+No page says it was generated or written by a tool or an assistant, and no page names one as its author.
+Generated-region markers are comments, not prose.
+
+*Verified by:*
+
+- `prose-style/provenance` (planned): Vale with the Kokeb style; the parameter names the style rule
+
+
+## KB-DOC-048: Spelling is correct and one variant is used per repository { #kb-doc-048 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+Pages have no misspellings, and a repository uses British or American spelling consistently; project words are listed in
+`config/typos.toml`.
+
+*Verified by:*
+
+- `spelling` (planned): typos finds no misspelling (project words in config/typos.toml)
+- `prose-style/spelling-variant` (planned): Vale with the Kokeb style; the parameter names the style rule
+
+
+## KB-DOC-049: Every name and number on a page is checked against its source { #kb-doc-049 }
+
+**MUST** · all · since 1.0
+
+Every API name, signature, pin, register and number is checked against the headers or the datasheet. A timing or
+performance figure is measured, with its conditions, or says that it is derived.
+
+*Why:* A plausible wrong number costs a user more than a missing one.
+
+*Verified by:*
+
+- review: Numbers and names on changed pages match the headers or datasheet; derived figures say so.
+
+
+## KB-DOC-050: Use a table for three or more like items, with units in the header { #kb-doc-050 }
+
+**GUIDE** · all · since 1.0
+
+Pins, registers, parameters, options, commands and error codes go in a table once there are three or more, with units in
+the header (`Range (V)`), names in code font and long prose below the table.
+
+
+## KB-DOC-051: Use the theme's components instead of inventing markup { #kb-doc-051 }
+
+**GUIDE** · all · since 1.0
+
+Admonitions, tabs, chip cards, steps and API links use the theme's components. A page has at most two `warning` or
+`danger` admonitions, kept for damage or lost hours.
+
+
+## KB-DOC-052: Guides teach a task with complete examples and say why { #kb-doc-052 }
+
+**GUIDE** · all · since 1.0
+
+A guide page is organised by task, gives the smallest complete example for each step, and says why a step is needed as
+well as how.
+
+
+## KB-DOC-053: No undated future-plans sections { #kb-doc-053 }
+
+**GUIDE** · all · since 1.0
+
+Pages describe what exists. Plans go in issues or discussions, not in "future work" or "roadmap" sections of the docs.
+
+
+## KB-DOC-054: The site meets the Lighthouse accessibility budget { #kb-doc-054 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · driver, library, hal, firmware, tooling, docs, template · since 1.0 · enforced from 2027-03-01
+
+The built site scores at or above the org Lighthouse budget for accessibility, performance, best practices and SEO.
+
+*Verified by:*
+
+- `lighthouse` (planned): Lighthouse scores of the built site meet the org budget for accessibility, performance, best
+  practices and SEO (ru-mkdocs-publish runs Lighthouse; register it as implemented once its failing job is confirmed)
+
+
+## KB-DOC-055: Interrupt wiring is documented { #kb-doc-055 }
+
+**SHOULD** · driver, hal, template · since 1.0
+
+When a driver or HAL needs an interrupt, its docs say which callback or vector handler the user wires, which context it
+runs in, and what it may call.
+
+*Verified by:*
+
+- review: The Porting or Contract page names the ISR hook, its context and what it may call.
+
+
+## KB-DOC-056: kb-core has one page per handler { #kb-doc-056 }
+
+**MUST** · library · since 1.0
+
+kb-core documents each handler on its own page under `docs/handlers/`, with its API, error mapping, locking and
+diagnostics.
+
+*Verified by:*
+
+- review: Every handlers/&lt;chip&gt; folder has a docs/handlers/ page with the four sections.
+
+*Explained in:* [standards/handler.md](../standards/handler.md)
+
+## KB-DOC-057: A utility collection has one guide page per utility { #kb-doc-057 }
+
+**SHOULD** · library · since 1.0
+
+A library that is a collection of utilities has one guide page per utility, with its purpose, a compiled example and its
+complexity and memory use.
+
+*Verified by:*
+
+- review: Each public utility header has a guide page with purpose, example, complexity and memory.
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-DOC-058: A product documents its fault catalogue on the Operation page { #kb-doc-058 }
+
+**MUST** · firmware · since 1.0
+
+A product keeps one fault catalogue (ID, protocol code, severity, reaction) and documents it on its Operation page.
+
+*Verified by:*
+
+- review: The Operation page lists every fault in the catalogue with its code, severity and reaction.
+
+*Explained in:* [standards/product.md](../standards/product.md)
+
+## KB-DOC-059: Release trains are announced with their bench status { #kb-doc-059 }
+
+**SHOULD** · library · since 1.0
+
+A kb-core release train is announced in its release notes and on the Release trains page, with the bench status of each
+member.
+
+*Verified by:*
+
+- review: The release notes and Release trains page list the train's members and bench status.
+
+*Explained in:* [standards/release.md](../standards/release.md)
+
+## KB-DOC-060: Patches to vendor-generated code are listed in PATCHES.md { #kb-doc-060 }
+
+**SHOULD** · hal · since 1.0
+
+Any edit to vendor-generated code (STM32Cube and the like) after generation is listed in `PATCHES.md` beside it, with
+why; the aim is none.
+
+*Verified by:*
+
+- review: A diff against the regenerated output matches what PATCHES.md lists.
+
+
+## KB-DOC-061: The Doxyfile lives in \_config/ and Doxygen runs from the root { #kb-doc-061 }
+
+**MUST** · driver, library, hal, template · since 1.0
+
+Each code repository keeps its Doxyfile at `_config/Doxyfile`, derived from the shared settings in ci-tools, and runs
+`doxygen _config/Doxyfile` from the repository root so its paths are root-relative.
+
+*Verified by:*
+
+- `doxyfile-baseline` (planned): \_config/Doxyfile exists and sets INPUT to the public headers, EXTRACT\_ALL and
+  EXTRACT\_PRIVATE to NO, WARN\_NO\_PARAMDOC to YES and the org mainpage, compared with the ci-tools baseline
+- review: \_config/Doxyfile exists and its paths are relative to the root.
+
+*See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/docs.md](../standards/docs.md#doxygen)
+
+## KB-DOC-062: Doxygen reads only the public headers and keeps private members out { #kb-doc-062 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. driver-template matches; ci-tools' shared Doxyfile uses INPUT = README.md ...
+    with RECURSIVE = YES and must be brought in line.
+
+**MUST** · driver, library, hal, template · since 1.0 · enforced from 2027-03-01
+
+The Doxyfile sets `INPUT` to the public headers only (`inc/` for a driver), `EXTRACT_ALL = NO`, `EXTRACT_PRIVATE = NO`,
+`WARN_NO_PARAMDOC = YES`, `USE_MDFILE_AS_MAINPAGE = docs/_doxygen/mainpage.md`, and generates HTML that is merged into
+the site under `api/`.
+
+*Why:* With EXTRACT\_ALL off, an undocumented symbol is a warning instead of an empty entry, so KB-DOC-004 can fail on
+it.
+
+*Verified by:*
+
+- `doxyfile-baseline` (planned): \_config/Doxyfile exists and sets INPUT to the public headers, EXTRACT\_ALL and
+  EXTRACT\_PRIVATE to NO, WARN\_NO\_PARAMDOC to YES and the org mainpage, compared with the ci-tools baseline
+
+*Explained in:* [standards/docs.md](../standards/docs.md#doxygen)
+
+## KB-DOC-063: A public function's comment gives units, errors and whether it blocks { #kb-doc-063 }
+
+**MUST** · driver, library, hal, template · since 1.0
+
+Each public symbol has a brief description. Each public function documents every parameter with its unit, its return
+value and the error values it can return, and whether it does I/O or blocks.
+
+*Verified by:*
+
+- `doxygen-warnings` (planned): Doxygen with WARN\_AS\_ERROR = FAIL\_ON\_WARNINGS and WARN\_IF\_UNDOCUMENTED reports
+  nothing
+- review: Changed public functions document units, error values and whether they do I/O or block.
+
+*See also:* IEC 62304:2006+A1:2015 5.4.2 (detailed design of each software unit)
+
+*Explained in:* [standards/docs.md](../standards/docs.md#doxygen)
+
+## KB-DOC-064: Each test says what it verifies, with its data and expected result { #kb-doc-064 }
+
+**SHOULD** · driver, library, hal, firmware, template (safety level and above) · since 1.0
+
+At safety level each test case has a Doxygen comment naming the requirement or behaviour it verifies, the input data and
+the expected result.
+
+*Why:* The comment is the trace from a requirement to its test that an assessor reads.
+
+*Verified by:*
+
+- review: Each new or changed test has a comment naming what it verifies, its data and expected result.
+

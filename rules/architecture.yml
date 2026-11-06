@@ -1,0 +1,688 @@
+---
+area: architecture
+prefix: KB-ARCH
+title: Architecture
+intro: >-
+  How the stack is put together: which layer may depend on which, where chip-, MCU- and product-specific code
+  lives, and what drivers, kb-core, kb-hal-common, board HALs and products each own. The include tables are on
+  Layers; the per-layer pages under Standards hold the detail. Rules marked guide are design advice for review.
+rules:
+  # -- Layering ---------------------------------------------------------------------------------------------------
+  - id: KB-ARCH-001
+    title: Dependencies point down the stack only
+    statement: >-
+      No layer includes, links or calls anything above it in the stack on Layers (product, board HAL with its bind,
+      kb-core handlers, interfaces, rtos, utils, drivers). Each file includes only what the Layers include table
+      allows for its folder.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - check: include-graph/all
+      - review: Every new include is allowed by the Layers include table for the folder it is in.
+    rationale: >-
+      An upward dependency makes a lower layer untestable without the one above and lets lock, lifecycle and error
+      mapping be bypassed. Downward-only dependencies let any driver sit under any product.
+    refs: [{adr: 13}, {std: IEC-62304, id: "5.3.2", note: "interfaces between software items"}]
+    page: standards/layers.md#includes
+    origin:
+      - "inventory: B-LAY-01 (kb:standards/layers.md:33)"
+      - "hf:process/layered-architecture.md (separate API layer; superseded)"
+
+  - id: KB-ARCH-002
+    title: A layer skip is a defect even when it works
+    statement: >-
+      Code that reaches past the layer directly below it (a manager calling a driver through a handler's driver
+      pointer, an application calling an `Esp*` class or raw FreeRTOS, middleware including a handler) is fixed by
+      adding the missing call to the skipped layer, not by allowing the skip.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal, firmware]}
+    verify:
+      - check: hal-lint/driver-access
+      - review: No call reaches past the layer below it; a missing feature is added to the skipped layer.
+    rationale: The skipped layer's lock, lifecycle and error mapping silently stop applying.
+    page: standards/layers.md#layer-skips-are-defects
+    origin: ["inventory: B-LAY-24 (kb:standards/layers.md:149-157; hf:process/handler-pattern.md:315-323)"]
+
+  - id: KB-ARCH-003
+    title: The submodule graph is acyclic and points down
+    statement: >-
+      Submodules point only down the stack: a product pins its board HAL, a board HAL pins kb-hal-common and
+      kb-core, and kb-core pins drivers. No repository pins one above it or forms a cycle.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware]}
+    verify: [{check: submodule-graph}]
+    refs: [{adr: 7}, {adr: 13}]
+    page: standards/layers.md#the-stack
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inventory: B-LAY-02 (kb:standards/layers.md:34; hf:agents/release-and-submodules.md:13-23)"]
+
+  - id: KB-ARCH-004
+    title: "Inside kb-core: utils, then rtos, then interfaces, then handlers"
+    statement: >-
+      kb-core's parts are the separate CMake targets `kb::utils`, `kb::rtos`, `kb::interfaces` and `kb::handlers`,
+      and each links only the targets before it in that order, so an upward include fails to build.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library]}
+    verify: [{check: layer-deps}]
+    refs: [{adr: 13}]
+    page: standards/library.md#every-part-of-kb-core
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inventory: B-LAY-03 (kb:standards/layers.md:36; kb:standards/adr/0013-kb-core-monorepo.md:23)"]
+
+  - id: KB-ARCH-005
+    title: Drivers and kb-core meet only in the handler adapter
+    statement: >-
+      A driver depends on nothing in kb-core or any other Kokeb Labs repository; `kb_core_min` in `driver.yml` is
+      its only mention of kb-core. kb-core's utils, rtos and interfaces never depend on a driver. The handler's
+      adapter, which implements the driver's port with `Base*` calls, is the one place they meet.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, template]}
+    verify:
+      - check: host-tests
+      - check: include-graph/driver
+      - review: Driver code names nothing from kb-core; kb-core code outside handlers/ includes no driver header.
+    rationale: >-
+      A driver must be usable and forkable without anything else from the org, and the core must not change when a
+      chip is added.
+    refs: [{adr: 12}, {adr: 13}]
+    page: standards/layers.md#the-stack
+    origin:
+      - "inventory: B-LAY-05 (kb:standards/layers.md:41), B-LAY-06 (layers.md:42), B-DRV-71 (driver.md:355)"
+      - "hf:process/handler-pattern.md:11-17"
+
+  - id: KB-ARCH-006
+    title: Port hooks move raw bytes; the driver never configures the bus
+    statement: >-
+      Port hooks transfer bytes and nothing else; register addresses travel in the payload. The driver does not set
+      bus speed, mode or pins: the port or the board does.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template]}
+    verify:
+      - review: No driver code or hook argument configures bus speed, mode or pins.
+    refs: [{adr: 3}]
+    page: standards/driver.md
+    origin: ["inventory: B-DRV-21 (kb:standards/driver.md:135; kb:standards/checklists/new-driver.md:18)"]
+
+  - id: KB-ARCH-007
+    title: Drivers never lock, sleep or call an RTOS
+    statement: >-
+      A driver is not thread-safe: it takes no lock, creates no task and calls no RTOS (waiting is KB-CPP-041).
+      The kb-core handler that owns it does the locking.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: host-tests
+      - check: include-graph/driver
+      - review: The driver has no lock, task or RTOS call.
+    rationale: One owner for locking avoids double locks and lets the same driver run bare-metal or on any RTOS.
+    refs: [{adr: 3}]
+    page: standards/driver.md#memory-and-threads
+    origin: ["inventory: B-DRV-56 (kb:standards/driver.md:306; hf:process/layered-architecture.md)"]
+
+  - id: KB-ARCH-008
+    title: Only a chip's driver and handler know its registers
+    statement: >-
+      A chip's register map, start-up sequence and quirks live in its driver and its handler only. Managers, HALs and
+      products use the handler's typed API or `VisitDriver()` and never name a register.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal, firmware]}
+    verify:
+      - review: No code outside the chip's driver and handler names its registers or bit fields.
+    refs: [{adr: 14}]
+    page: standards/layers.md#three-kinds-of-specific
+    origin: ["inventory: B-LAY-08 (kb:standards/layers.md:59,63; kb:standards/adr/0014-three-kinds-of-specific.md)"]
+
+  - id: KB-ARCH-009
+    title: MCU-specific code lives only in the selected family's folders
+    statement: >-
+      Code that knows an MCU family lives only in kb-core's `interfaces/mcu/<family>/`, a board HAL's
+      `bsp_bind/<family>/` and a product's `platform/`. The build compiles only the selected family's folders, and
+      every other folder compiles for every family and on the host.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    verify:
+      - check: include-graph/mcu
+      - review: New MCU-specific code is in an `mcu/<family>/`, `bsp_bind/<family>/` or `platform/` folder.
+    rationale: KB-CPP-016 bans the platform macros that would let MCU code hide elsewhere; this rule says where it goes.
+    refs: [{adr: 14}]
+    page: standards/layers.md#mcu-specific-code
+    origin:
+      - "inventory: B-LAY-09 (kb:standards/layers.md:64,70; kb:standards/adr/0011-repository-root-layout.md)"
+      - "hf:porting/stm32-cube-hal.md (Stm* in a HAL lib/; superseded)"
+
+  - id: KB-ARCH-010
+    title: Product-specific needs reach kb-core and drivers only as generic extension points
+    statement: >-
+      Nothing in kb-core or a driver is specific to one product: no product macro, pin, channel choice, limit,
+      profile table or fault catalogue. A product need becomes a config mask, a table passed in as `std::span`, a
+      `Base*` backend interface or an injected logger, or it stays in the product's board HAL.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, template]}
+    verify:
+      - review: >-
+          A second, made-up product with a different board could use this change to kb-core or the driver without
+          editing it.
+    rationale: >-
+      Whatever one product puts in the core, every other product carries. The second-product test catches it
+      before merge.
+    refs: [{adr: 14}]
+    page: standards/layers.md#product-specific-code
+    origin:
+      - "inventory: B-LAY-13 (kb:standards/layers.md:65,99-106), B-DRV-48 (driver.md:288), B-HDL-24 (handler.md:164)"
+      - "inventory: B-PRD-06 (product.md:29), B-ERR-15 (errors.md:160), B-ADR-63 (adr/0014:28)"
+
+  - id: KB-ARCH-011
+    title: Run-time polymorphism lives only in Base* interfaces and the HAL manager base
+    statement: >-
+      Above the bind, virtual functions are declared only by the `Base*` interfaces in kb-core's `interfaces/base/`
+      and by kb-hal-common's `ManagerBase` and the sink interfaces it uses. Drivers, ports, handlers and utils have
+      no virtual functions; code above the bind holds a `Base*&`.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, template]}
+    verify:
+      - check: forbidden-patterns/virtual-outside-interfaces
+      - review: A new virtual function is in a `Base*` interface or kb-hal-common's manager base, nowhere else.
+    rationale: >-
+      Static dispatch keeps drivers and handlers inlined and checkable at compile time; the two run-time boundaries
+      are where the concrete type is not known until the board is built (the MCU object, the board's managers).
+    refs: [{adr: 3}, {adr: 5}]
+    page: standards/library.md#interfaces
+    notes: >-
+      library.md says `Base*` holds the only virtuals above the bind, while hal.md defines a virtual `ManagerBase`
+      that `FacadeBase` iterates. ADR-0005 makes `ManagerBase` part of kb-hal-common, so both are allowed.
+    origin:
+      - "inventory: B-LIB-18 (kb:standards/library.md:115; kb:standards/adr/0003-crtp-ports.md:22,27)"
+      - "hf:process/architecture.md:156-161 (public pure virtuals; superseded)"
+
+  - id: KB-ARCH-012
+    title: A peripheral only one MCU family has gets a Base* interface and a gate row
+    statement: >-
+      A peripheral that only one family has (the ESP32 RMT) gets a `Base*` interface in `interfaces/base/` and an
+      implementation in that family's folder only. A driver that needs it stays platform-free, names the family and
+      peripheral in `driver.yml`, says it is MCU-bound in its README and Contract page, and becomes a row in the MCU
+      gate table.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library]}
+    verify:
+      - review: >-
+          The peripheral has a `Base*` interface, one family implementation, a `driver.yml` entry and an MCU gate
+          row; the driver's `inc/` and `src/` include no vendor SDK.
+    refs: [{adr: 14}, {adr: 7}]
+    page: standards/driver.md#mcu-bound-drivers
+    origin: ["inventory: B-LIB-24 (kb:standards/library.md:127), B-DRV-84 (kb:standards/driver.md:386-397)"]
+
+  # -- Drivers, libraries and handlers ---------------------------------------------------------------------------
+  - id: KB-ARCH-013
+    title: A protocol client follows the driver contract except the chip rules
+    statement: >-
+      A driver for a device reached over a protocol (a CANopen node) skips the chip-ID check, register model,
+      datasheet defaults and register mock, and follows the rest of the driver contract. Its `Initialize()` checks
+      the remote identity (device type, vendor ID).
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver]}
+    verify:
+      - review: The client checks the remote identity in Initialize() and otherwise follows the driver contract.
+    page: standards/driver.md#protocol-clients
+    origin: ["inventory: B-DRV-85 (kb:standards/driver.md:401)"]
+
+  - id: KB-ARCH-014
+    title: Split a large chip into sub-object facades that share the driver
+    statement: >-
+      A chip with many subsystems may expose them as sub-object facades held by the driver
+      (`driver.telemetry().ReadSupplyMv()`). Each facade follows the driver contract and shares the driver's port,
+      lifecycle and `Error`.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver]}
+    page: standards/driver.md#large-chips
+    origin: ["inventory: B-DRV-58 (kb:standards/driver.md:312)"]
+
+  - id: KB-ARCH-015
+    title: utils take locks and clocks as arguments; CANopen frames are values
+    statement: >-
+      A kb-core `utils` helper that needs a lock or a clock takes it as a parameter or template argument instead of
+      reaching up to `kb/rtos/` or the interfaces. `utils/canopen` depends on no CAN interface or driver, does not
+      allocate, and builds frames as values the caller sends.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [library]}
+    verify:
+      - check: include-graph/utils
+      - review: A new utils helper takes its lock or clock as an argument; CANopen helpers return frames by value.
+    page: standards/library.md#utils
+    origin:
+      - "inventory: B-LIB-12 (kb:standards/library.md:68), B-LIB-14 (kb:standards/library.md:76)"
+      - "hf:process/layered-architecture.md:151 (utils above interfaces; superseded)"
+
+  - id: KB-ARCH-016
+    title: The kb-core logger is the one logging API above the bind
+    statement: >-
+      Code above the bind logs only through the kb-core logger, whose sink the board HAL injects at start-up.
+      kb-core prints nothing on its own and carries no product's log format; drivers do not format log text.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    verify:
+      - check: forbidden-patterns/direct-logging
+      - review: No `printf`, `ESP_LOG*` or vendor logging call above the bind; logging goes through the kb-core logger.
+    page: standards/library.md#handlers
+    origin: ["inventory: B-LIB-25 (kb:standards/library.md:135; hf:standards/review-checklist.md:232)"]
+
+  - id: KB-ARCH-017
+    title: Raw pin numbers appear only in the board's pin table and its bind
+    statement: >-
+      The `pincfg` framework holds no board's pins. MCU pin numbers appear only in a board HAL's pin table under
+      `board/<board>/` and in its bind; managers and everything above use functional pin names.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal, firmware]}
+    verify:
+      - check: forbidden-patterns/raw-pins
+      - review: No `GPIO_NUM_*` or literal pin number outside the board pin table and `bsp_bind/`.
+    page: standards/hal.md#board-config
+    origin:
+      - "inventory: B-LIB-32 (kb:standards/library.md:177)"
+      - "hf:process/architecture.md:96-119 (functional pin names; generic part)"
+
+  - id: KB-ARCH-018
+    title: Adapters are mechanical and build on the shared adapter bases
+    statement: >-
+      A handler's adapter derives from the shared base in `handlers/common/` for its bus (`HalSpiCommBase`,
+      `HalI2cCommBase`, `HalUartCommBase`), which holds the bus reference, pin mapping and delay and log hooks, and
+      adds only what is chip-specific. Retry policy and other decisions live in the handler, not the adapter.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library]}
+    verify:
+      - review: The adapter uses the shared base for its bus and contains translation only.
+    page: standards/handler.md#the-adapter
+    origin:
+      - "inventory: B-HDL-19 (kb:standards/handler.md:126; hf:agents/handler-design.md:265)"
+      - "inventory: A-DSP-11 (hf:process/dispatch-patterns.md:226-228; CS map in the adapter base per B)"
+
+  - id: KB-ARCH-019
+    title: A driver feature reached through VisitDriver in two places becomes a typed method
+    statement: >-
+      When the same driver feature is used through `VisitDriver()` in more than one place, the handler gains a typed
+      method for it.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library]}
+    verify:
+      - review: No driver feature is reached through VisitDriver() in two places without a typed handler method.
+    page: standards/handler.md#driver-access
+    origin: ["inventory: B-HDL-14 (kb:standards/handler.md:111; hf:process/handler-pattern.md:305-311)"]
+
+  # -- Board HALs and kb-hal-common ------------------------------------------------------------------------------
+  - id: KB-ARCH-020
+    title: A board HAL never copies kb-hal-common; shared managers move there
+    statement: >-
+      kb-hal-common holds the manager and facade bases, the bind interface, the common managers and the lints; a
+      board HAL holds only its board config, pin table, bind and board-specific managers. A board HAL carries no
+      copy of kb-hal-common code, and a manager two boards need moves to kb-hal-common.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - check: duplicate-code
+      - review: The HAL adds no copy of a kb-hal-common class; a manager a second board needs is moved there.
+    rationale: Copied managers drift; the review behind ADR-0005 found six near-copies.
+    refs: [{adr: 5}]
+    page: standards/hal.md#what-lives-where
+    origin: ["inventory: B-HAL-01 (kb:standards/hal.md:10-12), B-HAL-03 (kb:standards/hal.md:17)"]
+
+  - id: KB-ARCH-021
+    title: Common managers take board specifics as configuration and never name a board
+    statement: >-
+      The managers in kb-hal-common receive everything board-specific (channels, LEDs, NVS namespaces) as
+      configuration and contain no board or product name.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, library]}
+    verify:
+      - check: forbidden-patterns/board-names
+      - review: No board or product name or board-specific constant in kb-hal-common.
+    refs: [{adr: 5}]
+    page: standards/hal.md#managers
+    origin: ["inventory: B-HAL-11 (kb:standards/hal.md:66; kb:standards/adr/0005-kb-hal-common.md:31)"]
+
+  - id: KB-ARCH-022
+    title: One manager per board function, owning its handlers
+    statement: >-
+      A board HAL has one manager per board function; the manager owns that function's handlers and the `Base*`
+      objects the bind created for them. A new chip in an existing category, a board variant or a cross-category
+      feature extends an existing manager rather than adding one.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: A new manager covers a board function no existing manager covers.
+    refs: [{adr: 5}]
+    page: standards/hal.md#managers
+    origin:
+      - "inventory: B-HAL-05 (kb:standards/hal.md:54; hf:standards/review-checklist.md:57,197)"
+      - "inventory: A-AG2-30 (hf:agents/manager-design.md:19-23)"
+      - "hf:agents/review-agent.md:47 (managers own Base* through unique_ptr; superseded)"
+
+  - id: KB-ARCH-023
+    title: The facade starts managers in a fixed, documented order
+    statement: >-
+      The board facade derives from `FacadeBase` and passes its managers in a start-up order fixed at compile time.
+      The order, and why, is on the HAL's Architecture page; managers do not start each other.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: The start order is a compile-time list passed to FacadeBase and matches the Architecture page.
+    refs: [{adr: 2}, {adr: 5}]
+    page: standards/hal.md#facade-and-start-up
+    origin:
+      - "inventory: B-HAL-12 (kb:standards/hal.md:92; kb:standards/checklists/new-board-hal.md:21)"
+      - "hf:process/hal-pattern.md (singleton EnsureInitialized sequence; superseded)"
+
+  - id: KB-ARCH-024
+    title: Start-up fails closed and leaves every actuator safe
+    statement: >-
+      `Initialize()` stops at the first failing manager, deinitialises the ones already started in reverse order and
+      returns the failing manager and its status. Only managers the board can run without are optional, never
+      safety-relevant ones; after a failed start-up the product reports the fault and starts no control task.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify:
+      - check: hal-startup-test
+      - review: >-
+          A host test injects a failure into each manager in turn and checks the reverse deinitialisation; no
+          safety-relevant manager is optional.
+    rationale: A half-started board with a live actuator and no supervising task is the dangerous case.
+    refs: [{adr: 2}]
+    page: standards/hal.md#facade-and-start-up
+    origin:
+      - "inventory: B-HAL-13 (kb:standards/hal.md:94-98; kb:standards/adr/0002-lifecycle.md:21), B-PRD-10"
+      - "hf:porting/custom-board.md:313-315 (halt or restart on failure; superseded)"
+
+  - id: KB-ARCH-025
+    title: The facade is the product's only way into the board
+    statement: >-
+      The application uses only the HAL facade and its managers' public API, `kb::rtos` and the kb-core logger. The
+      facade exposes managers by reference and nothing below them.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify:
+      - check: hal-lint/boundary
+      - review: The application reaches hardware only through the facade and its managers.
+    refs: [{adr: 5}]
+    page: standards/product.md#what-the-application-uses
+    origin:
+      - "inventory: B-HAL-14 (kb:standards/hal.md:99), B-PRD-03 (kb:standards/product.md:25)"
+      - "hf:process/hal-pattern.md:11-19 (<Board>::GetInstance() singleton; superseded)"
+
+  - id: KB-ARCH-026
+    title: The bind is the only HAL code that names the MCU family
+    statement: >-
+      In a board HAL only `bsp_bind/<family>/` names MCU types. It implements the one bind interface declared in
+      kb-hal-common by creating kb-core's `interfaces/mcu/<family>/` objects; it never reimplements a peripheral,
+      and a peripheral kb-core lacks is added to kb-core first.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - check: hal-lint/boundary
+      - review: The bind creates kb-core MCU objects and contains no peripheral implementation of its own.
+    refs: [{adr: 5}, {adr: 14}]
+    page: standards/hal.md#the-platform-bind
+    origin:
+      - "inventory: B-HAL-17 (kb:standards/hal.md:105), B-HAL-20 (kb:standards/hal.md:148)"
+      - "hf:process/manager-pattern.md:113-137 (managers create MCU objects; superseded)"
+
+  # -- Products --------------------------------------------------------------------------------------------------
+  - id: KB-ARCH-027
+    title: A board function the facade lacks is added to the HAL first
+    statement: >-
+      When the application needs a board function the facade does not offer (for example CAN), it is added to the
+      board HAL and then used; the application does not reach around the facade for it.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [firmware, hal]}
+    verify:
+      - review: New board access in the application goes through a facade or manager method.
+    page: standards/product.md#what-the-application-uses
+    origin: ["inventory: B-PRD-05 (kb:standards/product.md:28; hf:process/hal-pattern.md:299,303-323)"]
+
+  - id: KB-ARCH-028
+    title: Application logic lives in the application, not in platform/ or the HAL
+    statement: >-
+      A product's `platform/` holds `app_main()`, partitions, OTA and the console. `app_main()` creates the facade,
+      initialises it, reports a failed start-up and starts the tasks. Behaviour (tasks, protocols, state machines,
+      faults) lives in the application, never in `platform/` or the board HAL.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [firmware, hal]}
+    verify:
+      - review: platform/ and the HAL contain start-up and board code only, no application behaviour.
+    page: standards/product.md#platform
+    origin:
+      - "inventory: B-PRD-07 (kb:standards/product.md:35-37), A-REV-66 (hf:standards/review-checklist.md:210)"
+
+  - id: KB-ARCH-029
+    title: Run-time faults follow the fault catalogue's reaction
+    statement: >-
+      Detect bus and device faults, and react as the product's fault catalogue says (stop, derate, warn) rather
+      than ad hoc. Degraded operation is a designed reaction listed in the catalogue; start-up stays fail-closed.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    page: standards/product.md#faults
+    origin: ["inventory: A-ARC-22 (hf:process/architecture.md:511-519; reconciled with fail-closed start-up)"]
+
+  - id: KB-ARCH-030
+    title: A safety-classified product records its classification and what it implies
+    statement: >-
+      A product meant for a safety-classified use records its software safety class (IEC 62304 class, SIL or ASIL),
+      the reasoning, and the verification that class requires, in its own ADRs.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [firmware], from_level: safety}
+    verify:
+      - review: The product's docs/adr/ has a classification record naming the class and the verification it needs.
+    refs: [{std: IEC-62304, id: "4.3", note: "software safety classification"}]
+    page: assurance-levels.md
+    origin: ["inventory: A-EMB-62 (hf:standards/embedded-coding.md:1684,1690)"]
+
+  # -- Threads and tasks -----------------------------------------------------------------------------------------
+  - id: KB-ARCH-031
+    title: Only kb-core rtos includes RTOS headers; everything above uses kb::rtos
+    statement: >-
+      Drivers, utils and pincfg use no RTOS. Only kb-core's `rtos/` backend folders include RTOS headers; handlers,
+      HALs and products use `kb::rtos` only, and only the bind and a product's `platform/` may call the SDK or RTOS
+      directly.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    verify:
+      - check: include-graph/rtos
+      - check: forbidden-patterns/raw-rtos
+      - review: No raw RTOS call or header, `std::mutex` or `std::thread` above the bind.
+    refs: [{adr: 13}]
+    page: standards/threading-and-timing.md#who-may-call-the-rtos
+    origin:
+      - "inventory: B-THR-01 (kb:standards/threading-and-timing.md:8-15; hf:porting/stm32-cube-hal.md)"
+      - "hf:standards/embedded-coding.md (std::mutex; superseded)"
+
+  - id: KB-ARCH-032
+    title: Only the product or a HAL manager creates tasks
+    statement: >-
+      Tasks are created through `kb::rtos` (`BaseThread`, `BaseThreadsManager`) by the product or a HAL manager,
+      never by a handler or a driver.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    verify:
+      - check: forbidden-patterns/task-creation
+      - review: No handler or driver creates a task.
+    page: standards/threading-and-timing.md#tasks
+    origin: ["inventory: B-THR-21 (kb:standards/threading-and-timing.md:96; hf:agents/application-engineering.md)"]
+
+  - id: KB-ARCH-033
+    title: Core affinity is the product's decision
+    statement: >-
+      Which core a task runs on is set in the product's task configuration header. HAL code does not assume a
+      dual-core MCU or pin work to a core.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify:
+      - review: No core affinity is set or assumed outside the product's task configuration.
+    page: standards/threading-and-timing.md#tasks
+    origin: ["inventory: B-THR-22 (kb:standards/threading-and-timing.md:100)"]
+
+  - id: KB-ARCH-034
+    title: Handler callbacks run in the caller's task
+    statement: >-
+      A callback from a handler into the product runs in the task that made the call. A callback that must reach
+      another task posts to an `OsQueue` instead of doing that task's work.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal, firmware]}
+    verify:
+      - review: Callbacks that cross tasks post to a queue.
+    page: standards/threading-and-timing.md#what-crosses-tasks
+    origin: ["inventory: B-THR-25 (kb:standards/threading-and-timing.md:108)"]
+
+  # -- kb-core composition ---------------------------------------------------------------------------------------
+  - id: KB-ARCH-035
+    title: kb-core pins each driver to a release tag, with its handler and catalogue entry
+    statement: >-
+      kb-core includes each driver as the submodule `drivers/driver-<chip>/` at the commit of a release tag, never
+      through a package registry. The driver is released and pinned before its handler lands, and every pinned
+      driver has a handler and an entry in `catalog/compat.yml`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library]}
+    verify: [{check: kb-core-catalog}]
+    refs: [{adr: 7}, {adr: 13}]
+    page: standards/release.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "inventory: B-REL-27 (kb:standards/release.md:94), B-GOV-52 (kb:standards/repo-governance.md:220), B-CHK-20"
+      - "hf:porting/README.md:47 (drivers inside hf-core; superseded)"
+
+  - id: KB-ARCH-036
+    title: The compatibility catalogue is generated from the pinned drivers
+    statement: >-
+      `catalog/compat.yml` is built from the `driver.yml` of every pinned driver and generates the MCU gate table in
+      `cmake/kb_build_settings.cmake`. CI regenerates both and fails on any difference, and kb-core's release notes
+      list the same driver versions.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library]}
+    verify: [{check: kb-core-catalog}]
+    refs: [{adr: 7}]
+    page: standards/release.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inventory: B-REL-28 (kb:standards/release.md:97; kb:standards/adr/0007-submodule-pinning-and-tags.md)"]
+
+  # -- Design guidance -------------------------------------------------------------------------------------------
+  - id: KB-ARCH-037
+    title: Extend what exists before adding a new entity
+    statement: >-
+      Before adding a handler, manager or interface, check whether an existing one should grow. A new chip gets a
+      handler; a new board function gets a manager; a new chip in an existing function does not.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal]}
+    page: standards/hal.md#managers
+    origin: ["inventory: A-AG1-12 (hf:agents/architecture-overview.md:63; one handler per chip per B)"]
+
+  - id: KB-ARCH-038
+    title: Design for bounded memory and cheap bus traffic
+    statement: >-
+      Batch bus transactions, use DMA for large transfers, pick cache-friendly algorithms, and size pools and
+      buffers at compile time. Caching is fine; lazy allocation and run-time pools from the heap are not.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    refs: [{adr: 4}]
+    origin:
+      - "inventory: A-ARC-13 (hf:process/architecture.md:312-315,529; heap pooling superseded by ADR-0004)"
+      - "inventory: A-ARC-24 (hf:process/architecture.md:544-554)"
+
+  - id: KB-ARCH-039
+    title: Real-time paths have bounded latency and named priorities
+    statement: >-
+      Code on a real-time path has a known worst-case time, takes no unbounded wait, and runs at a priority named in
+      the product's task configuration. Resources it needs are reserved at start-up.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    page: standards/threading-and-timing.md#tasks
+    origin: ["inventory: A-ARC-26 (hf:process/architecture.md:603-607)"]
+
+  - id: KB-ARCH-040
+    title: Review architecture before details
+    statement: >-
+      A reviewer checks layering, ownership, locking, error mapping, fault reaction and timing before line-level
+      comments, and a design problem is raised first.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    page: standards/layers.md
+    origin: ["inventory: A-ARC-28 (hf:process/architecture.md:617-646)"]

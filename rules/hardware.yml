@@ -1,0 +1,276 @@
+---
+area: hardware
+prefix: KB-HW
+title: Hardware and porting
+intro: >-
+  Porting the stack to an MCU family, bringing up a board, working with vendor-generated code, and what shipping
+  firmware must do on the hardware. The MCU port lives in kb-core's interfaces/mcu/<family>/; the board side is in
+  the board HAL's bind.
+rules:
+  # -- MCU ports -------------------------------------------------------------------------------------------------
+  - id: KB-HW-001
+    title: Every MCU family implements the foundation interfaces
+    statement: >-
+      Each real MCU family in `interfaces/mcu/<family>/` implements `BaseSpi`, `BaseI2c`, `BaseGpio`, `BaseAdc`,
+      `BaseNvs`, `BaseLogger`, `BaseTemperature` and `BasePeriodicTimer`. Other `Base*` interfaces are implemented
+      when the MCU has the hardware and a consumer needs it; there are no stubs, and enabling one the family lacks
+      fails at CMake configure time.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library]}
+    verify: [{check: mcu-foundation-set}]
+    rationale: >-
+      Every handler, manager and HAL then compiles on a new family without change. A stub that compiles but does
+      nothing turns a configuration mistake into a bench fault.
+    refs: [{adr: 14}]
+    page: standards/library.md#interfaces
+    notes: Warns until 2027-03-01, then fails CI. The foundation set is new to the Kokeb standard.
+    origin:
+      - "inventory: A-MCU-02 (hf:process/mcu-porting.md:29-44), A-PRT-08 (hf:porting/README.md:62)"
+      - "inventory: A-BLD-07 (hf:process/build-modularity.md:142,442)"
+      - "hf:agents/mcu-porting.md:187 (placeholder Wifi/Bluetooth; superseded by no stubs)"
+
+  - id: KB-HW-002
+    title: A port passes the conformance suite before it is done
+    statement: >-
+      A new or changed MCU port passes the `Base*` conformance tests: on the host against a mocked vendor SDK where
+      the SDK allows, and as loopback tests on a board (SPI MOSI to MISO, UART TX to RX, GPIO pairs). After a port,
+      vendor-callback wiring, MCU-gated drivers and the family's build options are re-tested on the board.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library, hal]}
+    verify:
+      - check: port-conformance
+      - review: The pull request links the loopback run on a board, or is marked not verified on hardware.
+    page: checklists/new-board-hal.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "hf:process/mcu-porting.md §11 (conformance tests)"
+      - "inventory: A-PRT-11 (hf:porting/README.md:102-105)"
+
+  - id: KB-HW-003
+    title: The port owns vendor-callback bridging, one entry point per interrupt family
+    statement: >-
+      The family's port bridges vendor callbacks (`HAL_GPIO_EXTI_Callback`, DMA completion) to its objects through a
+      static dispatch table or a handle lookup, with one documented entry point per interrupt family. The bridge
+      takes no mutex; it sets an `OsEventFlags` bit or gives a `SignalSemaphore` and returns.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal]}
+    verify:
+      - review: >-
+          Each interrupt family has one entry point documented in the port header, and no code reached from it
+          takes a mutex.
+    page: standards/threading-and-timing.md#one-lock
+    origin:
+      - "inventory: A-MCU-08 (hf:process/mcu-porting.md:127-157,340-344; hf:agents/mcu-porting.md:189)"
+      - "hf:porting/stm32-cube-hal.md (EXTI into a locking manager; superseded)"
+
+  - id: KB-HW-004
+    title: Configure peripherals the way the vendor SDK expects
+    statement: >-
+      Where the vendor's culture is a configuration tool (STM32CubeMX, MCUXpresso), the port wraps the generated
+      handles; where the SDK has a full run-time API (ESP-IDF), the port configures the peripheral itself from a
+      spec. Either way the rest of the stack sees only the `Base*` interface.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal]}
+    page: standards/library.md#interfaces
+    origin: ["inventory: A-MCU-09 (hf:process/mcu-porting.md:161-191; hf:agents/mcu-porting.md:40-45)"]
+
+  - id: KB-HW-005
+    title: Clock speeds and bus settings come from configuration, not literals
+    statement: >-
+      A port object takes clock speed, mode and pins from its constructor spec or the board config; it hard-codes
+      none of them.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal]}
+    verify:
+      - review: Bus clocks, modes and pins in the port come from the spec or the board config.
+    page: standards/hal.md#the-platform-bind
+    origin: ["inventory: A-AG2-65 (hf:agents/mcu-porting.md:188)"]
+
+  - id: KB-HW-006
+    title: A port publishes its measured performance
+    statement: >-
+      A port's documentation lists measured timings for the foundation operations (an 8-byte SPI transfer, a GPIO
+      set, an ADC read, a 2-byte I2C transfer, periodic-timer jitter) with the clock rates used, so HAL authors can
+      tell whether a hot path needs more.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library]}
+    verify:
+      - review: The port's documentation has a measured timing table for the foundation operations.
+    notes: >-
+      Reference targets from the HardFOC ports: SPI 8 bytes under 5 us at 10 MHz, GPIO under 1 us, ADC under
+      100 us, I2C 2 bytes under 200 us at 400 kHz, timer jitter under 10 us.
+    origin: ["inventory: A-MCU-13 (hf:process/mcu-porting.md:301-313; hf:agents/mcu-porting.md:161-165,204)"]
+
+  # -- Board bring-up and vendor-generated code ------------------------------------------------------------------
+  - id: KB-HW-007
+    title: A board HAL starts from a complete hardware picture
+    statement: >-
+      Before writing a board HAL, have the schematic and pin-out, the full chip list, the chosen MCU variant, and a
+      released driver and kb-core support for every chip and peripheral on the board. A missing peripheral goes into
+      kb-core first.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    page: checklists/new-board-hal.md
+    origin: ["inventory: A-PRT-16 (hf:porting/custom-board.md:17-22)"]
+
+  - id: KB-HW-008
+    title: STM32 ports use CubeMX, the STM32 HAL, CMake and FreeRTOS by default
+    statement: >-
+      Start an STM32 family with STM32CubeMX for clocks and pins, the STM32 HAL (LL where latency needs it), CMake,
+      and FreeRTOS or ThreadX at a 1 kHz tick.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal]}
+    refs: [{adr: 6}]
+    origin: ["inventory: A-PRT-42 (hf:porting/stm32-cube-hal.md:19-22)"]
+
+  - id: KB-HW-009
+    title: Vendor-generated code is regenerable and never hand-edited outside its markers
+    statement: >-
+      A CubeMX project generates peripheral initialisation as `.c`/`.h` pairs, copies only the needed libraries and
+      never uses the single-`main.c` option. The `.ioc` and the generated tree are committed; hand-written code goes
+      only between `USER CODE` markers or in separate files (vendor weak callbacks are overridden in the project's
+      own interrupt file), and any other patch to generated files is listed in `PATCHES.md`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [hal, firmware]}
+    verify: [{check: cubemx-discipline}]
+    rationale: Regenerating from the `.ioc` must not lose work or silently revert a fix.
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "inventory: A-PRT-43 (hf:porting/stm32-cube-hal.md:23-25,75), A-PRT-53 (stm32-cube-hal.md:242)"
+
+  - id: KB-HW-010
+    title: Heavily used buses use DMA, with a timed-out polled fallback
+    statement: >-
+      SPI, I2C and UART ports use DMA when the board wires a DMA channel and fall back to polled transfers
+      otherwise; both paths have a timeout and both are tested.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal]}
+    verify:
+      - review: The DMA and polled paths both have a timeout and a test.
+    origin:
+      - "inventory: A-PRT-48 (hf:porting/stm32-cube-hal.md:79), A-PRT-51 (stm32-cube-hal.md:217-224)"
+
+  - id: KB-HW-011
+    title: Hardware and protocol changes update the specification in the same pull request
+    statement: >-
+      A change that follows a hardware or protocol change updates the affected Hardware page, board specification or
+      protocol description in the same pull request.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, hal, firmware]}
+    verify:
+      - review: The Hardware or protocol documentation matches the change.
+    origin: ["inventory: A-REV-50 (hf:standards/review-checklist.md:150)"]
+
+  # -- Shipping firmware -----------------------------------------------------------------------------------------
+  - id: KB-HW-012
+    title: Shipping firmware enables the watchdog, serviced from a supervisor task
+    statement: >-
+      Release firmware enables the hardware or task watchdog, and one supervisor task services it only while the
+      tasks it watches report progress.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [firmware]}
+    verify:
+      - check: sdkconfig-defaults/watchdog
+      - review: The supervisor services the watchdog only when every watched task has reported.
+    rationale: A hung task with a live actuator must end in a reset, not a stuck output.
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inventory: A-AG1-56 (hf:agents/application-engineering.md:283)"]
+
+  - id: KB-HW-013
+    title: Shipping firmware configures brownout reset
+    statement: Release firmware enables brownout detection with reset, at a threshold above the board's minimum supply.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [firmware]}
+    verify: [{check: sdkconfig-defaults/brownout}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inventory: A-AG1-57 (hf:agents/application-engineering.md:284)"]
+
+  - id: KB-HW-014
+    title: Over-the-air updates verify signatures and can roll back
+    statement: >-
+      Firmware that updates over the air keeps the previous image and rolls back to it when the new one fails to
+      confirm itself. A product that signs its images verifies the signature before booting an update.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [firmware]}
+    verify:
+      - check: sdkconfig-defaults/ota
+      - review: The good-update and rollback paths were exercised on a board before release.
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "inventory: A-REV-54 (hf:standards/review-checklist.md:160; hf:agents/application-engineering.md)"
+      - "hf:agents/application-engineering.md:288 (OTA rollback, testing row A-AG1-61)"
+
+  - id: KB-HW-015
+    title: Firmware logs why it booted and what it is
+    statement: >-
+      On every start the firmware logs the reset reason from the bind and its own version, release train and
+      provenance header.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [firmware]}
+    verify:
+      - review: The boot log has the reset reason and the version and provenance.
+    page: standards/product.md#releases
+    origin: ["inventory: A-AG1-58 (hf:agents/application-engineering.md:285)"]
+
+  - id: KB-HW-016
+    title: Firmware reports its health and keeps a crash record
+    statement: >-
+      Firmware captures free heap, the largest free block and uptime periodically in its diagnostics, and persists a
+      crash record (reason, task, program counter) to NVS or external storage for the next boot.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [firmware]}
+    verify:
+      - review: Health figures are in the diagnostics and a crash record survives a reset.
+    origin:
+      - "inventory: A-AG1-59 (hf:agents/application-engineering.md:286), A-AG1-60 (application-engineering.md:287)"
+
+  - id: KB-HW-017
+    title: A factory test mode exists and is documented
+    statement: >-
+      Production firmware has a factory test mode, entered by a documented method (an NVS flag or a button held at
+      boot), and the product's documentation describes what it tests.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [firmware]}
+    verify:
+      - review: The factory mode, how to enter it and what it tests are documented.
+    origin: ["inventory: A-AG1-62 (hf:agents/application-engineering.md:289)"]

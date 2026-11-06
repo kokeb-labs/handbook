@@ -9,6 +9,29 @@ What every repository contains and declares.
 | [KB-REPO-002](#kb-repo-002) Each repository declares the handbook version, kind and level it follows | must | all | planned |
 | [KB-REPO-003](#kb-repo-003) Waivers name a rule, a reason, an approver and an expiry | must | all | planned |
 | [KB-REPO-004](#kb-repo-004) Every source file carries an SPDX licence identifier | should | driver, library, hal, firmware, tooling, template | planned |
+| [KB-REPO-005](#kb-repo-005) The root holds only the entries listed for the repository's kind | must | all | planned |
+| [KB-REPO-006](#kb-repo-006) A driver has the driver layout | must | driver, template | planned |
+| [KB-REPO-007](#kb-repo-007) File names follow the layer's convention | should | driver, library, hal, template | planned |
+| [KB-REPO-008](#kb-repo-008) A standalone library starts from driver-template and keeps its layout | must | library | planned |
+| [KB-REPO-009](#kb-repo-009) kb-core keeps its monorepo layout | must | library | planned |
+| [KB-REPO-010](#kb-repo-010) A board HAL has the board HAL layout | must | hal | planned |
+| [KB-REPO-011](#kb-repo-011) A product has the product layout | must | firmware | planned |
+| [KB-REPO-012](#kb-repo-012) Board HALs and products live in the product's organisation | guide | hal, firmware | review |
+| [KB-REPO-013](#kb-repo-013) Each example platform stands alone, and sources have one home | should | driver, library, template | planned |
+| [KB-REPO-014](#kb-repo-014) No symlinks anywhere in a repository | must | all | planned |
+| [KB-REPO-015](#kb-repo-015) \_config/ holds the org's tool configs unchanged, and tools are pointed at it | must | driver, library, hal, firmware, template | planned |
+| [KB-REPO-016](#kb-repo-016) ESP-IDF projects commit sdkconfig.defaults, never sdkconfig | must | driver, library, hal, firmware, template | planned |
+| [KB-REPO-017](#kb-repo-017) No ESP-IDF wrapper component or idf\_component.yml unless the registry is chosen | should | driver, library, template | planned |
+| [KB-REPO-018](#kb-repo-018) Every driver declares itself in driver.yml | must | driver, template | planned |
+| [KB-REPO-019](#kb-repo-019) Third-party code keeps its own licence under third\_party/ | must | all | planned |
+| [KB-REPO-020](#kb-repo-020) Hardware is CERN-OHL-P-2.0; a product owner picks the board HAL licence | should | all | review |
+| [KB-REPO-021](#kb-repo-021) CODEOWNERS gives every path a default owner | should | all | planned |
+| [KB-REPO-022](#kb-repo-022) Vulnerabilities are reported privately, as SECURITY.md says | must | all | planned |
+| [KB-REPO-023](#kb-repo-023) Issues use the org forms and labels | should | all | planned |
+| [KB-REPO-024](#kb-repo-024) Repository settings are code in the .github repository | must | all | checked |
+| [KB-REPO-025](#kb-repo-025) A new repository starts from its kind's template and is declared first | should | all | review |
+| [KB-REPO-026](#kb-repo-026) A superseded repository is marked legacy and archived | should | all | review |
+| [KB-REPO-027](#kb-repo-027) CubeMX code is committed with the .ioc it came from | should | hal, firmware | review |
 
 ## KB-REPO-001: Required root files { #kb-repo-001 }
 
@@ -71,3 +94,418 @@ Each source file starts with `SPDX-License-Identifier:` and a copyright line, as
 
 - `spdx-headers` (planned): every source file carries an SPDX licence identifier (REUSE)
 
+
+## KB-REPO-005: The root holds only the entries listed for the repository's kind { #kb-repo-005 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. Only driver-template's self-test checks the root today. The ADR-0011 list still
+    omits `driver.yml` (KB-REPO-018) and `third_party/` (KB-REPO-019).
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+Tool configuration lives in `_config/`, not at the root. An extra root file a tool insists on is listed, with the tool,
+in AGENTS.md; a pull request adding a root entry without such a reason is refused.
+
+*Verified by:*
+
+- `repo-layout` (planned): the repository root and directories match the layout for its kind
+
+*See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-006: A driver has the driver layout { #kb-repo-006 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. driver-template's self-test checks part of it, in the template only.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A driver keeps `inc/<chip>.hpp`, `inc/<chip>_<bus>_interface.hpp`, `inc/<chip>_types.hpp`, `src/<chip>.ipp`, `cmake/`,
+`examples/host/` and other platforms, a flat `tests/`, `docs/` and `_config/`.
+
+*Verified by:*
+
+- `repo-layout` (planned): the repository root and directories match the layout for its kind
+
+*See also:* [ADR-0011](../adr/0011-repository-root-layout.md); [ADR-0012](../adr/0012-unbranded-drivers.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-REPO-007: File names follow the layer's convention { #kb-repo-007 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · driver, library, hal, template · since 1.0 · enforced from 2027-03-01
+
+Driver files are `<chip>_<part>.hpp` and `.ipp`; kb-core and board HAL files are PascalCase `.h` and `.cpp` named for
+the class they hold; tests are `test_<subject>.cpp`.
+
+*Verified by:*
+
+- `file-names` (planned): source and test file names match the pattern for the repository's kind
+
+*See also:* [ADR-0008](../adr/0008-naming.md)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-REPO-008: A standalone library starts from driver-template and keeps its layout { #kb-repo-008 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. kb-core has its own layout (KB-REPO-009).
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+A library outside kb-core is generated with `driver-template --kind library` and keeps the driver root layout, an
+`examples/host/`, one CMake target and one include root.
+
+*Verified by:*
+
+- `repo-layout` (planned): the repository root and directories match the layout for its kind
+
+*See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-REPO-009: kb-core keeps its monorepo layout { #kb-repo-009 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. Applies to kb-core only.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+kb-core holds `utils/`, `rtos/`, `interfaces/` (base, `mcu/<family>/`, host), `handlers/`, `drivers/` with one submodule
+per driver, `cmake/kb_build_settings.cmake` and `catalog/compat.yml`.
+
+*Verified by:*
+
+- `repo-layout` (planned): the repository root and directories match the layout for its kind
+
+*See also:* [ADR-0013](../adr/0013-kb-core-monorepo.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-REPO-010: A board HAL has the board HAL layout { #kb-repo-010 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · hal · since 1.0 · enforced from 2027-03-01
+
+A board HAL has `lib/common` (kb-hal-common) and `lib/core` (kb-core) submodules, one `board/<board>/` folder of bus,
+chip and pin tables (data, not logic), a `bsp_bind/<family>/` per family plus `bsp_bind/host/`, and `_config/`. Its only
+root extras are `CMakePresets.json` and `version_lock.txt`.
+
+*Verified by:*
+
+- `repo-layout` (planned): the repository root and directories match the layout for its kind
+
+*See also:* [ADR-0005](../adr/0005-kb-hal-common.md); [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-REPO-011: A product has the product layout { #kb-repo-011 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. Examples and test benches of the firmware kind are exempt.
+
+**MUST** · firmware · since 1.0 · enforced from 2027-03-01
+
+A product holds `main/` (or `app/`), `platform/`, `hal/`, `version_lock.txt`, `sdkconfig.defaults`, `partitions.csv`,
+`docs/` and `_config/`.
+
+*Verified by:*
+
+- `repo-layout` (planned): the repository root and directories match the layout for its kind
+
+*See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/product.md](../standards/product.md)
+
+## KB-REPO-012: Board HALs and products live in the product's organisation { #kb-repo-012 }
+
+**GUIDE** · hal, firmware · since 1.0
+
+kokeb-labs holds reusable code only. A board HAL or product lives in its product's organisation (HardFOC is one) and
+starts from the board HAL template.
+
+*Verified by:*
+
+- review: A new board HAL or product repository is created in the product organisation.
+
+*See also:* [ADR-0005](../adr/0005-kb-hal-common.md)
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-REPO-013: Each example platform stands alone, and sources have one home { #kb-repo-013 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · driver, library, template · since 1.0 · enforced from 2027-03-01
+
+Every `examples/<platform>/` has its own port, example program and README and builds on its own. Zephyr, Arduino or
+PlatformIO manifests are added only when a user needs them, and never copy the sources.
+
+*Verified by:*
+
+- `repo-layout` (planned): the repository root and directories match the layout for its kind
+- review: Any extra ecosystem manifest points at the existing sources.
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-REPO-014: No symlinks anywhere in a repository { #kb-repo-014 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. driver-template's self-test scans for symlinks in the template only.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+A repository tracks no symbolic links. An editor that wants a config at the root gets a local, gitignored copy of the
+file in `_config/`.
+
+*Verified by:*
+
+- `tracked-files/symlinks` (planned): git tracks no file of a banned kind; the parameter names it
+  (tracked-files/symlinks, tracked-files/sdkconfig, tracked-files/idf-component)
+
+*See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-015: \_config/ holds the org's tool configs unchanged, and tools are pointed at it { #kb-repo-015 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. ci-tools' own `_config/` clang configs, the ru-cpp-lint defaults, differ from the
+    handbook's and need the same fix.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+`_config/.clang-format` and `_config/.clang-tidy` are byte copies of the handbook's `config/` files, apart from the
+header comment. Every command and workflow passes the `_config/` path to its tool.
+
+*Verified by:*
+
+- `config-drift` (planned): \_config/.clang-format and \_config/.clang-tidy equal the handbook's config/ files apart
+  from the header
+
+*See also:* [ADR-0008](../adr/0008-naming.md); [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+
+## KB-REPO-016: ESP-IDF projects commit sdkconfig.defaults, never sdkconfig { #kb-repo-016 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. threading-and-timing.md still tolerates a committed sdkconfig and needs aligning.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+The settings an ESP-IDF project needs are in `sdkconfig.defaults`; the generated `sdkconfig` is gitignored and never
+committed.
+
+*Verified by:*
+
+- `tracked-files/sdkconfig` (planned): git tracks no file of a banned kind; the parameter names it
+  (tracked-files/symlinks, tracked-files/sdkconfig, tracked-files/idf-component)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-REPO-017: No ESP-IDF wrapper component or idf\_component.yml unless the registry is chosen { #kb-repo-017 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · driver, library, template · since 1.0 · enforced from 2027-03-01
+
+A driver or library has no wrapper component folder and no `idf_component.yml`, unless a decision record chooses to
+publish it to the ESP Component Registry.
+
+*Verified by:*
+
+- `tracked-files/idf-component` (planned): git tracks no file of a banned kind; the parameter names it
+  (tracked-files/symlinks, tracked-files/sdkconfig, tracked-files/idf-component)
+
+*See also:* [ADR-0007](../adr/0007-submodule-pinning-and-tags.md); [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-REPO-018: Every driver declares itself in driver.yml { #kb-repo-018 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. Neither the file nor its check exists: driver-template has no driver.yml, its
+    scaffold root allow-list rejects one, and ADR-0011's root list must add it.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A driver's root `driver.yml` gives its name, version, bus, supported MCUs, peripheral and minimum kb-core version, and
+CI checks it against the build settings and the examples it builds.
+
+*Verified by:*
+
+- `driver-manifest` (planned): driver.yml exists, validates against its schema, and its version, MCUs and examples match
+  the build settings and the examples folder
+
+*See also:* [ADR-0007](../adr/0007-submodule-pinning-and-tags.md); [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-REPO-019: Third-party code keeps its own licence under third\_party/ { #kb-repo-019 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. ADR-0011's root list does not yet include `third_party/`.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+Code copied in from elsewhere is MIT-compatible and sits in `third_party/<name>/` with its original licence and notice.
+It is never mixed into the repository's own sources.
+
+*Verified by:*
+
+- `third-party-licences` (planned): every third\_party/&lt;name&gt;/ has a licence file, and REUSE or scancode finds
+  only MIT-compatible licences
+
+*See also:* [ADR-0009](../adr/0009-licensing.md); IEC 62304:2006+A1:2015 8.1 (SOUP identification)
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-020: Hardware is CERN-OHL-P-2.0; a product owner picks the board HAL licence { #kb-repo-020 }
+
+**SHOULD** · all · since 1.0
+
+Hardware designs are licensed CERN-OHL-P-2.0. A board HAL in a product organisation carries the licence its product
+owner chooses in LICENSE. No licence grants use of the Kokeb Labs name or logos.
+
+*Verified by:*
+
+- review: LICENSE, README badges and package manifests name the same licence.
+
+*See also:* [ADR-0009](../adr/0009-licensing.md)
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-021: CODEOWNERS gives every path a default owner { #kb-repo-021 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. org-standard-check confirms only that the file is not empty.
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+`.github/CODEOWNERS` starts with a `*` line naming the maintainer (`@N3b3x`, later `@kokeb-labs/maintainers`), so every
+path has an owner.
+
+*Verified by:*
+
+- `codeowners` (planned): .github/CODEOWNERS has a `*` rule naming at least one owner
+
+*See also:* [ADR-0015](../adr/0015-solo-maintainer-governance.md)
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-022: Vulnerabilities are reported privately, as SECURITY.md says { #kb-repo-022 }
+
+**MUST** · all · since 1.0
+
+SECURITY.md and CONTRIBUTING.md live in `.github/` or are inherited from the organisation. A vulnerability is reported
+through a private security advisory, never a public issue.
+
+*Verified by:*
+
+- `security-policy` (planned): SECURITY.md exists in .github/ or is inherited from the organisation and names private
+  reporting
+- review: A vulnerability reported in public was moved to a private advisory and the issue hidden.
+
+*See also:* [ADR-0015](../adr/0015-solo-maintainer-governance.md); IEC 62304:2006+A1:2015 9 (problem reports)
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-023: Issues use the org forms and labels { #kb-repo-023 }
+
+**SHOULD** · all · since 1.0
+
+Issues are opened with the organisation's Bug, Driver request or Feature forms, blank issues are off and questions go to
+Discussions. Every repository uses the org label set (bug, enhancement, safety, breaking, …).
+
+*Verified by:*
+
+- `org-settings-drift` (planned): a scheduled `kokeb_org.py --check` finds no drift between org/ and the repository's
+  live settings
+- review: The repository adds no issue templates or labels of its own outside org/labels.json.
+
+*See also:* IEC 62304:2006+A1:2015 9 (problem reports are classified)
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-024: Repository settings are code in the .github repository { #kb-repo-024 }
+
+**MUST** · all · since 1.0
+
+Merge settings, rulesets, security features, labels, description, homepage and topics are declared in
+`kokeb-labs/.github` `org/`, changed by pull request, and applied by an organisation owner with `kokeb_org.py --apply`.
+
+*Verified by:*
+
+- `rulesets` (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)
+- `org-settings-drift` (planned): a scheduled `kokeb_org.py --check` finds no drift between org/ and the repository's
+  live settings
+- review: The setting was changed in org/ by pull request, not in the GitHub UI.
+
+*See also:* [ADR-0015](../adr/0015-solo-maintainer-governance.md); IEC 62304:2006+A1:2015 8.2 (controlled changes to the
+environment)
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-025: A new repository starts from its kind's template and is declared first { #kb-repo-025 }
+
+**SHOULD** · all · since 1.0
+
+A repository is added to `org/repos.json` by pull request, then created public from its kind's template (drivers and
+libraries through `tools/setup.py`) and follows the kind's checklist.
+
+*Verified by:*
+
+- review: The repository is in org/repos.json and was generated from its kind's template.
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-026: A superseded repository is marked legacy and archived { #kb-repo-026 }
+
+**SHOULD** · all · since 1.0
+
+When a repository is replaced, it gets the `legacy` topic, a `[Legacy]` description and a README note naming its
+successor, and is then archived.
+
+*Verified by:*
+
+- review: The archived repository's topic, description and README name its successor.
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-REPO-027: CubeMX code is committed with the .ioc it came from { #kb-repo-027 }
+
+**SHOULD** · hal, firmware · since 1.0
+
+Generated STM32CubeMX code is committed together with its `.ioc` project, so a reviewer can regenerate it and diff. Both
+sit under the family's `bsp_bind/<family>/`, not at the root.
+
+*Verified by:*
+
+- review: The .ioc in the pull request regenerates exactly the generated code it carries.
+
+*Explained in:* [standards/hal.md](../standards/hal.md)

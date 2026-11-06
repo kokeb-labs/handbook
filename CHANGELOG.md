@@ -15,4 +15,10 @@ loosened rule is a major release.
 - Pages on how rules work, assurance levels (standard, high, safety), deviations and waivers, coding standards
   (MISRA C++:2023, MISRA C:2025, CERT, C++ Core Guidelines), evidence for regulated products, and IEC 62304.
 - The engineering standard, decision records 0001 to 0015 and checklists, moved from `kokeb-labs/.github`.
-- A first set of 33 rules across C++, build, testing, documentation, repository, Git, CI and agents.
+- 402 rules in 11 areas (architecture, C++, C, hardware and porting, build, testing, documentation, repository, Git,
+  CI, agents), converted from the Kokeb engineering standard and the HardFOC development handbook, with conflicts
+  resolved in favour of the Kokeb standard; 3 duplicates retired. 270 are `must` rules: 76 checked by a tool today,
+  159 naming a planned check, 35 verified in review.
+- 53 HardFOC-only rules in `hf-supplement/`, validated against the same registry.
+- 134 checks in the registry: 15 implemented, the rest planned and listed on the coverage page.
+- The generator escapes Markdown in rule text, so names like `<chip>` and `KB_` render as written.

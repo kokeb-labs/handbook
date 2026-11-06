@@ -1,0 +1,77 @@
+---
+area: build
+prefix: HF-BLD
+title: Build and CMake (HardFOC supplement)
+intro: >-
+  What HardFOC repositories add to the Kokeb build rules: the HF_ build symbols, board HAL options and the HAL
+  component published to the ESP Component Registry. Where these differ from a Kokeb rule, the Kokeb rule wins.
+rules:
+  - id: HF-BLD-001
+    title: "`HF_CORE_*` feature macros are public; `HARDFOC_<BOARD>` identity stays inside the HAL"
+    statement: >-
+      Each HardFOC toggle defines its `HF_CORE_*` feature macro as a PUBLIC definition. The board identity
+      (`HARDFOC_<BOARD>`, `HARDFOC_BOARD_*`) is a PRIVATE definition of the board HAL and is tested only there, for
+      example to pick a board variant's enum set; no shared code reads it.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [library, hal]}
+    verify:
+      - review: HARDFOC_<BOARD> and HARDFOC_BOARD_* appear only in the board HAL and are PRIVATE.
+    rationale: Kokeb KB rules forbid product and board macros in shared code; this keeps HardFOC's within that rule.
+    page: standards/layers.md
+    origin:
+      - "hf:process/build-modularity.md:244-268,368-371"
+      - "hf:agents/hal-authoring.md:198-205"
+      - "hf:agents/manager-design.md:221"
+      - "kb:standards/layers.md:110 (wins over hf use of board macros in shared code)"
+
+  - id: HF-BLD-002
+    title: HF MCU symbols are tested only in mcu/<family>/ and the bind layer
+    statement: >-
+      `HF_TARGET_MCU_*`, `HF_MCU_FAMILY_*` and `_HF_MCU_GATED_DRIVERS` are set by the build and read only in
+      `mcu/<family>/` code and in the HAL bind layer; drivers and hf-core code outside `mcu/` never branch on them.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal]}
+    verify:
+      - review: No HF_TARGET_MCU_* or HF_MCU_FAMILY_* test outside mcu/<family>/ or bind code.
+    refs: [{adr: 14}]
+    page: standards/layers.md
+    origin:
+      - "hf:process/build-modularity.md:85-100"
+      - "hf:porting/README.md:28-36 (per-target defines in shared code; narrowed)"
+      - "kb:standards/layers.md:110"
+
+  - id: HF-BLD-003
+    title: A production HAL enables exactly the modules its board uses
+    statement: >-
+      A HardFOC board HAL turns on only the `HF_CORE_ENABLE_*` options its board needs and lists its manager sources
+      explicitly, so disabling an option a manager depends on breaks the build instead of compiling a stub.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: Every enabled HF_CORE_ENABLE_* option is used by a manager of this board.
+    origin: ["hf:process/build-modularity.md:387-389", "hf:process/manager-pattern.md:341-356"]
+
+  - id: HF-BLD-004
+    title: A HAL published to the ESP Component Registry ships a complete, small manifest
+    statement: >-
+      A HardFOC HAL that is published to the ESP Component Registry ships a root `idf_component.yml` with
+      description, URL, licence, maintainers, tags, targets and dependencies, and its file filters leave docs,
+      examples, tests and build output out of the package.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: idf.py pack-component output contains only the component's sources, headers and manifest.
+    notes: >-
+      Only for a HAL that chose registry publication; Kokeb drivers and kb-core ship no idf_component.yml. The HAL is
+      built with the one pinned ESP-IDF release (KB-BLD-015), not an open `>=5.0.0` range.
+    origin:
+      - "hf:process/component-manifest.md:9-72,60-106"
+      - "hf:process/component-manifest.md:53-57 (ESP-IDF >=5.0.0; superseded)"

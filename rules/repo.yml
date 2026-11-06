@@ -51,3 +51,389 @@ rules:
     applies: {profiles: [driver, library, hal, firmware, tooling, template]}
     verify: [{check: spdx-headers}]
     origin: ["gap: neither source stated it"]
+
+  # -- Layout -----------------------------------------------------------------------------------------------------
+  - id: KB-REPO-005
+    title: The root holds only the entries listed for the repository's kind
+    statement: >-
+      Tool configuration lives in `_config/`, not at the root. An extra root file a tool insists on is listed, with
+      the tool, in AGENTS.md; a pull request adding a root entry without such a reason is refused.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: repo-layout}]
+    refs: [{adr: 11}]
+    page: standards/repo-governance.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. Only driver-template's self-test checks the root today. The ADR-0011
+      list still omits `driver.yml` (KB-REPO-018) and `third_party/` (KB-REPO-019).
+    origin: ["inv:B-DRV-05, B-GOV-44, B-GOV-45, B-GOV-46, B-GOV-49"]
+
+  - id: KB-REPO-006
+    title: A driver has the driver layout
+    statement: >-
+      A driver keeps `inc/<chip>.hpp`, `inc/<chip>_<bus>_interface.hpp`, `inc/<chip>_types.hpp`, `src/<chip>.ipp`,
+      `cmake/`, `examples/host/` and other platforms, a flat `tests/`, `docs/` and `_config/`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template]}
+    verify: [{check: repo-layout}]
+    refs: [{adr: 11}, {adr: 12}]
+    page: standards/driver.md
+    notes: Warns until 2027-03-01, then fails CI. driver-template's self-test checks part of it, in the template only.
+    origin:
+      - "inv:B-DRV-03, A-EMB-34, A-CMK-13, A-TST-10, A-AG1-94"
+      - "hf:process/testing-requirements.md:490-503 (tests/unit, tests/integration; superseded)"
+
+  - id: KB-REPO-007
+    title: File names follow the layer's convention
+    statement: >-
+      Driver files are `<chip>_<part>.hpp` and `.ipp`; kb-core and board HAL files are PascalCase `.h` and `.cpp`
+      named for the class they hold; tests are `test_<subject>.cpp`.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, template]}
+    verify: [{check: file-names}]
+    refs: [{adr: 8}]
+    page: standards/naming-and-style.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inv:B-NAM-11, A-EMB-33, A-STY-09"]
+
+  - id: KB-REPO-008
+    title: A standalone library starts from driver-template and keeps its layout
+    statement: >-
+      A library outside kb-core is generated with `driver-template --kind library` and keeps the driver root
+      layout, an `examples/host/`, one CMake target and one include root.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library]}
+    verify: [{check: repo-layout}]
+    refs: [{adr: 11}]
+    page: standards/library.md
+    notes: Warns until 2027-03-01, then fails CI. kb-core has its own layout (KB-REPO-009).
+    origin: ["inv:B-LIB-31"]
+
+  - id: KB-REPO-009
+    title: kb-core keeps its monorepo layout
+    statement: >-
+      kb-core holds `utils/`, `rtos/`, `interfaces/` (base, `mcu/<family>/`, host), `handlers/`, `drivers/` with one
+      submodule per driver, `cmake/kb_build_settings.cmake` and `catalog/compat.yml`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library]}
+    verify: [{check: repo-layout}]
+    refs: [{adr: 13}]
+    page: standards/library.md
+    notes: Warns until 2027-03-01, then fails CI. Applies to kb-core only.
+    origin: ["inv:B-ADR-54"]
+
+  - id: KB-REPO-010
+    title: A board HAL has the board HAL layout
+    statement: >-
+      A board HAL has `lib/common` (kb-hal-common) and `lib/core` (kb-core) submodules, one `board/<board>/` folder
+      of bus, chip and pin tables (data, not logic), a `bsp_bind/<family>/` per family plus `bsp_bind/host/`, and
+      `_config/`. Its only root extras are `CMakePresets.json` and `version_lock.txt`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [hal]}
+    verify: [{check: repo-layout}]
+    refs: [{adr: 5}, {adr: 11}]
+    page: standards/hal.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "inv:B-HAL-21, B-HAL-23, B-CHK-35, B-CHK-37, B-CHK-38, A-PRT-21, A-PRT-35, A-AG1-115, A-AG1-124"
+      - "hf:porting/custom-board.md:32-51 (pincfg/ at the root, no _config/ or bsp_bind/; superseded)"
+
+  - id: KB-REPO-011
+    title: A product has the product layout
+    statement: >-
+      A product holds `main/` (or `app/`), `platform/`, `hal/`, `version_lock.txt`, `sdkconfig.defaults`,
+      `partitions.csv`, `docs/` and `_config/`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [firmware]}
+    verify: [{check: repo-layout}]
+    refs: [{adr: 11}]
+    page: standards/product.md
+    notes: Warns until 2027-03-01, then fails CI. Examples and test benches of the firmware kind are exempt.
+    origin: ["inv:B-PRD-02, A-AG1-38"]
+
+  - id: KB-REPO-012
+    title: Board HALs and products live in the product's organisation
+    statement: >-
+      kokeb-labs holds reusable code only. A board HAL or product lives in its product's organisation (HardFOC is
+      one) and starts from the board HAL template.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify:
+      - review: A new board HAL or product repository is created in the product organisation.
+    refs: [{adr: 5}]
+    page: standards/hal.md
+    notes: The board HAL template the standard names does not exist yet.
+    origin: ["inv:B-HAL-02, B-PRD-01, B-ADR-23, B-CHK-34, A-PRT-06, A-AG1-21"]
+
+  - id: KB-REPO-013
+    title: Each example platform stands alone, and sources have one home
+    statement: >-
+      Every `examples/<platform>/` has its own port, example program and README and builds on its own. Zephyr,
+      Arduino or PlatformIO manifests are added only when a user needs them, and never copy the sources.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, template]}
+    verify:
+      - check: repo-layout
+      - review: Any extra ecosystem manifest points at the existing sources.
+    page: standards/driver.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inv:B-DRV-12, B-DRV-15, A-REV-42"]
+
+  - id: KB-REPO-014
+    title: No symlinks anywhere in a repository
+    statement: >-
+      A repository tracks no symbolic links. An editor that wants a config at the root gets a local, gitignored
+      copy of the file in `_config/`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: tracked-files/symlinks}]
+    refs: [{adr: 11}]
+    page: standards/repo-governance.md
+    notes: Warns until 2027-03-01, then fails CI. driver-template's self-test scans for symlinks in the template only.
+    origin: ["inv:B-GOV-47"]
+
+  - id: KB-REPO-015
+    title: _config/ holds the org's tool configs unchanged, and tools are pointed at it
+    statement: >-
+      `_config/.clang-format` and `_config/.clang-tidy` are byte copies of the handbook's `config/` files, apart
+      from the header comment. Every command and workflow passes the `_config/` path to its tool.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify: [{check: config-drift}]
+    refs: [{adr: 8}, {adr: 11}]
+    page: standards/naming-and-style.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. ci-tools' own `_config/` clang configs, the ru-cpp-lint defaults,
+      differ from the handbook's and need the same fix.
+    origin: ["inv:B-NAM-24, B-DRV-06, B-ADR-42, B-GOV-59"]
+
+  - id: KB-REPO-016
+    title: ESP-IDF projects commit sdkconfig.defaults, never sdkconfig
+    statement: >-
+      The settings an ESP-IDF project needs are in `sdkconfig.defaults`; the generated `sdkconfig` is gitignored
+      and never committed.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify: [{check: tracked-files/sdkconfig}]
+    page: standards/driver.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. threading-and-timing.md still tolerates a committed sdkconfig and
+      needs aligning.
+    origin: ["inv:B-DRV-52"]
+
+  - id: KB-REPO-017
+    title: No ESP-IDF wrapper component or idf_component.yml unless the registry is chosen
+    statement: >-
+      A driver or library has no wrapper component folder and no `idf_component.yml`, unless a decision record
+      chooses to publish it to the ESP Component Registry.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, template]}
+    verify: [{check: tracked-files/idf-component}]
+    refs: [{adr: 7}, {adr: 11}]
+    page: standards/driver.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inv:B-DRV-67, B-ADR-44"]
+
+  - id: KB-REPO-018
+    title: Every driver declares itself in driver.yml
+    statement: >-
+      A driver's root `driver.yml` gives its name, version, bus, supported MCUs, peripheral and minimum kb-core
+      version, and CI checks it against the build settings and the examples it builds.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template]}
+    verify: [{check: driver-manifest}]
+    refs: [{adr: 7}, {adr: 11}]
+    page: standards/driver.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. Neither the file nor its check exists: driver-template has no
+      driver.yml, its scaffold root allow-list rejects one, and ADR-0011's root list must add it.
+    origin: ["inv:B-DRV-04, B-DRV-72, B-ADR-31"]
+
+  - id: KB-REPO-019
+    title: Third-party code keeps its own licence under third_party/
+    statement: >-
+      Code copied in from elsewhere is MIT-compatible and sits in `third_party/<name>/` with its original licence
+      and notice. It is never mixed into the repository's own sources.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: third-party-licences}]
+    refs: [{adr: 9}, {std: IEC-62304, id: "8.1", note: "SOUP identification"}]
+    page: standards/repo-governance.md
+    notes: Warns until 2027-03-01, then fails CI. ADR-0011's root list does not yet include `third_party/`.
+    origin: ["inv:B-GOV-41"]
+
+  - id: KB-REPO-020
+    title: Hardware is CERN-OHL-P-2.0; a product owner picks the board HAL licence
+    statement: >-
+      Hardware designs are licensed CERN-OHL-P-2.0. A board HAL in a product organisation carries the licence its
+      product owner chooses in LICENSE. No licence grants use of the Kokeb Labs name or logos.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: LICENSE, README badges and package manifests name the same licence.
+    refs: [{adr: 9}]
+    page: standards/repo-governance.md
+    notes: org-standard-check accepts only MIT, so a hardware or non-MIT HAL repository needs a waiver there.
+    origin:
+      - "inv:B-GOV-39, B-GOV-42, B-CHK-36, A-TOP-08"
+      - "hf:process/component-manifest.md:31 (GPL-3.0 HAL; the product owner's choice under B-CHK-36)"
+
+  # -- Ownership, security and issues -----------------------------------------------------------------------------
+  - id: KB-REPO-021
+    title: CODEOWNERS gives every path a default owner
+    statement: >-
+      `.github/CODEOWNERS` starts with a `*` line naming the maintainer (`@N3b3x`, later
+      `@kokeb-labs/maintainers`), so every path has an owner.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: codeowners}]
+    refs: [{adr: 15}]
+    page: standards/repo-governance.md
+    notes: Warns until 2027-03-01, then fails CI. org-standard-check confirms only that the file is not empty.
+    origin: ["inv:B-GOV-25, A-AG2-86"]
+
+  - id: KB-REPO-022
+    title: Vulnerabilities are reported privately, as SECURITY.md says
+    statement: >-
+      SECURITY.md and CONTRIBUTING.md live in `.github/` or are inherited from the organisation. A vulnerability is
+      reported through a private security advisory, never a public issue.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: security-policy
+      - review: A vulnerability reported in public was moved to a private advisory and the issue hidden.
+    refs: [{adr: 15}, {std: IEC-62304, id: "9", note: "problem reports"}]
+    page: standards/repo-governance.md
+    notes: Inherited today from kokeb-labs/.github; the check that a repository does not override it badly is planned.
+    origin: ["inv:B-GOV-33, B-GOV-48"]
+
+  - id: KB-REPO-023
+    title: Issues use the org forms and labels
+    statement: >-
+      Issues are opened with the organisation's Bug, Driver request or Feature forms, blank issues are off and
+      questions go to Discussions. Every repository uses the org label set (bug, enhancement, safety, breaking, …).
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: org-settings-drift
+      - review: The repository adds no issue templates or labels of its own outside org/labels.json.
+    refs: [{std: IEC-62304, id: "9", note: "problem reports are classified"}]
+    page: standards/repo-governance.md
+    notes: kokeb_org.py applies org/labels.json today. driver-template also carries a .github/labels.yml that can drift.
+    origin: ["inv:B-GOV-21, B-GOV-22, A-GHW-27, A-GHW-28"]
+
+  - id: KB-REPO-024
+    title: Repository settings are code in the .github repository
+    statement: >-
+      Merge settings, rulesets, security features, labels, description, homepage and topics are declared in
+      `kokeb-labs/.github` `org/`, changed by pull request, and applied by an organisation owner with
+      `kokeb_org.py --apply`.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: rulesets
+      - check: org-settings-drift
+      - review: The setting was changed in org/ by pull request, not in the GitHub UI.
+    refs: [{adr: 15}, {std: IEC-62304, id: "8.2", note: "controlled changes to the environment"}]
+    page: standards/repo-governance.md
+    notes: Squash only, delete-branch-on-merge and auto-merge come from org/policy.json today.
+    origin: ["inv:B-GOV-04, B-GOV-43, B-GOV-51, B-AGT-24, A-GHW-12, A-AG2-80"]
+
+  # -- Life of a repository ---------------------------------------------------------------------------------------
+  - id: KB-REPO-025
+    title: A new repository starts from its kind's template and is declared first
+    statement: >-
+      A repository is added to `org/repos.json` by pull request, then created public from its kind's template
+      (drivers and libraries through `tools/setup.py`) and follows the kind's checklist.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: The repository is in org/repos.json and was generated from its kind's template.
+    page: standards/repo-governance.md
+    origin: ["inv:B-GOV-50, B-GOV-51, B-GOV-60"]
+
+  - id: KB-REPO-026
+    title: A superseded repository is marked legacy and archived
+    statement: >-
+      When a repository is replaced, it gets the `legacy` topic, a `[Legacy]` description and a README note naming
+      its successor, and is then archived.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: The archived repository's topic, description and README name its successor.
+    page: standards/repo-governance.md
+    origin: ["inv:B-GOV-53"]
+
+  - id: KB-REPO-027
+    title: CubeMX code is committed with the .ioc it came from
+    statement: >-
+      Generated STM32CubeMX code is committed together with its `.ioc` project, so a reviewer can regenerate it and
+      diff. Both sit under the family's `bsp_bind/<family>/`, not at the root.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify:
+      - review: The .ioc in the pull request regenerates exactly the generated code it carries.
+    page: standards/hal.md
+    notes: The standard's HAL root list has no CubeMX folder; placing it under bsp_bind is this rule's reading.
+    origin: ["inv:A-PRT-45"]

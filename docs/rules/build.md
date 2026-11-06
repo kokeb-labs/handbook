@@ -5,10 +5,37 @@ How a repository builds, installs and is consumed.
 
 | Rule | Level | Applies to | Verified |
 | --- | --- | --- | --- |
-| [KB-BLD-001](#kb-bld-001) The installed package works with find_package | must | driver, library, template | checked |
+| [KB-BLD-001](#kb-bld-001) The installed package works with find\_package | must | driver, library, template | checked |
 | [KB-BLD-002](#kb-bld-002) No file(GLOB) for library sources | must | driver, library, hal, template | planned |
+| [KB-BLD-003](#kb-bld-003) The root CMakeLists.txt is also the ESP-IDF component | must | driver, library, template | planned |
+| [KB-BLD-004](#kb-bld-004) One build-settings file holds the version, target name and source list | must | driver, library, template | planned |
+| [KB-BLD-005](#kb-bld-005) Every copy of the version derives from or is tested against the build settings | must | driver, library, template | planned |
+| [KB-BLD-006](#kb-bld-006) The same &lt;chip&gt;::&lt;chip&gt; target through add\_subdirectory and find\_package | must | driver, library, template | checked |
+| [KB-BLD-007](#kb-bld-007) Install rules install every header the public API reaches | must | driver, library, template | checked |
+| [KB-BLD-008](#kb-bld-008) Standard options `<CHIP>_BUILD_TESTS` and `<CHIP>_ENABLE_WARNINGS`, both off by default | must | driver, template | planned |
+| [KB-BLD-009](#kb-bld-009) Compile flags and definitions are set per target, never globally | must | driver, library, hal, firmware, template | planned |
+| [KB-BLD-010](#kb-bld-010) CMake configures without developer warnings | must | driver, library, hal, firmware, template | planned |
+| [KB-BLD-011](#kb-bld-011) Header-only libraries are INTERFACE targets; compiled ones are STATIC | should | driver, library, template | review |
+| [KB-BLD-012](#kb-bld-012) The root CMakeLists.txt declares the org's CMake minimum, 3.16 | should | driver, library, template | review |
+| [KB-BLD-013](#kb-bld-013) Kconfig lives in \_config/Kconfig and defines every CONFIG\_ value the code reads | must | driver, library, template | checked |
+| [KB-BLD-014](#kb-bld-014) The exported target itself builds warning-free with the org flag set | must | driver, library, hal, template | planned |
+| [KB-BLD-015](#kb-bld-015) Supported compilers and toolchains are pinned and listed | must | driver, library, hal, firmware, template | planned |
+| [KB-BLD-016](#kb-bld-016) Release builds are reproducible | should | library, hal, firmware (high level and above) | planned |
+| [KB-BLD-017](#kb-bld-017) Image size and stack usage stay within recorded budgets | must | driver, library, hal, firmware (high level and above) | planned |
+| [KB-BLD-018](#kb-bld-018) Firmware reports its version and the exact source of every pinned component | must | firmware | planned |
+| [KB-BLD-019](#kb-bld-019) ESP-IDF builds set a 1 kHz FreeRTOS tick in sdkconfig.defaults | must | driver, hal, firmware, template | planned |
+| [KB-BLD-020](#kb-bld-020) kb-core parts are separate targets with distinct include roots | must | library | planned |
+| [KB-BLD-021](#kb-bld-021) Each build selects exactly one MCU family and one RTOS backend | must | library | planned |
+| [KB-BLD-022](#kb-bld-022) Enabling an MCU-bound driver for the wrong MCU fails at configure time | must | library | planned |
+| [KB-BLD-023](#kb-bld-023) kb-core options use the KB\_ scheme and default to the smallest build | must | library | planned |
+| [KB-BLD-024](#kb-bld-024) Enabling a module enables what it depends on, never the reverse | should | library | planned |
+| [KB-BLD-025](#kb-bld-025) kb-core links each driver's target and never copies its file lists | must | library | review |
+| [KB-BLD-026](#kb-bld-026) ESP-IDF REQUIRES follow the enabled options | should | library, hal | review |
+| [KB-BLD-027](#kb-bld-027) Configure prints a summary of what is built | should | library, hal | review |
+| [KB-BLD-028](#kb-bld-028) Keep CMake plain and linear | guide | driver, library, hal, firmware, template | none |
+| [KB-BLD-029](#kb-bld-029) Depend on as little as possible | guide | driver, library, hal | none |
 
-## KB-BLD-001: The installed package works with find_package { #kb-bld-001 }
+## KB-BLD-001: The installed package works with find\_package { #kb-bld-001 }
 
 **MUST** · driver, library, template · since 1.0
 
@@ -17,7 +44,7 @@ separate project finds with `find_package` and links; CI builds such a consumer.
 
 *Verified by:*
 
-- `cmake-consumer` (implemented): the installed package is found and linked by a separate CMake project (find_package)
+- `cmake-consumer` (implemented): the installed package is found and linked by a separate CMake project (find\_package)
 
 *Explained in:* [standards/driver.md](../standards/driver.md)
 
@@ -37,4 +64,492 @@ Library targets list their sources explicitly; `file(GLOB)` is not used for sour
 
 - `forbidden-patterns/cmake-glob` (planned): a source scan for a construct the handbook bans; the parameter names the
   pattern set
+
+
+## KB-BLD-003: The root CMakeLists.txt is also the ESP-IDF component { #kb-bld-003 }
+
+**MUST** · driver, library, template · since 1.0
+
+Under `ESP_PLATFORM` the root `CMakeLists.txt` registers the repository as an ESP-IDF component and returns before
+`project()`; there is no separate wrapper component. `examples/esp32/` reaches it through `EXTRA_COMPONENT_DIRS`
+pointing at the repository root, and kb-core maps its `CONFIG_KB_*` values onto its CMake options in that one place.
+
+*Why:* One CMake entry point for every build system means the ESP-IDF build cannot drift from the host and find\_package
+builds.
+
+*Verified by:*
+
+- `esp-idf-examples` (planned): every app in examples/esp32 builds with the pinned ESP-IDF, using the repository root as
+  its component (runs today in driver-template esp32-examples-build-ci.yml through ci-tools ru-build)
+- review: The root CMakeLists.txt is the ESP-IDF component; no wrapper component or extra CMake entry point.
+
+*See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-BLD-004: One build-settings file holds the version, target name and source list { #kb-bld-004 }
+
+**MUST** · driver, library, template · since 1.0
+
+`cmake/<chip>_build_settings.cmake` (`cmake/kb_build_settings.cmake` for kb-core, one version for all its parts) is the
+only place the version, the target name, the options and the source list are written. It is guarded with
+`include_guard(GLOBAL)`, and the variables it sets carry the unbranded `<CHIP>_` prefix.
+
+*Why:* A value written twice is eventually written differently.
+
+*Verified by:*
+
+- `version-copies` (planned): project(), the package version, the generated version header, Doxyfile PROJECT\_NUMBER,
+  driver.yml and the version getter all equal the version in the build settings (driver-template version ctests, less
+  driver.yml)
+- review: Version, target name, options and sources are set only in the build-settings file.
+
+*See also:* [ADR-0012](../adr/0012-unbranded-drivers.md); [ADR-0013](../adr/0013-kb-core-monorepo.md); IEC
+62304:2006+A1:2015 8.1.1 (configuration item identification)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-BLD-005: Every copy of the version derives from or is tested against the build settings { #kb-bld-005 }
+
+**MUST** · driver, library, template · since 1.0
+
+`project()`, the package version file, the generated `<chip>_version.h` (`<CHIP>_VERSION_*`), Doxyfile `PROJECT_NUMBER`,
+`driver.yml` and `GetDriverVersion()` either derive from the build settings or are compared with them by a test. A
+release changes the version in the build settings and the test proves the copies agree.
+
+*Verified by:*
+
+- `version-copies` (planned): project(), the package version, the generated version header, Doxyfile PROJECT\_NUMBER,
+  driver.yml and the version getter all equal the version in the build settings (driver-template version ctests, less
+  driver.yml)
+- review: A release pull request bumps the version only in the build settings and the version tests pass.
+
+*See also:* IEC 62304:2006+A1:2015 8.1.1
+
+
+## KB-BLD-006: The same &lt;chip&gt;::&lt;chip&gt; target through add\_subdirectory and find\_package { #kb-bld-006 }
+
+**MUST** · driver, library, template · since 1.0
+
+The library target has the alias `<chip>::<chip>` and `EXPORT_NAME <chip>`, so a consumer writes the same
+`target_link_libraries` line whether it uses `add_subdirectory()` or the installed package. Targets carry no
+organisation prefix.
+
+*Why:* Submodule consumers and package consumers then differ only in how they find the code, never in what they link.
+
+*Verified by:*
+
+- `cmake-consumer` (implemented): the installed package is found and linked by a separate CMake project (find\_package)
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+
+*See also:* [ADR-0012](../adr/0012-unbranded-drivers.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-BLD-007: Install rules install every header the public API reaches { #kb-bld-007 }
+
+**MUST** · driver, library, template · since 1.0
+
+`cmake --install` installs every header the umbrella header includes, every `.ipp`, the generated version header and the
+package configuration and version files, keeping the relative layout the includes rely on.
+
+*Verified by:*
+
+- `cmake-consumer` (implemented): the installed package is found and linked by a separate CMake project (find\_package)
+
+
+## KB-BLD-008: Standard options `<CHIP>_BUILD_TESTS` and `<CHIP>_ENABLE_WARNINGS`, both off by default { #kb-bld-008 }
+
+**MUST** · driver, template · since 1.0
+
+The root CMakeLists.txt offers `<CHIP>_BUILD_TESTS` and `<CHIP>_ENABLE_WARNINGS`, both `OFF` by default, so a consumer
+builds neither the tests nor the warning set unless it asks.
+
+*Verified by:*
+
+- `cmake-configure/standard-options` (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles
+- review: The two options exist with the standard names and default OFF.
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-BLD-009: Compile flags and definitions are set per target, never globally { #kb-bld-009 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+CMake files set flags, definitions and include paths with `target_*` commands. `add_compile_options`, `add_definitions`,
+`include_directories` and writes to `CMAKE_CXX_FLAGS` are not used.
+
+*Why:* A global flag leaks into every consumer's build and into code it was never reviewed against.
+
+*Verified by:*
+
+- `forbidden-patterns/cmake-global-flags` (planned): a source scan for a construct the handbook bans; the parameter
+  names the pattern set
+
+
+## KB-BLD-010: CMake configures without developer warnings { #kb-bld-010 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+The project configures cleanly with `-Werror=dev --warn-uninitialized`, for the host build and for every option
+combination CI exercises.
+
+*Verified by:*
+
+- `cmake-configure/dev-warnings` (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles
+
+
+## KB-BLD-011: Header-only libraries are INTERFACE targets; compiled ones are STATIC { #kb-bld-011 }
+
+**SHOULD** · driver, library, template · since 1.0
+
+A library with no sources is an `INTERFACE` target and one with sources is `STATIC`. Switching between the two changes
+only the source list in the build settings.
+
+*Verified by:*
+
+- review: The target type matches whether the build settings list sources.
+
+
+## KB-BLD-012: The root CMakeLists.txt declares the org's CMake minimum, 3.16 { #kb-bld-012 }
+
+**SHOULD** · driver, library, template · since 1.0
+
+The root `CMakeLists.txt` starts with `cmake_minimum_required(VERSION 3.16)`; a repository raises it only with a reason
+in the pull request.
+
+*Why:* ESP-IDF 5 and the vendor toolchains in use all ship CMake 3.16 or newer; asking for more locks some out.
+
+*Verified by:*
+
+- review: cmake\_minimum\_required is 3.16, or the pull request says why it is higher.
+
+
+## KB-BLD-013: Kconfig lives in \_config/Kconfig and defines every CONFIG\_ value the code reads { #kb-bld-013 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, template · since 1.0 · enforced from 2027-03-01
+
+A component with ESP-IDF options ships `_config/Kconfig`, registered through `KCONFIG` in the root CMakeLists.txt. Code
+reads no `CONFIG_*` symbol that this file (or ESP-IDF itself) does not define, and compiles with every such value unset.
+
+*Why:* A CONFIG\_ name with no Kconfig behind it is silently never set, and its feature is silently off.
+
+*Verified by:*
+
+- `kconfig-symbols` (planned): every CONFIG\_ symbol the sources read is defined in \_config/Kconfig or by ESP-IDF
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+
+
+## KB-BLD-014: The exported target itself builds warning-free with the org flag set { #kb-bld-014 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, template · since 1.0 · enforced from 2027-03-01
+
+CI compiles the library's own sources and every public header with `<CHIP>_ENABLE_WARNINGS=ON`, the org warning set,
+`-fno-exceptions -fno-rtti` and `-Werror`, not only the test targets that include them.
+
+*Why:* Today the flags reach a compiled library's sources only through the tests, so a STATIC target can ship code the
+warning set never saw.
+
+*Verified by:*
+
+- `exported-target-flags` (planned): the library target's own sources and every public header compile with
+  &lt;CHIP&gt;\_ENABLE\_WARNINGS=ON, the org warning set and -Werror
+- `exceptions-rtti-off` (planned): the exported library target compiles with -fno-exceptions -fno-rtti, not only the
+  tests
+
+
+## KB-BLD-015: Supported compilers and toolchains are pinned and listed { #kb-bld-015 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+The repository lists the compilers it supports (host gcc and clang, arm-none-eabi-gcc, the ESP-IDF release) with exact
+versions, and CI builds with exactly those versions. Changing one is a pull request of its own.
+
+*Why:* An unpinned toolchain changes the warnings, the code generated and the static-analysis findings without any
+commit to blame; clang-tidy 18 and 20 already disagree on the same code.
+
+*Verified by:*
+
+- `toolchain-pins` (planned): the repository lists exact versions of every supported compiler and ESP-IDF, and every CI
+  build uses exactly those versions
+
+*See also:* IEC 62304:2006+A1:2015 8.1.2 (SOUP identification, for the toolchain)
+
+
+## KB-BLD-016: Release builds are reproducible { #kb-bld-016 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · library, hal, firmware (high level and above) · since 1.0 · enforced from 2027-03-01
+
+Building the same tag twice with the pinned toolchain gives byte-identical artefacts: no `__DATE__` or `__TIME__`, build
+paths stripped with `-ffile-prefix-map`, and timestamps taken from `SOURCE_DATE_EPOCH`.
+
+*Why:* An evidence package is only worth something if anyone can rebuild the binary it describes.
+
+*Verified by:*
+
+- `reproducible-build` (planned): two clean builds of the same commit in different directories produce byte-identical
+  artefacts
+
+*See also:* IEC 62304:2006+A1:2015 8.1.1
+
+
+## KB-BLD-017: Image size and stack usage stay within recorded budgets { #kb-bld-017 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware (high level and above) · since 1.0 · enforced from 2027-03-01
+
+Firmware and example images are built with `-fstack-usage`. The repository records a flash, RAM and per-task stack
+budget, and CI fails when a build exceeds one or a function's stack use is unbounded.
+
+*Why:* Stack overflow on a microcontroller corrupts memory silently; a budget turns it into a build failure.
+
+*Verified by:*
+
+- `size-budget` (planned): flash and RAM use of each built image stays within the budget recorded in the repository
+- `stack-usage` (planned): the target build with -fstack-usage reports every task entry and ISR within the stack budget
+  in the repository's budget file; unbounded (dynamic) frames fail
+
+*See also:* NASA/JPL Power of Ten Rule 1 (no recursion, so stack use is bounded)
+
+
+## KB-BLD-018: Firmware reports its version and the exact source of every pinned component { #kb-bld-018 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · firmware · since 1.0 · enforced from 2027-03-01
+
+Firmware embeds a header generated by CMake with its own version, the release train and the tag and commit SHA of every
+pinned submodule, and reports them at start-up and on request. No version is hard-coded.
+
+*Verified by:*
+
+- `provenance-header` (planned): the firmware's generated provenance header names its version, release train and the tag
+  and SHA of every submodule, matching .gitmodules and git describe
+
+*See also:* [ADR-0007](../adr/0007-submodule-pinning-and-tags.md); IEC 62304:2006+A1:2015 8.1.3 (identify the system
+configuration)
+
+*Explained in:* [standards/product.md](../standards/product.md)
+
+## KB-BLD-019: ESP-IDF builds set a 1 kHz FreeRTOS tick in sdkconfig.defaults { #kb-bld-019 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. Whether a generated sdkconfig may be committed is unresolved in the Kokeb pages
+    (driver.md:296 forbids it, threading-and-timing.md:84 tolerates it); this rule names only the defaults file.
+
+**MUST** · driver, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+Every ESP-IDF project, including driver examples, sets `CONFIG_FREERTOS_HZ=1000` in `sdkconfig.defaults`. ThreadX builds
+should set `TX_TIMER_TICKS_PER_SECOND` to 1000.
+
+*Verified by:*
+
+- `sdkconfig-defaults/freertos-hz` (planned): sdkconfig.defaults of every ESP-IDF project sets the named value
+  (freertos-hz is CONFIG\_FREERTOS\_HZ=1000)
+
+*See also:* [ADR-0006](../adr/0006-freertos-1khz-tick.md)
+
+*Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
+
+## KB-BLD-020: kb-core parts are separate targets with distinct include roots { #kb-bld-020 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+kb-core builds `kb::utils`, `kb::rtos`, `kb::interfaces` and `kb::handlers` as separate targets, each with one include
+root reached as `"kb/<part>/<Header>.h"`; no two parts install the same path. Each part is usable through
+`add_subdirectory()` and through its installed package.
+
+*Verified by:*
+
+- `cmake-configure/kb-core-targets` (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles
+- `installed-header-collisions` (planned): the install trees of the kb-core packages contain no path twice
+
+*See also:* [ADR-0013](../adr/0013-kb-core-monorepo.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-BLD-021: Each build selects exactly one MCU family and one RTOS backend { #kb-bld-021 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+`KB_MCU` (ESP32, STM32, HOST or NONE) and `KB_RTOS` (FREERTOS, THREADX or NONE) each select exactly one backend and
+define exactly one macro for it. `KB_MCU=NONE` builds the MCU-independent base only and `KB_MCU=HOST` is the test
+backend; the API is the same on every backend.
+
+*Verified by:*
+
+- `cmake-configure/backend-selection` (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles
+
+*See also:* [ADR-0013](../adr/0013-kb-core-monorepo.md); [ADR-0014](../adr/0014-three-kinds-of-specific.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-BLD-022: Enabling an MCU-bound driver for the wrong MCU fails at configure time { #kb-bld-022 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+Drivers bound to an MCU family or peripheral are listed in `KB_MCU_GATES`, generated from `catalog/compat.yml` and never
+edited by hand. Enabling one for another MCU stops the CMake configure step with a message naming the gate. A kb-core
+release regenerates the table and checks it agrees with `compat.yml`.
+
+*Verified by:*
+
+- `cmake-configure/mcu-gates` (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles
+- review: compat.yml was regenerated for the release and the gate table matches it.
+
+*See also:* [ADR-0007](../adr/0007-submodule-pinning-and-tags.md); [ADR-0014](../adr/0014-three-kinds-of-specific.md)
+
+*Explained in:* [standards/layers.md](../standards/layers.md)
+
+## KB-BLD-023: kb-core options use the KB\_ scheme and default to the smallest build { #kb-bld-023 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+kb-core's options are `KB_MCU`, `KB_RTOS`, `KB_ENABLE_<CHIP>`, `KB_ENABLE_<FEATURE>` and `KB_BUILD_TESTS`. Each enable
+option has an explicit default, `OFF` unless the pull request justifies otherwise, so an unconfigured build is the base
+only. `KB_ENABLE_<CHIP>` is the only switch that compiles a handler.
+
+*Verified by:*
+
+- `cmake-configure/option-defaults` (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles
+
+*See also:* [ADR-0013](../adr/0013-kb-core-monorepo.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-BLD-024: Enabling a module enables what it depends on, never the reverse { #kb-bld-024 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · library · since 1.0 · enforced from 2027-03-01
+
+Turning on one option also turns on the modules it needs: a driver enables the interfaces it uses, and an interface
+never enables a driver. Every option configures and builds when it is the only one switched on.
+
+*Verified by:*
+
+- `cmake-configure/single-toggles` (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles
+
+*Explained in:* [standards/layers.md](../standards/layers.md)
+
+## KB-BLD-025: kb-core links each driver's target and never copies its file lists { #kb-bld-025 }
+
+**MUST** · library · since 1.0
+
+kb-core consumes a driver by linking `<chip>::<chip>` from its pinned submodule. `kb_build_settings.cmake` holds the
+version, options, targets and gate table, and no driver source or include path.
+
+*Why:* A copied file list breaks the day the driver adds a file, and bypasses the driver's own flags.
+
+*Verified by:*
+
+- review: kb-core CMake names no file or include directory inside a driver submodule.
+
+*See also:* [ADR-0007](../adr/0007-submodule-pinning-and-tags.md); [ADR-0013](../adr/0013-kb-core-monorepo.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-BLD-026: ESP-IDF REQUIRES follow the enabled options { #kb-bld-026 }
+
+**SHOULD** · library, hal · since 1.0
+
+Under ESP-IDF the component's `REQUIRES` list is built from the enabled options, without duplicates, so a disabled
+module pulls in no component. A component that exists only in some ESP-IDF releases is checked for and reported, not
+assumed.
+
+*Verified by:*
+
+- review: Each REQUIRES entry is added by the option that needs it.
+
+
+## KB-BLD-027: Configure prints a summary of what is built { #kb-bld-027 }
+
+**SHOULD** · library, hal · since 1.0
+
+A library or HAL with options prints one configuration summary at the end of configure: MCU, RTOS, enabled drivers and
+features, and their count.
+
+*Why:* A CI log then says what was actually built without anyone reproducing the configure step.
+
+*Verified by:*
+
+- review: The configure log shows the summary block.
+
+
+## KB-BLD-028: Keep CMake plain and linear { #kb-bld-028 }
+
+**GUIDE** · driver, library, hal, firmware, template · since 1.0
+
+Build settings read top to bottom as a list of settings: no logic hidden in helper functions, paths derived from
+`CMAKE_CURRENT_LIST_DIR` and overridable as cache variables where a consumer may need to.
+
+
+## KB-BLD-029: Depend on as little as possible { #kb-bld-029 }
+
+**GUIDE** · driver, library, hal · since 1.0
+
+Add a dependency only when it removes more than it costs, keep the dependency list of a published component accurate,
+and prefer a compatible change to a breaking one.
 

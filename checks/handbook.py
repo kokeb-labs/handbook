@@ -11,7 +11,10 @@ it, so the prose and the data can never disagree:
   check      validate, then fail if the generated pages are stale (CI runs this)
   export     write rules, profiles and checks as one JSON document (for ru-handbook-check and other tools)
 
-Usage: handbook.py {validate,gen,check,export} [--root .] [--out FILE]
+Usage: handbook.py {validate,gen,check,export} [--root .] [--rules rules] [--out FILE]
+
+--rules names another folder of rule files to validate against the same registry and profiles, e.g. a product
+family's supplement (hf-supplement); `gen` and `check` only apply to the handbook's own rules/.
 
 Requires PyYAML (the MkDocs toolchain has it).
 """
@@ -51,6 +54,19 @@ STATES = ("checked", "planned", "review", "none")
 WIDTH = 120  # the org markdownlint line length
 
 
+_KEEP = re.compile(r"(`[^`]*`|\]\([^)]*\)|https?://\S+)")
+
+
+def md(text: str) -> str:
+    """Escape what Markdown would misread in rule text written as plain words: `_` and `*` (emphasis) and `<`/`>`
+    (an HTML tag, which hides `<chip>`). Code spans, link targets and bare URLs are left alone."""
+    parts = _KEEP.split(str(text))
+    for i in range(0, len(parts), 2):
+        parts[i] = (parts[i].replace("_", "\\_").replace("*", "\\*")
+                    .replace("<", "&lt;").replace(">", "&gt;"))
+    return "".join(parts)
+
+
 def para(text: str) -> str:
     """One paragraph wrapped at WIDTH (markdownlint MD013), never breaking a word, link or code span."""
     return textwrap.fill(" ".join(text.split()), WIDTH, break_long_words=False, break_on_hyphens=False)
@@ -62,7 +78,7 @@ def bullet(text: str) -> str:
 
 
 class Book:
-    def __init__(self, root: pathlib.Path):
+    def __init__(self, root: pathlib.Path, rules_dir: str = "rules"):
         self.root = root
         self.errors: list[str] = []
         self.unused: list[str] = []
@@ -70,7 +86,7 @@ class Book:
         registry = self._load("checks/registry.yml") or {}
         self.checks = {c["id"]: c for c in registry.get("checks", [])}
         self.areas: list[dict] = []
-        for p in sorted((root / "rules").glob("*.yml")):
+        for p in sorted((root / rules_dir).glob("*.yml")):
             doc = self._load(str(p.relative_to(root))) or {}
             doc["_file"] = str(p.relative_to(root))
             self.areas.append(doc)
@@ -147,6 +163,8 @@ class Book:
                         self.err(where, f"missing `{key}`")
                 if len(str(r.get("title", ""))) > 90:
                     self.err(where, "title over 90 characters")
+                elif len(f"## {rid}: {md(r.get('title', ''))} {{ #{rid.lower()} }}") > WIDTH:
+                    self.err(where, "title too long once rendered as a heading; put identifiers in `code`")
                 if r.get("level") not in LEVELS:
                     self.err(where, f"level must be one of {LEVELS}")
                 if r.get("status") not in STATUSES:
@@ -211,30 +229,30 @@ class Book:
     def area_page(self, area: dict) -> str:
         out = [GENERATED, f"# {area['title']}\n\n"]
         if area.get("intro"):
-            out.append(f"{para(area['intro'])}\n\n")
+            out.append(f"{para(md(area['intro']))}\n\n")
         out.append("| Rule | Level | Applies to | Verified |\n| --- | --- | --- | --- |\n")
         for r in area["rules"]:
             if r.get("status") != "retired":
-                out.append(f"| [{r['id']}](#{r['id'].lower()}) {r['title']} | {r['level']} | {self.applies(r)} | "
+                out.append(f"| [{r['id']}](#{r['id'].lower()}) {md(r['title'])} | {r['level']} | {self.applies(r)} | "
                            f"{self.verify_state(r)} |\n")
         for r in area["rules"]:
-            out.append(f"\n## {r['id']}: {r['title']} {{ #{r['id'].lower()} }}\n\n")
+            out.append(f"\n## {r['id']}: {md(r['title'])} {{ #{r['id'].lower()} }}\n\n")
             if r.get("status") != "active":
                 tail = f" Replaced by {r['replaced_by']}." if r.get("replaced_by") else ""
-                note = textwrap.indent(para(f"{r.get('notes') or 'Not enforced yet.'}{tail}"), "    ")
+                note = textwrap.indent(para(md(f"{r.get('notes') or 'Not enforced yet.'}{tail}")), "    ")
                 out.append(f"!!! note \"{r['status'].capitalize()}\"\n\n{note}\n\n")
             ef = f" · enforced from {r['enforce_from']}" if r.get("enforce_from") else ""
             out.append(para(f"**{r['level'].upper()}** · {self.applies(r)} · since {r['since']}{ef}") + "\n\n")
-            out.append(f"{para(r['statement'])}\n\n")
+            out.append(f"{para(md(r['statement']))}\n\n")
             if r.get("rationale"):
-                out.append(f"{para('*Why:* ' + r['rationale'])}\n\n")
+                out.append(f"{para('*Why:* ' + md(r['rationale']))}\n\n")
             ver = []
             for v in r.get("verify") or []:
                 if "check" in v:
                     c = self.check_for(str(v["check"])) or {}
-                    ver.append(f"`{v['check']}` ({c.get('status', 'unknown')}): {c.get('summary', '')}")
+                    ver.append(f"`{v['check']}` ({c.get('status', 'unknown')}): {md(c.get('summary', ''))}")
                 else:
-                    ver.append(f"review: {v['review']}")
+                    ver.append(f"review: {md(v['review'])}")
             if ver:
                 out.append("*Verified by:*\n\n" + "".join(f"{bullet(v)}\n" for v in ver) + "\n")
             refs = []
@@ -263,7 +281,7 @@ class Book:
             for k in STATES:
                 total[k] += c[k]
             pct = f"{100 * c['checked'] // n}%" if n else "-"
-            rows.append(f"| [{area['title']}]({pathlib.Path(area['_file']).stem}.md) | {n} | {c['checked']} | "
+            rows.append(f"| [{md(area['title'])}]({pathlib.Path(area['_file']).stem}.md) | {n} | {c['checked']} | "
                         f"{c['planned']} | {c['review']} | {pct} |\n")
         n = sum(total.values())
         pct = f"{100 * total['checked'] // n}%" if n else "-"
@@ -276,7 +294,7 @@ class Book:
             "| Area | Must rules | Checked | Planned | Review | Checked share |\n| --- | --- | --- | --- | --- | --- |\n",
             *rows, f"| **All** | {n} | {total['checked']} | {total['planned']} | {total['review']} | {pct} |\n\n",
             "## Checks still to build\n\n",
-            *(bullet("`" + c["id"] + "`: " + c["summary"]) + "\n" for c in planned),
+            *(bullet("`" + c["id"] + "`: " + md(c["summary"])) + "\n" for c in planned),
             "" if planned else "None.\n",
         ])
 
@@ -299,9 +317,12 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("cmd", choices=["validate", "gen", "check", "export"])
     ap.add_argument("--root", default=".")
+    ap.add_argument("--rules", default="rules")
     ap.add_argument("--out", default="-")
     a = ap.parse_args()
-    book = Book(pathlib.Path(a.root).resolve())
+    book = Book(pathlib.Path(a.root).resolve(), a.rules)
+    if a.rules != "rules" and a.cmd in ("gen", "check"):
+        ap.error("gen and check apply to rules/ only; use validate for a supplement")
     errors = book.validate()
     for e in errors:
         print(f"::error::{e}")

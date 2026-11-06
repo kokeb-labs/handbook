@@ -6,37 +6,209 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 
 | Area | Must rules | Checked | Planned | Review | Checked share |
 | --- | --- | --- | --- | --- | --- |
-| [Coding agents](agents.md) | 2 | 1 | 1 | 0 | 50% |
-| [Build and CMake](build.md) | 2 | 1 | 1 | 0 | 50% |
-| [CI and supply chain](ci.md) | 2 | 1 | 1 | 0 | 50% |
-| [C++ code](cpp.md) | 10 | 8 | 1 | 1 | 80% |
-| [Documentation](docs.md) | 4 | 3 | 1 | 0 | 75% |
-| [Git, review and release](git.md) | 4 | 3 | 1 | 0 | 75% |
-| [Repository](repo.md) | 3 | 1 | 2 | 0 | 33% |
-| [Testing](testing.md) | 5 | 2 | 3 | 0 | 40% |
-| **All** | 32 | 20 | 11 | 1 | 62% |
+| [Coding agents](agents.md) | 17 | 5 | 10 | 2 | 29% |
+| [Architecture](architecture.md) | 27 | 2 | 18 | 7 | 7% |
+| [Build and CMake](build.md) | 21 | 4 | 16 | 1 | 19% |
+| [C code](c.md) | 7 | 1 | 4 | 2 | 14% |
+| [CI and supply chain](ci.md) | 12 | 2 | 10 | 0 | 16% |
+| [C++ code](cpp.md) | 91 | 38 | 41 | 12 | 41% |
+| [Documentation](docs.md) | 33 | 12 | 14 | 7 | 36% |
+| [Git, review and release](git.md) | 21 | 6 | 14 | 1 | 28% |
+| [Hardware and porting](hardware.md) | 7 | 0 | 6 | 1 | 0% |
+| [Repository](repo.md) | 16 | 2 | 14 | 0 | 12% |
+| [Testing](testing.md) | 18 | 4 | 12 | 2 | 22% |
+| **All** | 270 | 76 | 159 | 35 | 28% |
 
 ## Checks still to build
 
 - `actionlint`: actionlint and zizmor find nothing in the repository's workflows
 - `agents-files`: AGENTS.md and CLAUDE.md exist and the handbook sections generated into them are current
+- `allocation-allowlist`: a host run with malloc and operator new wrapped records every allocation; any outside start-up
+  or not on the HAL's allowlist fails
+- `anomaly-list`: the evidence package lists every open bug affecting the release, with impact and workaround
+- `ast-rules`: a clang-query or libclang script over the compile database for one structural rule; the parameter names
+  it (global-scope, driver-virtual, handler-names, handler-lock-guard, base-nvi, base-tostatus, detail-branch,
+  deadline-compare, isr-calls, bitfield-frames)
+- `branch-name`: the pull request's head branch matches ^(feat|fix|docs|ci|chore)/[a-z0-9-]+$ or
+  release/&lt;x&gt;.&lt;y&gt;
+- `c-naming`: clang-tidy readability-identifier-naming with C options (snake\_case functions and variables, \*\_t
+  typedefs, UPPER\_CASE enumerators, repository prefix) run on .c files and C API headers
 - `changelog`: CHANGELOG.md follows Keep a Changelog; a new version section is the next SemVer step, dated, not empty
+- `changelog-breaking`: a pull request labelled breaking adds an entry under
+- `changelog-entry`: a pull request that changes files outside docs/ and .github/ changes CHANGELOG.md under
+  [Unreleased], unless it carries the no-changelog label
+- `changelog-frozen`: a pull request's diff of CHANGELOG.md changes only the [Unreleased] section, a new release section
+  and link lines
+- `claude-md-pointer`: CLAUDE.md contains exactly the line `@AGENTS.md` and nothing else
+- `cmake-configure`: a CMake configure test asserts the named property: standard-options, dev-warnings, kb-core-targets,
+  backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults, single-toggles
+- `codeowners`: .github/CODEOWNERS has a `*` rule naming at least one owner
+- `compat-table`: regenerating the tables derived from catalog/compat.yml leaves the tree unchanged
+- `config-drift`: \_config/.clang-format and \_config/.clang-tidy equal the handbook's config/ files apart from the
+  header
+- `conformance-tests`: every kb::interfaces method has a conformance test, and each mcu/&lt;family&gt; port runs and
+  passes the suite
 - `coverage-floor`: line and branch coverage of the host tests at or above the floor for the repository's level
 - `cross-build`: the library compiles warning-free for the named target (arm-none-eabi, riscv32, esp-idf)
-- `doxygen-warnings`: Doxygen with WARN_AS_ERROR = FAIL_ON_WARNINGS and WARN_IF_UNDOCUMENTED reports nothing
+- `ctest-timeouts`: every test ctest lists has a TIMEOUT property
+- `cubemx-discipline`: the .ioc sets ProjectManager.CoupleFile=true and the library-copy option, and regenerating from
+  the .ioc reproduces the committed tree except for USER CODE blocks and the patches listed in PATCHES.md
+- `dependabot-config`: .github/dependabot.yml updates github-actions weekly with label dependencies and prefix ci, pip
+  where Python tooling exists, and has no gitsubmodule ecosystem
+- `doc-file-names`: every file under docs/ is lower-case kebab-case; root README, CHANGELOG, CONTRIBUTING, AGENTS,
+  CLAUDE and LICENSE are exempt
+- `doc-snippets`: every C++ block on the documentation site is a snippet from tests/docs/ and those files compile
+  against the current headers (driver-template doc\_snippets ctest and the kokeb-docs check)
+- `docs-drift`: kokeb-docs check finds no generated region (README quickstart, examples list) or figure that differs
+  from what the code generates
+- `docs-inline-code`: no C++ fence longer than one line in docs/ or README.md is written inline; each comes from
+  tests/docs via a --8&lt;-- include or a generated region
+- `docs-nav`: docs/.nav.yml has exactly the five tabs Home, Get started, Concepts, Guides, Reference in order, and
+  contract.md sits under Concepts right after Architecture
+- `docs-page-set`: docs/ has every page the documentation standard requires for the repository's declared kind, and each
+  is in the navigation
+- `docs-touched`: warns when a pull request changes inc/, a Kconfig or a CMake option without touching README.md, docs/
+  or CHANGELOG.md
+- `doxyfile-baseline`: \_config/Doxyfile exists and sets INPUT to the public headers, EXTRACT\_ALL and EXTRACT\_PRIVATE
+  to NO, WARN\_NO\_PARAMDOC to YES and the org mainpage, compared with the ci-tools baseline
+- `doxygen-warnings`: Doxygen with WARN\_AS\_ERROR = FAIL\_ON\_WARNINGS and WARN\_IF\_UNDOCUMENTED reports nothing
+- `driver-manifest`: driver.yml exists, validates against its schema, and its version, MCUs and examples match the build
+  settings and the examples folder
+- `driver-names`: the driver's namespace, class, CMake target, macro prefix and Kconfig prefix all derive from the chip
+  name in the repository name (driver-&lt;chip&gt;)
+- `duplicate-code`: jscpd finds no block in a board HAL that duplicates kb-hal-common code above the configured
+  threshold
+- `error-enum-values`: a compiled test asserts the enumerator values of an error enum against the table on the errors
+  page; the parameter names the enum (driver, kb-status)
+- `error-paths-tested`: every error value the public API can return is asserted by at least one host test
+- `esp-idf-examples`: every app in examples/esp32 builds with the pinned ESP-IDF, using the repository root as its
+  component (runs today in driver-template esp32-examples-build-ci.yml through ci-tools ru-build)
+- `examples-build`: every examples/&lt;platform&gt;/ folder is built by a job of the repository's CI
 - `exceptions-rtti-off`: the exported library target compiles with -fno-exceptions -fno-rtti, not only the tests
+- `exported-target-flags`: the library target's own sources and every public header compile with
+  &lt;CHIP&gt;\_ENABLE\_WARNINGS=ON, the org warning set and -Werror
+- `file-names`: source and test file names match the pattern for the repository's kind
 - `forbidden-patterns`: a source scan for a construct the handbook bans; the parameter names the pattern set
+- `frozen-specs`: a pull request changes no specification file whose `frozen:` field is set
+- `fuzzing`: each parser's libFuzzer target runs on the host for a fixed time under ASan and UBSan without a finding
+- `hal-lint`: the kb-hal-common lints run in a board HAL's or product's CI; the parameter names the lint (boundary,
+  driver-access, allocation, lock)
+- `hal-lints`: the kb-hal-common boundary, driver-access, allocation and lock lints pass in the board HAL
+- `hal-startup-test`: a HAL host test with the host bind injects a failure into each manager in turn and checks that
+  start-up stops, deinitialises the started managers in reverse and reports the failing ManagerId
 - `handbook-declaration`: .kokeb/handbook.yml exists and names a released handbook version, a kind and a level
 - `header-self-contained`: every public header compiles on its own as the first include of a translation unit
+- `heading-skeleton`: a Markdown file's headings match a required skeleton in order (parameter: contract, readme, adr,
+  hf-hal-readme, hf-board-spec, hf-protocol-spec)
+- `hf-spec-metadata`: each HardFOC specification starts with the metadata block (spec type, name, revision, status,
+  covered repos or boards, authored, last reviewed, frozen) and the values validate against a schema
+- `hf-spec-names`: HardFOC board specification files are named &lt;board&gt;-rev&lt;X.Y[.Z]&gt;.md, one file per
+  revision
+- `hil-evidence`: a hardware test record (commit, board and revision, toolchain, tests, results, date) exists for the
+  release and each supported board, in the evidence format
+- `host-tests-matrix`: the host tests pass with gcc and clang for each configuration of the named matrix (kb-rtos:
+  KB\_RTOS=FREERTOS host shim and KB\_RTOS=NONE, with KB\_MCU=HOST)
+- `include-allowlist`: a script over the include graph that fails on a header outside the allowed set for the directory;
+  the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+- `include-graph`: every #include in library code is allowed by the Layers include table for its folder; the parameter
+  names the layer (driver, utils, rtos, interfaces, mcu, handlers, hal, product) or `all`
+- `installed-header-collisions`: the install trees of the kb-core packages contain no path twice
+- `kb-core-catalog`: every drivers/driver-&lt;chip&gt; gitlink is the commit of a v\* release tag, has a
+  handlers/&lt;chip&gt;/ folder and a catalog/compat.yml entry, and regenerating compat.yml and the MCU gate table from
+  the pinned driver.yml files changes nothing
+- `kb-rtos-matrix`: kb-core builds and its host tests pass with KB\_RTOS set to FREERTOS (host shim), THREADX and NONE
+- `kconfig-symbols`: every CONFIG\_ symbol the sources read is defined in \_config/Kconfig or by ESP-IDF
+- `layer-deps`: kb-core's CMake targets link only downward (kb::utils &lt;- kb::rtos &lt;- kb::interfaces &lt;-
+  kb::handlers), read from the CMake file API, and each builds alone with KB\_MCU=NONE and KB\_MCU=HOST
+- `lighthouse`: Lighthouse scores of the built site meet the org budget for accessibility, performance, best practices
+  and SEO (ru-mkdocs-publish runs Lighthouse; register it as implemented once its failing job is confirmed)
+- `mcu-foundation-set`: each real family under interfaces/mcu/ implements the eight foundation Base\* interfaces, and
+  enabling an optional one the family lacks fails at CMake configure time
+- `mcu-header-guards`: every header under interfaces/mcu/&lt;family&gt;/ starts with an #error guard on
+  KB\_MCU\_&lt;FAMILY&gt;
+- `mcu-matrix`: kb-core CI builds every target for each MCU family (STM32 with stub headers), KB\_MCU=HOST and NONE
 - `misra-checker`: a commercial MISRA C++:2023 / C:2025 checker run, mapped to the compliance matrix (safety level)
+- `no-attribution`: no commit message, pull-request body or review comment carries a Co-Authored-By trailer naming a
+  tool or model, a "Generated with" footer, an AI-disclosure line or a tool banner (runs beside dco)
 - `no-heap-link`: a test binary that links the library with operator new, malloc and free removed builds and runs
+- `open-safety-issues`: the release workflow fails while an open issue labelled safety names the version or its
+  milestone
+- `org-settings-drift`: a scheduled `kokeb_org.py --check` finds no drift between org/ and the repository's live
+  settings
+- `pin-bump-isolated`: a pull request that moves a gitlink changes nothing else except version\_lock.txt, compat.yml and
+  CHANGELOG
+- `pin-check`: every submodule points at a commit tagged v\*.\*.\* on its own main and matching the manifest or
+  catalog/compat.yml; warns on pull requests to main, fails on release/\* and tag pushes
+- `pin-table-lint`: a HardFOC pin table compiles in a host test that rejects names longer than 32 characters or starting
+  with CORE\_, COMM\_, SYS\_ or INTERNAL\_
+- `port-conformance`: the Base\* conformance suite passes for the named MCU family, on the host against a mocked SDK
+  and, on a scheduled job with a board, as loopback tests
+- `pr-body-dod`: the pull-request body has the definition-of-done checklist with every item ticked or marked not
+  applicable with a reason, and the hardware line filled (verified, or not verified on hardware with bench steps)
+- `pr-template`: the pull request body keeps the template's summary, why and verification headings, each non-empty, and
+  every checklist box is ticked or marked not applicable
+- `pr-title`: the pull request title is at most 72 characters, has no trailing period and no Conventional Commits
+  prefix; a release pull request is titled `Release vX.Y.Z` with the version of the new changelog section
 - `prose-style`: Vale with the Kokeb style; the parameter names the style rule
-- `register-layout-asserts`: every register or wire frame struct has static_assert on its size and field offsets
+- `provenance-header`: the firmware's generated provenance header names its version, release train and the tag and SHA
+  of every submodule, matching .gitmodules and git describe
+- `register-layout-asserts`: every register or wire frame struct has static\_assert on its size and field offsets
+- `release-artifacts`: a product release has .bin, .elf, SHA-256 sums and the effective sdkconfig attached, or fails
+- `release-branch-protection`: a ruleset on release/\* allows changes only by pull request, squash, linear history and
+  no deletion
 - `release-evidence`: a release carries SHA256SUMS, an SBOM and build provenance; at safety level the evidence package
   too
+- `release-notes`: the GitHub Release body equals the version's changelog section and has a `Bench status:` line
+- `release-tag`: on a v\* tag: the tag matches the declared version, the commit is on main or release/\*, its CI gate
+  passed, and a final tag points at the same commit as the latest rc of that version
 - `repo-layout`: the repository root and directories match the layout for its kind
+- `reproducible-build`: two clean builds of the same commit in different directories produce byte-identical artefacts
+- `result-type-traits`: static\_asserts that the driver's Result&lt;T&gt; is [[nodiscard]], has ok() and an explicit
+  bool conversion, and that T is default-constructible and trivially copyable
+- `safety-label`: a pull request touching actuator, power-sequencing, OTP or peripheral-flash paths (labeler config) has
+  the safety label, and a safety-labelled pull request has a human approval before merge
 - `sanitizers`: host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
+- `sbom`: the release attaches an SPDX SBOM listing every component and submodule the build contains
+- `sdkconfig-defaults`: sdkconfig.defaults of every ESP-IDF project sets the named value (freertos-hz is
+  CONFIG\_FREERTOS\_HZ=1000)
+- `secret-scan`: gitleaks finds no secret in the pull request's commits
+- `security-policy`: SECURITY.md exists in .github/ or is inherited from the organisation and names private reporting
+- `shared-workflows`: every lint, analysis, build, docs and release job calls a kokeb-labs/ci-tools reusable workflow at
+  @v1, and none at @main
+- `signed-tags`: the release tag is a signed annotated tag and the evidence package has a valid signature (safety level)
+- `size-budget`: flash and RAM use of each built image stays within the budget recorded in the repository
+- `skill-content-scan`: gitleaks finds no secret under .claude/, and no SKILL.md tells an agent to merge, use an admin
+  bypass, --no-verify, a bare NOLINT or skip a check
+- `skill-format`: every .claude/skills/&lt;name&gt;/SKILL.md has YAML front matter with `name` equal to the kebab-case
+  folder and a one-line `description`, followed by steps
+- `skills-present`: .claude/skills has the skills the repository's kind requires: verify in code repositories, bump-pin
+  when .gitmodules is not empty, release when released, add-driver-feature in drivers
 - `spdx-headers`: every source file carries an SPDX licence identifier (REUSE)
 - `spelling`: typos finds no misspelling (project words in config/typos.toml)
+- `stack-usage`: the target build with -fstack-usage reports every task entry and ISR within the stack budget in the
+  repository's budget file; unbounded (dynamic) frames fail
+- `submodule-graph`: walking .gitmodules across the org's repositories finds no cycle and no submodule that points up
+  the stack (product -&gt; board HAL -&gt; kb-hal-common and kb-core -&gt; drivers)
+- `test-naming`: host test sources are named test\_&lt;unit&gt;.cpp after an existing unit of the library
+- `test-presence`: every unit of the named kind has a test (handler: tests/host/test\_&lt;chip&gt;\_handler.cpp;
+  public-function: each public function is called by a host test)
+- `test-repeat`: ctest --repeat until-fail:20 --schedule-random passes, so no test depends on luck or order
+- `test-report`: host test jobs upload a JUnit report and a line and branch coverage report as artifacts
+- `third-party-licences`: every third\_party/&lt;name&gt;/ has a licence file, and REUSE or scancode finds only
+  MIT-compatible licences
+- `timing-budget`: an on-target benchmark job compares measured worst-case times with the stored baseline and fails
+  beyond its margin
+- `toolchain-pins`: the repository lists exact versions of every supported compiler and ESP-IDF, and every CI build uses
+  exactly those versions
+- `tracked-files`: git tracks no file of a banned kind; the parameter names it (tracked-files/symlinks,
+  tracked-files/sdkconfig, tracked-files/idf-component)
+- `tsan`: the concurrency host tests pass under ThreadSanitizer
+- `unused-error-codes`: every chip-specific Error enumerator (16 and up) is returned somewhere in src/ or inc/
+- `vendor-regen-diff`: CI regenerates vendor code (CubeMX) from the committed project file and fails if the result
+  differs from the committed sources outside user-code markers and PATCHES.md
+- `version-copies`: project(), the package version, the generated version header, Doxyfile PROJECT\_NUMBER, driver.yml
+  and the version getter all equal the version in the build settings (driver-template version ctests, less driver.yml)
+- `version-lock`: each version\_lock.txt line REF\_&lt;repo&gt;=vX.Y.Z@&lt;sha&gt; matches the submodule's pinned commit
+  and its tag
 - `waivers`: every waiver names an existing rule, a reason, an approver and an expiry date that has not passed
 - `workflow-permissions`: every workflow sets permissions at the top and grants each job the least it needs

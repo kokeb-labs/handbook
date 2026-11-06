@@ -47,3 +47,989 @@ rules:
     verify: [{check: doxygen-warnings}]
     page: standards/docs.md
     notes: Warns until 2027-01-15, then fails CI. ci-tools' Doxyfile has WARN_AS_ERROR = NO today.
+
+  # -- The site ---------------------------------------------------------------------------------------------------
+  - id: KB-DOC-005
+    title: Every public repository publishes a versioned MkDocs site
+    statement: >-
+      Every public repository publishes its documentation at `https://kokeb-labs.github.io/<repo>/` through
+      `ru-mkdocs-publish`, built with `kokeb-mkdocs-theme` and versioned per `v*` tag; a code repository merges its
+      Doxygen reference under `api/`. A `-rc` tag publishes its version without moving the `latest` alias.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, tooling, docs, template]}
+    verify:
+      - check: mkdocs-strict
+      - review: The docs workflow calls ru-mkdocs-publish and the site is live at kokeb-labs.github.io/<repo>/.
+    rationale: >-
+      One platform and one theme mean a reader finds the same layout on every site, and a pinned version per tag
+      means the page a user reads matches the code they built.
+    page: standards/docs.md
+    origin:
+      - "kb:standards/docs.md:8 (B-DOC-01)"
+      - "kb:standards/release.md:85 (B-REL-23)"
+      - "hf:standards/documentation-style.md:759-763 (Jekyll site; superseded)"
+      - "hf:README.md:38 (handbook not published; superseded)"
+
+  - id: KB-DOC-006
+    title: Pages live in docs/ and the site config in _config/mkdocs.yml
+    statement: >-
+      Pages live in `docs/`. The site configuration is `_config/mkdocs.yml` with `docs_dir: ../docs`, and the docs
+      workflow is passed `mkdocs_config: _config/mkdocs.yml` and, in a code repository,
+      `doxygen_config: _config/Doxyfile`.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, tooling, docs, template]}
+    verify:
+      - check: mkdocs-strict
+      - review: The docs workflow passes mkdocs_config and doxygen_config with the _config/ paths.
+    refs: [{adr: 11}]
+    page: standards/docs.md
+    origin: ["kb:standards/docs.md:12 (B-DOC-03)", "kb:standards/adr/0011-repository-root-layout.md:33"]
+
+  - id: KB-DOC-007
+    title: The navigation has the five standard tabs
+    statement: >-
+      `docs/.nav.yml` has exactly five top-level tabs, in this order: Home, Get started, Concepts, Guides,
+      Reference. Deep dives go under Concepts and configuration references under Guides.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, tooling, docs, template]}
+    verify: [{check: docs-nav}]
+    page: standards/docs.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["kb:standards/docs.md:11 (B-DOC-02)", "ci-tools:docs/DOCS-STYLE-GUIDE.md (Navigation)"]
+
+  - id: KB-DOC-008
+    title: The site has the page set for its kind
+    statement: >-
+      `docs/` holds every page the documentation standard lists for the repository's kind (driver, standalone
+      library, kb-core, HAL, product, CI and tools). A page that cannot apply, such as Configuration for a driver
+      with no `Config`, is left out rather than kept empty.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, tooling, template]}
+    verify: [{check: docs-page-set}]
+    rationale: >-
+      A fixed page set lets a reader move between repositories without relearning where things are, and lets a
+      check say what is missing.
+    page: standards/docs.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "kb:standards/docs.md:21-28 (B-DOC-06, B-DOC-07, B-DOC-08, B-DOC-09, B-DOC-10, B-DOC-11)"
+      - "hf:standards/documentation-style.md:466-498,539-569,620-705 (A-DOC-07)"
+      - "hf:process/cmake-build-contract.md:269-283 (docs/cmake_integration.md; superseded by Installation)"
+      - "hf:porting/custom-board.md:347-357 (HAL docs; superseded)"
+
+  # -- The Contract page ------------------------------------------------------------------------------------------
+  - id: KB-DOC-009
+    title: Every code repository has a Contract page under Concepts
+    statement: >-
+      Every driver, library, kb-core, HAL and product has `docs/contract.md`, listed under Concepts right after
+      Architecture.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - check: docs-page-set
+      - check: docs-nav
+    page: standards/docs.md#the-contract-page
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["kb:standards/docs.md:34 (B-DOC-12)", "kb:standards/library.md:54 (B-LIB-08)"]
+
+  - id: KB-DOC-010
+    title: The Contract page has the standard sections in order
+    statement: >-
+      `docs/contract.md` has the sections Promises, Depends on, Threading, Errors, Memory, Platform and Deviations
+      from the standard, in that order, after a one-line purpose.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify: [{check: heading-skeleton/contract}]
+    rationale: >-
+      The Contract is the short normative summary a caller or an auditor reads first; fixed sections make a
+      missing promise visible.
+    refs: [{std: IEC-62304, id: "5.4.3", note: "detailed design of software unit interfaces"}]
+    page: standards/docs.md#the-contract-page
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "kb:standards/docs.md:35 (B-DOC-13)"
+      - "hf:standards/embedded-coding.md:1370"
+      - "hf:standards/documentation-style.md:459-462"
+      - "hf:standards/review-checklist.md:773-776,790-791"
+
+  - id: KB-DOC-011
+    title: The Contract page lists every handbook rule the repository does not meet
+    statement: >-
+      The Deviations section names, by rule ID, each handbook rule the repository does not meet yet, with its issue
+      or waiver. An empty section says "None".
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - review: >-
+          Every waiver in .kokeb/handbook.yml and every known unmet rule appears in the Deviations section with its
+          issue.
+    page: deviations.md
+    origin: ["kb:standards/docs.md:69 (B-DOC-14)"]
+
+  - id: KB-DOC-012
+    title: Repository docs link the handbook instead of restating it
+    statement: >-
+      The handbook is the single source of the rules. A repository's docs, Contract page, templates and CI link the
+      rule they follow and state only what is specific to the repository; no repository keeps a copy of the
+      handbook or of its pages.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: No page restates a handbook rule that it could link; no vendored copy of handbook pages.
+    rationale: A copied rule drifts from the original the first time either is edited.
+    page: standards/docs.md#the-contract-page
+    origin:
+      - "kb:standards/README.md:6 (B-GOV-54)"
+      - "kb:standards/docs.md:72 (B-DOC-15)"
+      - "hf:process/architecture.md:674-676 (handbook as docs/ submodule; superseded) (A-ARC-30)"
+      - "hf:standards/embedded-coding.md:1781 (per-HAL copies; superseded) (A-EMB-66)"
+
+  - id: KB-DOC-013
+    title: CONTRIBUTING.md links the handbook
+    statement: >-
+      A repository's CONTRIBUTING.md, or the organisation default it inherits, links the handbook. AGENTS.md links
+      it as KB-AGT-005 requires.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: CONTRIBUTING.md (own or the org default) links kokeb-labs.github.io/handbook.
+    origin: ["kb:standards/README.md:64 (B-GOV-58)", "hf:CONTRIBUTING.md:5"]
+
+  - id: KB-DOC-014
+    title: A change to behaviour or API updates its docs in the same pull request
+    statement: >-
+      A pull request that changes behaviour, the public API, a pin, a default or a build option updates the README,
+      the pages under `docs/` and the CHANGELOG entry that describe it, in the same pull request.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: docs-touched
+      - review: Every page that describes the changed behaviour is updated in this pull request.
+    rationale: Docs updated later are docs that are wrong in between, and usually stay wrong.
+    origin:
+      - "kb:standards/repo-governance.md:36 (B-GOV-10)"
+      - "kb:standards/agents.md:86"
+      - "hf:standards/documentation-style.md:713-726"
+      - "hf:process/build-modularity.md:432 (A-BLD-24)"
+      - "hf:standards/embedded-coding.md:1759 (A-EMB-65)"
+
+  # -- README -----------------------------------------------------------------------------------------------------
+  - id: KB-DOC-015
+    title: The README has the standard sections in order
+    statement: >-
+      The README has, in order and only where they apply: title and hero line, true badges, the bold docs link, one
+      figure, In 30 seconds, What it does, Install, Documentation, Tests and License.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, tooling, template]}
+    verify: [{check: heading-skeleton/readme}]
+    page: standards/docs.md#readme
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["kb:standards/docs.md:97 (B-DOC-22)", "hf:agents/driver-authoring.md:292"]
+
+  - id: KB-DOC-016
+    title: The README is short and leaves the reference to the site
+    statement: >-
+      A README has no table of contents, no emoji walls, no check-mark feature lists, no badge that links nowhere or
+      states something untrue, and no API tables that duplicate the site.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: prose-style/emoji
+      - review: The README has none of the banned elements and every badge is live and true.
+    page: standards/docs.md#readme
+    origin:
+      - "kb:standards/docs.md:114 (B-DOC-25)"
+      - "hf:standards/review-checklist.md:148,254"
+      - "hf:standards/documentation-style.md:298-357 (per-function API reference in Markdown; superseded) (A-DOC-03)"
+      - "hf:standards/coding-style.md (emoji headings; superseded) (A-REV-48)"
+
+  - id: KB-DOC-017
+    title: A driver's README names the chip and the part, not the organisation
+    statement: >-
+      A driver's README and site name the chip and part it drives; the organisation appears only in links and the
+      licence line, so the driver reads as usable on its own.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: forbidden-patterns/readme-org-name
+      - review: The README names the chip and part; no Kokeb Labs or HardFOC branding outside links.
+    refs: [{adr: 12}]
+    page: standards/docs.md#readme
+    origin: ["kb:standards/docs.md:111 (B-DOC-24)", "kb:standards/adr/0012-unbranded-drivers.md"]
+
+  - id: KB-DOC-018
+    title: The README licence line matches LICENSE and the package metadata
+    statement: >-
+      The README's License line, LICENSE and every package manifest (`idf_component.yml`, `library.json` and the
+      like) name the same licence: MIT for code, CERN-OHL-P-2.0 for a hardware design.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: README License line, LICENSE and package manifests name the same licence.
+    refs: [{adr: 9}]
+    origin: ["kb:standards/adr/0009-licensing.md:14 (B-GOV-40)", "kb:standards/docs.md:97 (README License)"]
+
+  - id: KB-DOC-019
+    title: A family driver is named after the member it was written for
+    statement: >-
+      A driver that covers a chip family is named after the part it was written and tested for; the README lists
+      the other members it supports and how far each is tested.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver]}
+    verify:
+      - review: The repository name is the tested part; the README lists the other family members and their status.
+    page: standards/driver.md
+    origin: ["kb:standards/driver.md:64 (B-DRV-10)"]
+
+  # -- Code and figures on the site -------------------------------------------------------------------------------
+  - id: KB-DOC-020
+    title: Every C++ block on the site compiles
+    statement: >-
+      A C++ snippet longer than one line lives in `tests/docs/*.cpp` between `--8<--` section markers, is built by
+      the host build with warnings on, and is included in the page; it is never pasted inline.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, template]}
+    verify:
+      - check: host-tests
+      - check: docs-inline-code
+    rationale: An example that does not compile teaches the wrong API, and nobody notices until a user pastes it.
+    page: standards/docs.md#code-on-the-site
+    origin:
+      - "kb:standards/docs.md:16 (B-DOC-04, snippets)"
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Code)"
+      - "hf:agents/documentation-agent.md:87 (lines:filepath references; superseded) (A-AG1-69)"
+
+  - id: KB-DOC-021
+    title: Examples check every result
+    statement: >-
+      Every example on the site and in the README checks each `Result` and `Status` it gets and shows what to do
+      with an error; no example ignores a return value or elides code with `// ...`.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - check: compiler-warnings/-Wunused-result
+      - review: Each example handles every returned Result or Status.
+    page: standards/docs.md#code-on-the-site
+    origin:
+      - "kb:standards/driver.md:378 (B-DRV-81)"
+      - "kb:standards/docs.md:103,121"
+      - "kb:standards/checklists/new-driver.md:51"
+
+  - id: KB-DOC-022
+    title: Generated regions and figures match the code
+    statement: >-
+      The README quickstart, examples lists and figures are generated regions (`kokeb-docs`), and CI fails when one
+      no longer matches the code it is generated from. `kokeb-docs check` runs the same check locally.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify: [{check: docs-drift}]
+    page: standards/docs.md#the-site
+    notes: >-
+      Warns until 2027-03-01, then fails CI. ru-mkdocs-publish runs the drift check today; once its job is named in
+      the registry the check is implemented and this rule can be active.
+    origin:
+      - "kb:standards/docs.md:15-16 (B-DOC-04, B-DOC-05)"
+      - "kb:standards/docs.md:122 (B-DOC-27, drift)"
+      - "hf:agents/documentation-agent.md:183,212,248"
+
+  - id: KB-DOC-023
+    title: The Porting page shows a complete, compiled port for each bus
+    statement: >-
+      A driver's Porting page shows the full port for every bus it supports, compiled from `tests/docs/`, and lists
+      every extra protocol hook with the same contract as the core interface methods.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: host-tests
+      - review: Each supported bus has a compiled port on the Porting page; every extra hook is listed.
+    page: standards/driver.md
+    origin: ["kb:standards/driver.md:379 (B-DRV-82)", "kb:standards/driver.md:150 (B-DRV-25)"]
+
+  - id: KB-DOC-024
+    title: The API guide lists the errors each call can return
+    statement: >-
+      A driver's API guide lists, for each call, the error values it can return and what each means, matching the
+      `@retval` lines in the headers.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template]}
+    verify:
+      - review: The API guide's error table matches the @return/@retval documentation in inc/.
+    page: standards/driver.md
+    origin: ["kb:standards/driver.md:380 (B-DRV-83)"]
+
+  - id: KB-DOC-025
+    title: Every image has alt text
+    statement: >-
+      Every image and figure has alt text: one sentence saying what it shows, never just "diagram" or "image".
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: markdownlint/MD045
+      - review: Alt text says what the figure shows.
+    page: standards/docs.md#code-on-the-site
+    origin:
+      - "kb:standards/docs.md:122 (B-DOC-27, alt text)"
+      - "hf:standards/review-checklist.md:147,254"
+      - "hf:agents/documentation-agent.md:86,129-131,245"
+
+  - id: KB-DOC-026
+    title: Figures are generated, themed, and drawn with the right tool
+    statement: >-
+      Architecture and code-derived figures are figkit figures with light and dark variants; sequences and state
+      machines are Mermaid. A vendor image is an SVG or compressed PNG on a `.kb-plate`, never a screenshot of a PDF.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: New figures use figkit or Mermaid; vendor images are SVG/PNG with .kb-plate.
+    page: standards/docs.md#code-on-the-site
+    origin:
+      - "kb:standards/docs.md:122 (B-DOC-27)"
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Figures)"
+      - "hf:specifications/README.md:136 (Mermaid for buses) (A-SPC-12)"
+      - "hf:agents/documentation-agent.md:169 (hand-drawn PNG with sources; superseded) (A-AG1-75)"
+
+  - id: KB-DOC-027
+    title: A figure has one reading direction, verbs on its arrows and three tones at most
+    statement: >-
+      A figure reads in one direction, stated in its subtitle; solid arrows call, dashed arrows carry data, and an
+      arrow is labelled when its verb is not obvious. Colour shows ownership in at most three tones, with about
+      eight cards at most.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    origin: ["ci-tools:docs/DOCS-STYLE-GUIDE.md (How a figure reads)"]
+
+  # -- Changelog and decisions ------------------------------------------------------------------------------------
+  - id: KB-DOC-028
+    title: The site's changelog page includes CHANGELOG.md
+    statement: >-
+      `docs/changelog.md` has a title and purpose line and pulls in `CHANGELOG.md` with a snippet include; it never
+      holds a copy.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, tooling, template]}
+    verify:
+      - review: docs/changelog.md uses --8<-- "CHANGELOG.md" and has no copied entries.
+    page: standards/docs.md#changelog-and-decisions
+    origin: ["kb:standards/docs.md:126 (B-DOC-28)"]
+
+  - id: KB-DOC-029
+    title: The changelog keeps [Unreleased] first and the standard subsections in order
+    statement: >-
+      `## [Unreleased]` is always the first section. Within a section the subsections are Breaking, Added, Changed,
+      Deprecated, Removed, Fixed and Security, in that order, each only when it has an entry.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: changelog}]
+    page: standards/release.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. The planned changelog check must cover the [Unreleased]-first and
+      subsection-order rules (Breaking is not a Keep a Changelog heading).
+    origin:
+      - "kb:standards/release.md:67 (B-REL-14)"
+      - "kb:standards/release.md:68 (B-REL-15)"
+      - "kb:standards/release.md:45 (B-REL-13; covered by KB-GIT-004)"
+      - "hf:agents/release-and-submodules.md:237-259 (`## [vX.Y.Z] — date` headings; superseded)"
+
+  - id: KB-DOC-030
+    title: A released changelog section is never edited
+    statement: >-
+      A released section `## [X.Y.Z] - YYYY-MM-DD` is not edited after its release, except for its link lines; a
+      correction goes in the next release's entry.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: changelog-frozen}]
+    page: standards/release.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["kb:standards/release.md:72 (B-REL-17)"]
+
+  - id: KB-DOC-031
+    title: Changelog entries describe what a user sees
+    statement: >-
+      A changelog entry says what changes for the user of the release (an API, a behaviour, a default, a fix to a
+      symptom), not which commits went in.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    page: standards/release.md
+    origin: ["kb:standards/release.md:73 (B-REL-18)"]
+
+  - id: KB-DOC-032
+    title: ADRs use the standard format and are numbered in acceptance order
+    statement: >-
+      A decision record has a Status line and the sections Context, Decision and Consequences, and is numbered
+      `NNNN-<slug>.md` in the order decisions are accepted.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: heading-skeleton/adr}]
+    page: standards/docs.md#changelog-and-decisions
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "kb:standards/adr/README.md:3 (B-ADR-65)"
+      - "hf:standards/documentation-style.md:575-618"
+
+  - id: KB-DOC-033
+    title: An accepted decision is superseded, never rewritten
+    statement: >-
+      Once an ADR is accepted its Decision is not edited to change it; a new ADR supersedes it, and the old one's
+      Status links its successor.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: A pull request that edits an accepted ADR changes only its Status, links or typos.
+    rationale: The record is only useful if it shows what was decided at the time, and why.
+    page: standards/docs.md#changelog-and-decisions
+    origin: ["kb:standards/adr/README.md:3 (B-ADR-65)"]
+
+  - id: KB-DOC-034
+    title: Cross-repository decisions are handbook ADRs; local ones stay in the repository
+    statement: >-
+      A decision that affects more than one repository is an ADR in the handbook's `docs/adr/`. A decision local to
+      one repository, including a product's, is an ADR in its own `docs/adr/` in the same format.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: A new ADR is in the handbook when it binds other repositories.
+    page: standards/docs.md#changelog-and-decisions
+    origin:
+      - "kb:standards/docs.md:127 (B-DOC-29)"
+      - "kb:standards/adr/README.md:46"
+      - "kb:standards/product.md:73 (B-PRD-18)"
+
+  - id: KB-DOC-035
+    title: Datasheets are linked, and committed only where their licence allows
+    statement: >-
+      A datasheet or manual is linked from the page, never embedded. It is committed under `docs/datasheet/` only
+      when its licence allows redistribution; otherwise the page links the vendor's copy.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, hal, template]}
+    verify:
+      - review: Any PDF under docs/datasheet/ has a licence that allows redistribution; none is embedded.
+    notes: >-
+      Sources disagree: the new-driver checklist stores the datasheet, driver-template's template-init and the org
+      pull-request template say no vendor PDF is committed, and agents.md bans private datasheet material. The
+      licence test reconciles them; private or NDA material is never committed.
+    origin:
+      - "kb:standards/checklists/new-driver.md:52 (B-DOC-30)"
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Figures, PDFs)"
+
+  # -- Markdown and pages -----------------------------------------------------------------------------------------
+  - id: KB-DOC-036
+    title: Markdown wraps at 120 columns
+    statement: Prose lines in Markdown are at most 120 characters; tables and code blocks are exempt.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: markdownlint/MD013}]
+    page: standards/naming-and-style.md
+    origin: ["kb:standards/naming-and-style.md:97 (B-NAM-22)"]
+
+  - id: KB-DOC-037
+    title: Every page has one title, a purpose line and sections in reading order
+    statement: >-
+      A page starts with exactly one `#` title matching its navigation entry, then a one-sentence purpose line, then
+      `##` sections in the order a reader needs them, ending with a next step when there is an obvious one.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: markdownlint/MD025
+      - check: markdownlint/MD041
+      - review: The page has a purpose line under its title.
+    notes: >-
+      Warns until 2027-03-01, then fails CI. config/.markdownlint.json must enable MD025 and MD041 (MD041 with
+      front matter allowed, for `hide:`).
+    origin:
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Every page)"
+      - "hf:agents/documentation-agent.md:98-108 (process page template; superseded) (A-AG1-73)"
+
+  - id: KB-DOC-038
+    title: Headings step one level at a time and code fences name their language
+    statement: >-
+      Heading levels go down one at a time and use `#` style throughout. Every fenced code block names its language
+      (`cpp`, `yaml`, `mermaid`, `text`).
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: markdownlint/MD001
+      - check: markdownlint/MD003
+      - check: markdownlint/MD040
+    notes: Warns until 2027-03-01, then fails CI. config/.markdownlint.json must enable MD040.
+    origin: ["hf:standards/documentation-style.md:739-742 (A-DOC-14)", "ci-tools:docs/DOCS-STYLE-GUIDE.md (Code)"]
+
+  - id: KB-DOC-039
+    title: Links are relative, by file, with descriptive text
+    statement: >-
+      Pages link other pages by file (`porting.md#threads`), repository files relatively, and the API reference by
+      `api/...html`; no page links its own site or repository by absolute URL. Link text says where it goes, and
+      external links go to the primary source.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: markdownlint/MD059
+      - check: forbidden-patterns/absolute-self-links
+      - review: External links point at the primary source (vendor, datasheet, specification).
+    page: standards/docs.md
+    origin:
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Links)"
+      - "hf:CONTRIBUTING.md:11 (A-TOP-04)"
+      - "hf:agents/documentation-agent.md:175-181,246"
+      - "hf:standards/documentation-style.md:739-742 (descriptive link text) (A-DOC-14)"
+
+  - id: KB-DOC-040
+    title: Documentation is Markdown
+    statement: >-
+      Documentation is written in Markdown in the repository; no Word, PDF or slide files stand in for pages. Vendor
+      datasheets (KB-DOC-035) are the only exception.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: forbidden-patterns/office-docs}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["hf:standards/documentation-style.md:738 (A-DOC-13)"]
+
+  - id: KB-DOC-041
+    title: No Jekyll front matter or Liquid; front matter only for hide
+    statement: >-
+      Pages have no Jekyll front matter and no Liquid tags. Material front matter is used only for `hide:`, for
+      example on the home page.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: mkdocs-strict}]
+    page: standards/docs.md
+    origin:
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Every page; Checks that enforce this)"
+      - "hf:standards/documentation-style.md:759-763 (Jekyll docs; superseded)"
+
+  - id: KB-DOC-042
+    title: Page file names are lower-case kebab-case
+    statement: >-
+      Files under `docs/` are named in lower-case kebab-case (`api-guide.md`, `contract.md`). The conventional root
+      files (README.md, CHANGELOG.md, CONTRIBUTING.md, AGENTS.md, CLAUDE.md, LICENSE) keep their upper-case names.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: doc-file-names}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "hf:CONTRIBUTING.md:10 (kebab-case) (A-TOP-03)"
+      - "hf:standards/coding-style.md:206 (UPPER_CASE.md; superseded) (A-STY-10)"
+
+  # -- Voice ------------------------------------------------------------------------------------------------------
+  - id: KB-DOC-043
+    title: Write in the second person, present tense and active voice
+    statement: >-
+      Pages address the reader as "you", in the present tense and active voice, in short sentences of one idea
+      each. A page does not describe itself ("this document describes").
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: prose-style/passive-voice
+      - check: prose-style/future-tense
+      - check: prose-style/self-reference
+    page: standards/docs.md
+    notes: Warns until 2027-03-01, then fails CI. The Vale rules report at warning level for passive voice.
+    origin:
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Voice)"
+      - "hf:standards/documentation-style.md:730-735 (A-DOC-12)"
+      - "hf:standards/review-checklist.md:255 (engineering-first tone) (A-REV-81)"
+      - "hf:agents/documentation-agent.md:100"
+
+  - id: KB-DOC-044
+    title: No hype or filler words
+    statement: >-
+      Pages are plain and specific: numbers, names and units instead of "simply", "just", "easily", "powerful",
+      "comprehensive", "seamless" or "robust".
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: prose-style/hype-words}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["ci-tools:docs/DOCS-STYLE-GUIDE.md (Voice)"]
+
+  - id: KB-DOC-045
+    title: No emoji, exclamation marks or walls of bold
+    statement: Headings, lists and tables carry no emoji; prose has no exclamation marks and no runs of bold text.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: prose-style/emoji
+      - check: prose-style/exclamation
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Voice)"
+      - "hf:standards/documentation-style.md (emoji-decorated headings; superseded) (A-REV-48)"
+
+  - id: KB-DOC-046
+    title: Titles and headings are in sentence case
+    statement: Every title and heading, the page title included, is in sentence case ("Bus settings").
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: prose-style/sentence-case}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Voice)"
+      - "hf:agents/documentation-agent.md:84 (Title Case H1; superseded) (A-AG1-66)"
+      - "hf:agents/documentation-agent.md:85 (numbered H2 headings; not adopted) (A-AG1-67)"
+
+  - id: KB-DOC-047
+    title: Pages never mention how they were produced
+    statement: >-
+      No page says it was generated or written by a tool or an assistant, and no page names one as its author.
+      Generated-region markers are comments, not prose.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: prose-style/provenance}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["ci-tools:docs/DOCS-STYLE-GUIDE.md (Voice)"]
+
+  - id: KB-DOC-048
+    title: Spelling is correct and one variant is used per repository
+    statement: >-
+      Pages have no misspellings, and a repository uses British or American spelling consistently; project words
+      are listed in `config/typos.toml`.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: spelling
+      - check: prose-style/spelling-variant
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["ci-tools:docs/DOCS-STYLE-GUIDE.md (Voice)"]
+
+  - id: KB-DOC-049
+    title: Every name and number on a page is checked against its source
+    statement: >-
+      Every API name, signature, pin, register and number is checked against the headers or the datasheet. A timing
+      or performance figure is measured, with its conditions, or says that it is derived.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: Numbers and names on changed pages match the headers or datasheet; derived figures say so.
+    rationale: A plausible wrong number costs a user more than a missing one.
+    origin:
+      - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Voice: true statements only)"
+      - "hf:standards/documentation-style.md:789 (A-DOC-18)"
+      - "hf:process/base-interfaces.md:116-124,209-218 (per-function ns timings; unverified) (A-BIF-09)"
+
+  - id: KB-DOC-050
+    title: Use a table for three or more like items, with units in the header
+    statement: >-
+      Pins, registers, parameters, options, commands and error codes go in a table once there are three or more,
+      with units in the header (`Range (V)`), names in code font and long prose below the table.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    origin: ["ci-tools:docs/DOCS-STYLE-GUIDE.md (Tables)", "hf:standards/documentation-style.md:739-742 (A-DOC-14)"]
+
+  - id: KB-DOC-051
+    title: Use the theme's components instead of inventing markup
+    statement: >-
+      Admonitions, tabs, chip cards, steps and API links use the theme's components. A page has at most two
+      `warning` or `danger` admonitions, kept for damage or lost hours.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    origin: ["ci-tools:docs/DOCS-STYLE-GUIDE.md (Components)"]
+
+  - id: KB-DOC-052
+    title: Guides teach a task with complete examples and say why
+    statement: >-
+      A guide page is organised by task, gives the smallest complete example for each step, and says why a step is
+      needed as well as how.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    origin: ["hf:standards/documentation-style.md:500-537 (A-DOC-06)", "ci-tools:docs/DOCS-STYLE-GUIDE.md (API guide)"]
+
+  - id: KB-DOC-053
+    title: No undated future-plans sections
+    statement: >-
+      Pages describe what exists. Plans go in issues or discussions, not in "future work" or "roadmap" sections of
+      the docs.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    origin: ["hf:agents/documentation-agent.md:234 (A-AG1-86)"]
+
+  - id: KB-DOC-054
+    title: The site meets the Lighthouse accessibility budget
+    statement: >-
+      The built site scores at or above the org Lighthouse budget for accessibility, performance, best practices and
+      SEO.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, tooling, docs, template]}
+    verify: [{check: lighthouse}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["hf:standards/documentation-style.md:797-798 (A-DOC-19)", "ci-tools:docs/DOCS-STYLE-GUIDE.md (Checks)"]
+
+  # -- Content by kind --------------------------------------------------------------------------------------------
+  - id: KB-DOC-055
+    title: Interrupt wiring is documented
+    statement: >-
+      When a driver or HAL needs an interrupt, its docs say which callback or vector handler the user wires, which
+      context it runs in, and what it may call.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, hal, template]}
+    verify:
+      - review: The Porting or Contract page names the ISR hook, its context and what it may call.
+    origin: ["hf:standards/review-checklist.md:219 (A-REV-69)"]
+
+  - id: KB-DOC-056
+    title: kb-core has one page per handler
+    statement: >-
+      kb-core documents each handler on its own page under `docs/handlers/`, with its API, error mapping, locking
+      and diagnostics.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [library]}
+    verify:
+      - review: Every handlers/<chip> folder has a docs/handlers/ page with the four sections.
+    page: standards/handler.md
+    origin:
+      - "kb:standards/docs.md:25 (B-DOC-08)"
+      - "kb:standards/checklists/new-handler.md:30 (B-CHK-33)"
+      - "hf:agents/handler-design.md:312"
+
+  - id: KB-DOC-057
+    title: A utility collection has one guide page per utility
+    statement: >-
+      A library that is a collection of utilities has one guide page per utility, with its purpose, a compiled
+      example and its complexity and memory use.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library]}
+    verify:
+      - review: Each public utility header has a guide page with purpose, example, complexity and memory.
+    page: standards/library.md
+    origin: ["kb:standards/library.md:70 (B-LIB-13)"]
+
+  - id: KB-DOC-058
+    title: A product documents its fault catalogue on the Operation page
+    statement: >-
+      A product keeps one fault catalogue (ID, protocol code, severity, reaction) and documents it on its Operation
+      page.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [firmware]}
+    verify:
+      - review: The Operation page lists every fault in the catalogue with its code, severity and reaction.
+    page: standards/product.md
+    origin: ["kb:standards/product.md:41 (B-PRD-08)", "hf:agents/application-engineering.md:199-208"]
+
+  - id: KB-DOC-059
+    title: Release trains are announced with their bench status
+    statement: >-
+      A kb-core release train is announced in its release notes and on the Release trains page, with the bench
+      status of each member.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [library]}
+    verify:
+      - review: The release notes and Release trains page list the train's members and bench status.
+    page: standards/release.md
+    origin: ["kb:standards/release.md:138 (B-REL-33)"]
+
+  - id: KB-DOC-060
+    title: Patches to vendor-generated code are listed in PATCHES.md
+    statement: >-
+      Any edit to vendor-generated code (STM32Cube and the like) after generation is listed in `PATCHES.md` beside
+      it, with why; the aim is none.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: A diff against the regenerated output matches what PATCHES.md lists.
+    origin: ["hf:porting/stm32-cube-hal.md:284 (A-PRT-57)"]
+
+  # -- Doxygen ----------------------------------------------------------------------------------------------------
+  - id: KB-DOC-061
+    title: The Doxyfile lives in _config/ and Doxygen runs from the root
+    statement: >-
+      Each code repository keeps its Doxyfile at `_config/Doxyfile`, derived from the shared settings in ci-tools,
+      and runs `doxygen _config/Doxyfile` from the repository root so its paths are root-relative.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, template]}
+    verify:
+      - check: doxyfile-baseline
+      - review: _config/Doxyfile exists and its paths are relative to the root.
+    refs: [{adr: 11}]
+    page: standards/docs.md#doxygen
+    origin: ["kb:standards/docs.md:77 (B-DOC-16)", "kb:standards/adr/0011-repository-root-layout.md:36"]
+
+  - id: KB-DOC-062
+    title: Doxygen reads only the public headers and keeps private members out
+    statement: >-
+      The Doxyfile sets `INPUT` to the public headers only (`inc/` for a driver), `EXTRACT_ALL = NO`,
+      `EXTRACT_PRIVATE = NO`, `WARN_NO_PARAMDOC = YES`, `USE_MDFILE_AS_MAINPAGE = docs/_doxygen/mainpage.md`, and
+      generates HTML that is merged into the site under `api/`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, template]}
+    verify: [{check: doxyfile-baseline}]
+    rationale: >-
+      With EXTRACT_ALL off, an undocumented symbol is a warning instead of an empty entry, so KB-DOC-004 can fail
+      on it.
+    page: standards/docs.md#doxygen
+    notes: >-
+      Warns until 2027-03-01, then fails CI. driver-template matches; ci-tools' shared Doxyfile uses
+      INPUT = README.md ... with RECURSIVE = YES and must be brought in line.
+    origin:
+      - "kb:standards/docs.md:83 (B-DOC-17)"
+      - "kb:standards/docs.md:84 (B-DOC-18)"
+      - "kb:standards/docs.md:89 (B-DOC-20)"
+      - "kb:standards/driver.md:377 (B-DRV-80; rest covered by KB-DOC-004)"
+      - "hf:agents/documentation-agent.md:233"
+
+  - id: KB-DOC-063
+    title: A public function's comment gives units, errors and whether it blocks
+    statement: >-
+      Each public symbol has a brief description. Each public function documents every parameter with its unit, its
+      return value and the error values it can return, and whether it does I/O or blocks.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, template]}
+    verify:
+      - check: doxygen-warnings
+      - review: Changed public functions document units, error values and whether they do I/O or block.
+    refs: [{std: IEC-62304, id: "5.4.2", note: "detailed design of each software unit"}]
+    page: standards/docs.md#doxygen
+    origin:
+      - "kb:standards/naming-and-style.md:130 (B-NAM-29)"
+      - "kb:standards/docs.md:92"
+      - "hf:standards/coding-style.md:561-646"
+      - "hf:standards/documentation-style.md:94-256"
+      - "hf:agents/review-agent.md:101-103"
+
+  - id: KB-DOC-064
+    title: Each test says what it verifies, with its data and expected result
+    statement: >-
+      At safety level each test case has a Doxygen comment naming the requirement or behaviour it verifies, the
+      input data and the expected result.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template], from_level: safety}
+    verify:
+      - review: Each new or changed test has a comment naming what it verifies, its data and expected result.
+    rationale: The comment is the trace from a requirement to its test that an assessor reads.
+    origin: ["hf:process/testing-requirements.md:670-694,781 (A-TST-16)"]

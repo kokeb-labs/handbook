@@ -11,6 +11,26 @@ sanitizers, coverage and cross-compilation.
 | [KB-TST-003](#kb-tst-003) Tests pass under AddressSanitizer and UndefinedBehaviorSanitizer | must | driver, library, hal, template (high level and above) | planned |
 | [KB-TST-004](#kb-tst-004) Coverage floor per assurance level | must | driver, library, hal (high level and above) | planned |
 | [KB-TST-005](#kb-tst-005) Compiles for every supported target | must | driver, library (high level and above) | planned |
+| [KB-TST-006](#kb-tst-006) Host tests compile every header with the firmware's flags and no platform paths | must | driver, library, template | checked |
+| [KB-TST-007](#kb-tst-007) Driver tests run against a register-level model of the chip | must | driver, template | review |
+| [KB-TST-008](#kb-tst-008) Host tests cover the failure paths, not only the happy path | must | driver, library, hal, template | planned |
+| [KB-TST-009](#kb-tst-009) Every driver ships a host example that CI builds and runs | must | driver, template | checked |
+| [KB-TST-010](#kb-tst-010) Every code block on the documentation site is compiled | must | driver, library, template | planned |
+| [KB-TST-011](#kb-tst-011) kb-core host tests run on every RTOS backend's host build | must | library | planned |
+| [KB-TST-012](#kb-tst-012) Every handler has a host test of its contract | must | library | planned |
+| [KB-TST-013](#kb-tst-013) A board HAL builds and is tested on the host | must | hal | review |
+| [KB-TST-014](#kb-tst-014) Firmware logic that needs no hardware is host-tested | should | firmware | review |
+| [KB-TST-015](#kb-tst-015) Tests are deterministic and independent of order | must | driver, library, hal, template | planned |
+| [KB-TST-016](#kb-tst-016) Every test has a timeout | must | driver, library, hal, template | planned |
+| [KB-TST-017](#kb-tst-017) Test files and cases name what they test | should | driver, library, hal, template | planned |
+| [KB-TST-018](#kb-tst-018) Every public function is exercised by a test | should | driver, library, hal, template | planned |
+| [KB-TST-019](#kb-tst-019) Share test setup through fixtures and helpers | guide | driver, library, hal, template | none |
+| [KB-TST-020](#kb-tst-020) Frame, CRC and protocol parsers are fuzzed | must | driver, library (high level and above) | planned |
+| [KB-TST-021](#kb-tst-021) Protocol and CRC code passes reference vectors | should | driver, library | review |
+| [KB-TST-023](#kb-tst-023) Hardware test runs leave a structured record | must | driver, hal, firmware (high level and above) | planned |
+| [KB-TST-024](#kb-tst-024) Real-time paths have a measured worst-case time and a regression check | should | driver, library, hal, firmware (high level and above) | planned |
+| [KB-TST-025](#kb-tst-025) Concurrent code is tested under ThreadSanitizer | must | library, hal (high level and above) | planned |
+| [KB-TST-026](#kb-tst-026) OTA updates are tested on both the update and the rollback path | should | firmware | review |
 
 ## KB-TST-001: Host tests build and pass with gcc and clang { #kb-tst-001 }
 
@@ -92,4 +112,344 @@ host.
   esp-idf)
 - `cross-build/esp-idf` (planned): the library compiles warning-free for the named target (arm-none-eabi, riscv32,
   esp-idf)
+
+
+## KB-TST-006: Host tests compile every header with the firmware's flags and no platform paths { #kb-tst-006 }
+
+**MUST** · driver, library, template · since 1.0
+
+The host test build compiles every public header with `-fno-exceptions -fno-rtti -Wall -Wextra -Werror` (the template
+adds `-Wpedantic -Wshadow -Wconversion -Wsign-conversion` and an `-O2` build) and with no ESP-IDF, vendor or board
+include path on the search path.
+
+*Why:* A header that builds on the host with no platform in reach is proved MCU-agnostic.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- `compiler-warnings/-Wall` (implemented): the build is warning-free with the named flag and -Werror
+- `compiler-warnings/-Wextra` (implemented): the build is warning-free with the named flag and -Werror
+- `compiler-warnings/-Wconversion` (implemented): the build is warning-free with the named flag and -Werror
+- review: The test targets add no platform or vendor include directory.
+
+*See also:* IEC 62304:2006+A1:2015 5.5.5
+
+
+## KB-TST-007: Driver tests run against a register-level model of the chip { #kb-tst-007 }
+
+**MUST** · driver, template · since 1.0
+
+`tests/mock_<chip>.hpp` implements the driver's port as a model of the chip's registers and wire protocol, and every
+host test drives the driver through it. Drivers are not tested through virtual mocks of their own API.
+
+*Why:* A register model catches wrong addresses, orders and bit masks; a mock of the API catches none of them.
+
+*Verified by:*
+
+- review: tests/mock\_&lt;chip&gt;.hpp models registers behind the CRTP port and all driver tests use it.
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-TST-008: Host tests cover the failure paths, not only the happy path { #kb-tst-008 }
+
+**MUST** · driver, library, hal, template · since 1.0
+
+Host tests show that a call before `Initialize()` returns NotInitialized, a wrong chip ID is refused, a failing bus hook
+is reported on every path that uses it, invalid arguments are rejected, and the expected register traffic is sent. New
+behaviour arrives with tests of its failure paths.
+
+*Verified by:*
+
+- review: Every new error path, including a failing hook and a call before Initialize, has a test.
+- `error-paths-tested` (planned): every error value the public API can return is asserted by at least one host test
+
+*See also:* IEC 62304:2006+A1:2015 5.5.4 (additional unit acceptance criteria: fault handling)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-TST-009: Every driver ships a host example that CI builds and runs { #kb-tst-009 }
+
+**MUST** · driver, template · since 1.0
+
+`examples/host/` runs the driver on the host against the register model. It is built with the test flags and run as one
+of the host tests.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+
+*See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-TST-010: Every code block on the documentation site is compiled { #kb-tst-010 }
+
+**MUST** · driver, library, template · since 1.0
+
+C++ shown on the documentation site is included from `tests/docs/`, and the host test build compiles those files against
+the current headers.
+
+*Verified by:*
+
+- `doc-snippets` (planned): every C++ block on the documentation site is a snippet from tests/docs/ and those files
+  compile against the current headers (driver-template doc\_snippets ctest and the kokeb-docs check)
+- review: New code blocks on the site are snippets from tests/docs/, not inline code.
+
+*Explained in:* [standards/docs.md](../standards/docs.md)
+
+## KB-TST-011: kb-core host tests run on every RTOS backend's host build { #kb-tst-011 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+kb-core's host tests live in `tests/host/` and run with gcc and clang for `KB_RTOS=FREERTOS` (against the host shim) and
+`KB_RTOS=NONE`, with `KB_MCU=HOST`.
+
+*Verified by:*
+
+- `host-tests-matrix/kb-rtos` (planned): the host tests pass with gcc and clang for each configuration of the named
+  matrix (kb-rtos: KB\_RTOS=FREERTOS host shim and KB\_RTOS=NONE, with KB\_MCU=HOST)
+
+*See also:* [ADR-0013](../adr/0013-kb-core-monorepo.md); IEC 62304:2006+A1:2015 5.5.5
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-TST-012: Every handler has a host test of its contract { #kb-tst-012 }
+
+**MUST** · library · since 1.0
+
+Each handler has `tests/host/test_<chip>_handler.cpp`, run with `KB_RTOS=NONE` and `KB_MCU=HOST`, showing that
+construction does no I/O, retries happen as documented, a bus failure maps to `Status::Bus`, `VisitDriver` refuses when
+it should, and the diagnostics counters count.
+
+*Verified by:*
+
+- `test-presence/handler` (planned): every unit of the named kind has a test (handler:
+  tests/host/test\_&lt;chip&gt;\_handler.cpp; public-function: each public function is called by a host test)
+- review: The handler test covers construction, retry, bus errors, VisitDriver and diagnostics.
+
+*Explained in:* [standards/handler.md](../standards/handler.md)
+
+## KB-TST-013: A board HAL builds and is tested on the host { #kb-tst-013 }
+
+**MUST** · hal · since 1.0
+
+A HAL builds on the host with its host bind, and its tests cover the start-up order, that each manager fails closed, and
+`CollectDiagnostics`. pincfg builds for the host with an empty pin table.
+
+*Verified by:*
+
+- review: The HAL host tests cover start-up order, fail-closed managers and diagnostics.
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-TST-014: Firmware logic that needs no hardware is host-tested { #kb-tst-014 }
+
+**SHOULD** · firmware · since 1.0
+
+Application logic that does not touch hardware has host tests that run against the HAL's host bind.
+
+*Verified by:*
+
+- review: New hardware-free application logic has host tests.
+
+*Explained in:* [standards/product.md](../standards/product.md)
+
+## KB-TST-015: Tests are deterministic and independent of order { #kb-tst-015 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, template · since 1.0 · enforced from 2027-03-01
+
+A test gives the same result on every run and in any order: no unseeded randomness, wall-clock dependence or state
+shared between tests. CI runs the suite repeatedly and in random order.
+
+*Why:* A flaky test teaches people to re-run CI instead of reading it.
+
+*Verified by:*
+
+- `test-repeat` (planned): ctest --repeat until-fail:20 --schedule-random passes, so no test depends on luck or order
+
+
+## KB-TST-016: Every test has a timeout { #kb-tst-016 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, template · since 1.0 · enforced from 2027-03-01
+
+Every ctest test has a `TIMEOUT` property, so a hung test fails in bounded time instead of stalling CI.
+
+*Verified by:*
+
+- `ctest-timeouts` (planned): every test ctest lists has a TIMEOUT property
+
+
+## KB-TST-017: Test files and cases name what they test { #kb-tst-017 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · driver, library, hal, template · since 1.0 · enforced from 2027-03-01
+
+Host test files are named `test_<unit>.cpp` after the unit they exercise, and each test case name states the behaviour
+it checks.
+
+*Verified by:*
+
+- `test-naming` (planned): host test sources are named test\_&lt;unit&gt;.cpp after an existing unit of the library
+
+
+## KB-TST-018: Every public function is exercised by a test { #kb-tst-018 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · driver, library, hal, template · since 1.0 · enforced from 2027-03-01
+
+Each function of the public API is called by at least one host test.
+
+*Verified by:*
+
+- `test-presence/public-function` (planned): every unit of the named kind has a test (handler:
+  tests/host/test\_&lt;chip&gt;\_handler.cpp; public-function: each public function is called by a host test)
+
+*See also:* IEC 62304:2006+A1:2015 5.5.5
+
+
+## KB-TST-019: Share test setup through fixtures and helpers { #kb-tst-019 }
+
+**GUIDE** · driver, library, hal, template · since 1.0
+
+Setup used by more than one test lives in a fixture or a helper in `tests/`, not copied into each test.
+
+
+## KB-TST-020: Frame, CRC and protocol parsers are fuzzed { #kb-tst-020 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library (high level and above) · since 1.0 · enforced from 2027-03-01
+
+Every function that parses bytes from a bus or a host (frames, CRCs, protocol messages) has a libFuzzer target, built
+with the sanitizers, that CI runs for a fixed time on each pull request; its corpus is committed and every crash it
+found is kept as a regression test.
+
+*Why:* Parsers face input nobody wrote a test for; a fuzzer writes those tests.
+
+*Verified by:*
+
+- `fuzzing` (planned): each parser's libFuzzer target runs on the host for a fixed time under ASan and UBSan without a
+  finding
+
+*See also:* SEI CERT C INT32-C; SEI CERT C++ CTR50-CPP
+
+
+## KB-TST-021: Protocol and CRC code passes reference vectors { #kb-tst-021 }
+
+**SHOULD** · driver, library · since 1.0
+
+An implementation of a published protocol or CRC is tested against the reference vectors of its specification or
+datasheet, with the source of each vector named in the test.
+
+*Verified by:*
+
+- review: Protocol and CRC tests use vectors from the specification and cite it.
+
+
+## KB-TST-022: Every MCU port passes the interface conformance tests { #kb-tst-022 }
+
+!!! note "Retired"
+
+    Duplicate of KB-HW-002, merged when the rules were loaded. Replaced by KB-HW-002.
+
+**MUST** · library, hal · since 1.0
+
+kb::interfaces has a conformance suite per interface, and every `mcu/<family>/` port runs it. A new interface method
+arrives with its conformance test.
+
+*Verified by:*
+
+- `conformance-tests` (planned): every kb::interfaces method has a conformance test, and each mcu/&lt;family&gt; port
+  runs and passes the suite
+- review: A new interface method adds a conformance test.
+
+*See also:* [ADR-0014](../adr/0014-three-kinds-of-specific.md); IEC 62304:2006+A1:2015 5.6 (integration testing)
+
+
+## KB-TST-023: Hardware test runs leave a structured record { #kb-tst-023 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, hal, firmware (high level and above) · since 1.0 · enforced from 2027-03-01
+
+Tests that need a board live in `tests/hardware/`. Each run on a bench or a self-hosted runner writes a record of the
+commit SHA, board and revision, toolchain, test list, results and date, kept with the release; a change not run on
+hardware says so in its pull request.
+
+*Verified by:*
+
+- `hil-evidence` (planned): a hardware test record (commit, board and revision, toolchain, tests, results, date) exists
+  for the release and each supported board, in the evidence format
+
+*See also:* IEC 62304:2006+A1:2015 5.7 (software system testing records)
+
+*Explained in:* [evidence.md](../evidence.md)
+
+## KB-TST-024: Real-time paths have a measured worst-case time and a regression check { #kb-tst-024 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**SHOULD** · driver, library, hal, firmware (high level and above) · since 1.0 · enforced from 2027-03-01
+
+A function with a timing requirement documents its worst-case execution time measured on the target, and a benchmark job
+compares it with the stored baseline and fails on a regression beyond the recorded margin.
+
+*Verified by:*
+
+- `timing-budget` (planned): an on-target benchmark job compares measured worst-case times with the stored baseline and
+  fails beyond its margin
+
+
+## KB-TST-025: Concurrent code is tested under ThreadSanitizer { #kb-tst-025 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library, hal (high level and above) · since 1.0 · enforced from 2027-03-01
+
+Code that shares state between tasks (kb::rtos, thread-safe managers) has host stress tests with many concurrent callers
+that pass under `-fsanitize=thread`, with no failure attributed to contention.
+
+*Verified by:*
+
+- `tsan` (planned): the concurrency host tests pass under ThreadSanitizer
+
+
+## KB-TST-026: OTA updates are tested on both the update and the rollback path { #kb-tst-026 }
+
+**SHOULD** · firmware · since 1.0
+
+Before firmware with over-the-air update ships, a good update and a failed update that rolls back are both run on
+hardware and recorded in the release checklist.
+
+*Verified by:*
+
+- review: The release checklist records an OTA update and an OTA rollback on hardware.
 

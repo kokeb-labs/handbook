@@ -7,6 +7,20 @@ What workflows may run and how they are written.
 | --- | --- | --- | --- |
 | [KB-CI-001](#kb-ci-001) Only allow-listed actions, pinned to a full commit SHA | must | all | checked |
 | [KB-CI-002](#kb-ci-002) Least privilege in every workflow | must | all | planned |
+| [KB-CI-003](#kb-ci-003) Workflows call the shared ci-tools workflows at @v1 | must | all | planned |
+| [KB-CI-004](#kb-ci-004) The CI gate needs every other job, including DCO | must | all | checked |
+| [KB-CI-005](#kb-ci-005) Code from a fork never runs with secrets | must | all | planned |
+| [KB-CI-006](#kb-ci-006) Dependabot keeps the actions current | should | all | planned |
+| [KB-CI-007](#kb-ci-007) Public repositories run GitHub's security features | must | all | planned |
+| [KB-CI-008](#kb-ci-008) No credentials, private datasheets or personal data are committed | must | all | planned |
+| [KB-CI-009](#kb-ci-009) Tags that start workflows are pushed with a GitHub App token | should | all | review |
+| [KB-CI-010](#kb-ci-010) Every example builds in CI, and a platform arrives with its job | must | driver, library, hal, firmware, template | planned |
+| [KB-CI-011](#kb-ci-011) kb-core CI builds every part for every MCU family and for no MCU | must | library | planned |
+| [KB-CI-012](#kb-ci-012) Tables generated from compat.yml are never stale | must | library | planned |
+| [KB-CI-013](#kb-ci-013) Every board HAL runs the kb-hal-common lints | must | hal | planned |
+| [KB-CI-014](#kb-ci-014) version\_lock.txt matches the submodule pins | must | hal, firmware | planned |
+| [KB-CI-015](#kb-ci-015) ESP-IDF builds run the declared IDF matrix, validated first | guide | driver, library, hal, firmware, template | review |
+| [KB-CI-016](#kb-ci-016) CI keeps the test and coverage reports as artifacts | should | driver, library, hal, firmware (high level and above) | planned |
 
 ## KB-CI-001: Only allow-listed actions, pinned to a full commit SHA { #kb-ci-001 }
 
@@ -37,3 +51,241 @@ interpolates untrusted input into a shell command.
 - `workflow-permissions` (planned): every workflow sets permissions at the top and grants each job the least it needs
 - `actionlint` (planned): actionlint and zizmor find nothing in the repository's workflows
 
+
+## KB-CI-003: Workflows call the shared ci-tools workflows at @v1 { #kb-ci-003 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. driver-template's host tests still use their own workflow rather than ru-host-ci.
+    The v1 side is enforced today by ci-tools' release.yml and the major-tags ruleset.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+Lint, analysis, build, docs and release jobs call `kokeb-labs/ci-tools/.github/workflows/<name>.yml@v1`, never `@main`
+or a copy. ci-tools stays at 1.x and moves `v1` only to its highest 1.x release.
+
+*Verified by:*
+
+- `shared-workflows` (planned): every lint, analysis, build, docs and release job calls a kokeb-labs/ci-tools reusable
+  workflow at @v1, and none at @main
+- review: A job that does not use a ci-tools workflow says why in a comment beside it.
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-CI-004: The CI gate needs every other job, including DCO { #kb-ci-004 }
+
+**MUST** · all · since 1.0
+
+The workflow's last job comes from ru-ci-gate, runs with `if: always()` and lists every other job in `needs`, so a
+skipped or failed job, an unsigned commit or a `[skip ci]` run cannot merge.
+
+*Verified by:*
+
+- `ci-gate` (implemented): one required check that passes only when every job of the workflow passed
+- `dco` (implemented): every commit of a pull request has a Signed-off-by line matching its author
+
+*See also:* IEC 62304:2006+A1:2015 8.2 (a change is verified before it is accepted)
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-CI-005: Code from a fork never runs with secrets { #kb-ci-005 }
+
+**MUST** · all · since 1.0
+
+Workflows triggered by a fork's pull request get no secrets and a read-only token; `pull_request_target` and
+`workflow_run` never check out or run the pull request's code. Fork runs wait for a maintainer's approval.
+
+*Verified by:*
+
+- `actionlint` (planned): actionlint and zizmor find nothing in the repository's workflows
+- review: No workflow triggered by pull\_request\_target or workflow\_run checks out the pull request head.
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-CI-006: Dependabot keeps the actions current { #kb-ci-006 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. driver-template has the file; org-standard-check does not ask for it.
+
+**SHOULD** · all · since 1.0 · enforced from 2027-03-01
+
+Every repository with workflows has `.github/dependabot.yml` updating `github-actions` weekly with the `dependencies`
+label and the `ci` prefix, plus `pip` where it has Python tooling. It never manages submodules.
+
+*Verified by:*
+
+- `dependabot-config` (planned): .github/dependabot.yml updates github-actions weekly with label dependencies and prefix
+  ci, pip where Python tooling exists, and has no gitsubmodule ecosystem
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-CI-007: Public repositories run GitHub's security features { #kb-ci-007 }
+
+**MUST** · all · since 1.0
+
+Secret scanning with push protection, Dependabot alerts and security updates, private vulnerability reporting and CodeQL
+default setup are on for every public repository.
+
+*Verified by:*
+
+- `org-settings-drift` (planned): a scheduled `kokeb_org.py --check` finds no drift between org/ and the repository's
+  live settings
+- review: `kokeb_org.py --check --section security` reports no drift for the repository.
+
+*Explained in:* [standards/repo-governance.md](../standards/repo-governance.md)
+
+## KB-CI-008: No credentials, private datasheets or personal data are committed { #kb-ci-008 }
+
+**MUST** · all · since 1.0
+
+Tokens, keys, passwords, private datasheet material and personal data never enter a commit, a log or an artifact. A
+secret that reached a commit is revoked, not just removed.
+
+*Verified by:*
+
+- `secret-scan` (planned): gitleaks finds no secret in the pull request's commits
+- review: Nothing in the diff, the logs or the artifacts is a credential or confidential material.
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-CI-009: Tags that start workflows are pushed with a GitHub App token { #kb-ci-009 }
+
+**SHOULD** · all · since 1.0
+
+A workflow that pushes a tag other workflows react to uses a token from `actions/create-github-app-token`, because tags
+pushed with `GITHUB_TOKEN` start no workflow.
+
+*Verified by:*
+
+- review: A tag push meant to trigger release or docs workflows uses a GitHub App token.
+
+*Explained in:* [standards/release.md](../standards/release.md)
+
+## KB-CI-010: Every example builds in CI, and a platform arrives with its job { #kb-ci-010 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. driver-template builds its ESP32 example through ru-build today; nothing maps
+    example folders to jobs.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+Each `examples/<platform>/` has a CI job that builds it (ru-build for ESP-IDF). A platform is added only in the pull
+request that adds that job.
+
+*Verified by:*
+
+- `examples-build` (planned): every examples/&lt;platform&gt;/ folder is built by a job of the repository's CI
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CI-011: kb-core CI builds every part for every MCU family and for no MCU { #kb-ci-011 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. The standard describes this matrix as enforced; ci-tools has none.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+kb-core CI builds each target with `KB_MCU=NONE`, `KB_MCU=HOST` and each family, STM32 with stub SDK headers, so every
+handler compiles everywhere. An all-options ESP32 example proves every toggle builds.
+
+*Verified by:*
+
+- `mcu-matrix` (planned): kb-core CI builds every target for each MCU family (STM32 with stub headers), KB\_MCU=HOST and
+  NONE
+
+*See also:* [ADR-0013](../adr/0013-kb-core-monorepo.md); [ADR-0014](../adr/0014-three-kinds-of-specific.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-CI-012: Tables generated from compat.yml are never stale { #kb-ci-012 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · library · since 1.0 · enforced from 2027-03-01
+
+The MCU gate table and every other table generated from `catalog/compat.yml` are regenerated in CI, and any difference
+fails.
+
+*Verified by:*
+
+- `compat-table` (planned): regenerating the tables derived from catalog/compat.yml leaves the tree unchanged
+
+*See also:* [ADR-0014](../adr/0014-three-kinds-of-specific.md)
+
+*Explained in:* [standards/library.md](../standards/library.md)
+
+## KB-CI-013: Every board HAL runs the kb-hal-common lints { #kb-ci-013 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. The lints live only in kb-hal-common; there is no reusable workflow for board
+    HALs yet.
+
+**MUST** · hal · since 1.0 · enforced from 2027-03-01
+
+Board HAL CI runs the boundary, driver-access, allocation and lock lints that kb-hal-common ships. An exception sits in
+the lint's allow-list with the issue that will remove it.
+
+*Verified by:*
+
+- `hal-lints` (planned): the kb-hal-common boundary, driver-access, allocation and lock lints pass in the board HAL
+
+*See also:* [ADR-0005](../adr/0005-kb-hal-common.md)
+
+*Explained in:* [standards/hal.md](../standards/hal.md)
+
+## KB-CI-014: version\_lock.txt matches the submodule pins { #kb-ci-014 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · hal, firmware · since 1.0 · enforced from 2027-03-01
+
+A board HAL or product lists each submodule in `version_lock.txt` as `REF_<repo>=vX.Y.Z@<sha>`, and CI fails when a line
+does not match the pinned commit and its tag.
+
+*Verified by:*
+
+- `version-lock` (planned): each version\_lock.txt line REF\_&lt;repo&gt;=vX.Y.Z@&lt;sha&gt; matches the submodule's
+  pinned commit and its tag
+
+*See also:* [ADR-0007](../adr/0007-submodule-pinning-and-tags.md); IEC 62304:2006+A1:2015 8.1 (identification of
+configuration items)
+
+*Explained in:* [standards/release.md](../standards/release.md)
+
+## KB-CI-015: ESP-IDF builds run the declared IDF matrix, validated first { #kb-ci-015 }
+
+**GUIDE** · driver, library, hal, firmware, template · since 1.0
+
+The ESP-IDF versions and targets come from the repository's matrix config, which `generate_matrix.py --validate` checks
+before any build. Toolchain and build caches are keyed per IDF version.
+
+*Verified by:*
+
+- review: A change to supported IDF versions changes the matrix config, and its validate job passed.
+
+*Explained in:* [standards/driver.md](../standards/driver.md)
+
+## KB-CI-016: CI keeps the test and coverage reports as artifacts { #kb-ci-016 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. Codecov is not on the actions allow-list, so reports stay as workflow artifacts.
+
+**SHOULD** · driver, library, hal, firmware (high level and above) · since 1.0 · enforced from 2027-03-01
+
+Host test jobs upload a JUnit test report and the line and branch coverage report, so a release's evidence and any trend
+can be built from them.
+
+*Verified by:*
+
+- `test-report` (planned): host test jobs upload a JUnit report and a line and branch coverage report as artifacts
+
+*Explained in:* [evidence.md](../evidence.md)

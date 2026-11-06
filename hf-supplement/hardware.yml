@@ -1,0 +1,63 @@
+---
+area: hardware
+prefix: HF-HW
+title: Hardware and porting (HardFOC supplement)
+intro: >-
+  HardFOC board facts that the Kokeb hardware rules leave to the board: the Flux and Vortex start orders, the
+  HardFOC pin-table conventions, the targets, and how a new engineer first builds a board. Every KB-HW rule still
+  applies.
+rules:
+  - id: HF-HW-001
+    title: Flux and Vortex start their managers in their documented order
+    statement: >-
+      Flux V1 starts NVS, comms, GPIO, valves, ADC, LED, temperature: NVS first so calibration can set bus rates.
+      Vortex V1 starts comms, GPIO, motor controller, ADC, IMU, encoder, LED, temperature: the motor controller
+      before ADC because the TMC9660 ADC channels are wrappers owned by its handler.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: The facade's start order matches this rule and the HAL's Architecture page.
+    refs: [{adr: 2}]
+    page: standards/hal.md#facade-and-start-up
+    origin: ["inventory: A-HAL-07 (hf:process/hal-pattern.md:131-170; hf:agents/hal-authoring.md:118-125)"]
+
+  - id: HF-HW-002
+    title: HardFOC pin names are short and avoid the reserved prefixes
+    statement: >-
+      Functional pin names in a HardFOC pin table are at most 32 characters and do not start with `CORE_`, `COMM_`,
+      `SYS_` or `INTERNAL_`, which the stack reserves. The table is written with `pincfg` X-macro rows.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [hal]}
+    verify: [{check: pin-table-lint}]
+    page: standards/hal.md#board-config
+    notes: Warns until 2027-03-01, then fails CI.
+    origin:
+      - "inventory: A-ARC-29 (hf:process/architecture.md:429-445), A-ARC-04 (hf:process/architecture.md:96-119)"
+
+  - id: HF-HW-003
+    title: Vortex V1 targets the ESP32-C6
+    statement: >-
+      The Vortex V1 board HAL's primary target is the ESP32-C6 (`bsp_bind/esp32c6/`), with ESP32-S3 boards on the
+      bench; another variant gets its own bind.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    page: standards/hal.md#the-platform-bind
+    origin: ["inventory: A-MAN-03 (hf:process/component-manifest.md:45-49,199-200)"]
+
+  - id: HF-HW-004
+    title: New engineers build on the host first, then a HardFOC board
+    statement: >-
+      Onboarding starts with the host build and tests. The first hardware build clones a HardFOC board HAL with
+      `--recursive` and builds it with ESP-IDF 5.3 or later for the board's ESP32 target.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    origin: ["inventory: A-AG2-67 (hf:agents/onboarding.md:27-40; host first per the Kokeb standard)"]

@@ -7,6 +7,32 @@ How coding agents work in Kokeb Labs repositories, held to the same rules as peo
 | --- | --- | --- | --- |
 | [KB-AGT-001](#kb-agt-001) Every repository tells agents its rules | must | all | planned |
 | [KB-AGT-002](#kb-agt-002) An agent never merges, releases or changes settings without the maintainer's go-ahead | must | all | checked |
+| [KB-AGT-003](#kb-agt-003) An agent follows the whole standard, and the person who asked owns the change | must | all | review |
+| [KB-AGT-004](#kb-agt-004) CLAUDE.md only points to AGENTS.md | must | all | planned |
+| [KB-AGT-005](#kb-agt-005) AGENTS.md is short, specific to the repository, and links rules instead of restating them | should | all | planned |
+| [KB-AGT-006](#kb-agt-006) The organisation's AGENTS.md points to the agents standard | must | docs | planned |
+| [KB-AGT-007](#kb-agt-007) Every repository carries the skills its kind needs | must | driver, library, hal, firmware, tooling, template | planned |
+| [KB-AGT-008](#kb-agt-008) A skill is one task in `.claude/skills/<name>/SKILL.md`, with when to use it | must | all | planned |
+| [KB-AGT-009](#kb-agt-009) A skill holds no secrets and never tells an agent to bypass a check or merge | must | all | planned |
+| [KB-AGT-010](#kb-agt-010) A change is done only when the definition of done holds | must | all | checked |
+| [KB-AGT-011](#kb-agt-011) The agent runs every CI check locally before it pushes | should | driver, library, hal, firmware, tooling, template | review |
+| [KB-AGT-012](#kb-agt-012) Anything that needs hardware is marked not verified on hardware, with bench steps | must | driver, library, hal, firmware, template | planned |
+| [KB-AGT-013](#kb-agt-013) Changes that can move or energise hardware get the safety label and a human review | must | driver, library, hal, firmware, template | planned |
+| [KB-AGT-014](#kb-agt-014) An agent signs off only as the person who owns the task, and only when asked | must | all | checked |
+| [KB-AGT-015](#kb-agt-015) An agent adds no attribution or AI-disclosure line | must | all | planned |
+| [KB-AGT-016](#kb-agt-016) An agent works on a branch and opens a pull request, never on main | must | all | checked |
+| [KB-AGT-017](#kb-agt-017) An agent never force-pushes a shared branch or turns on auto-merge by itself | must | all | checked |
+| [KB-AGT-018](#kb-agt-018) The diff stays on the task | should | all | review |
+| [KB-AGT-019](#kb-agt-019) The pull request description is plain and follows the template | should | all | review |
+| [KB-AGT-020](#kb-agt-020) A failing check is fixed, never weakened | must | all | planned |
+| [KB-AGT-021](#kb-agt-021) The author reads their own diff before asking for review | should | all | review |
+| [KB-AGT-022](#kb-agt-022) Before changing a public API, find and list its callers | should | driver, library, hal | review |
+| [KB-AGT-023](#kb-agt-023) Use the repository's skill when one covers the task | should | all | review |
+| [KB-AGT-024](#kb-agt-024) Read AGENTS.md, the layer contract and the checklist before starting | guide | all | none |
+| [KB-AGT-025](#kb-agt-025) An agent reviewer triages first, then reviews architecture, then details | guide | all | none |
+| [KB-AGT-026](#kb-agt-026) Review objections cite the rule ID they rest on | should | all | review |
+| [KB-AGT-027](#kb-agt-027) Review comments are tagged by severity, specific and few | guide | all | none |
+| [KB-AGT-028](#kb-agt-028) An agent never approves a diff it has not read, nor a safety change in a person's place | must | all | review |
 
 ## KB-AGT-001: Every repository tells agents its rules { #kb-agt-001 }
 
@@ -39,3 +65,395 @@ settings need the maintainer's explicit approval in the session.
 - review: The pull request was opened by an agent and merged by the maintainer, or with their recorded approval.
 
 *Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-003: An agent follows the whole standard, and the person who asked owns the change { #kb-agt-003 }
+
+**MUST** · all · since 1.0
+
+A coding agent is held to every rule in this handbook, like any contributor. The person who asked for the change is
+responsible for it as if they had written it, and their name is on the pull request.
+
+*Verified by:*
+
+- review: The pull request names the person who asked for the change, and it meets the same rules as theirs.
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-004: CLAUDE.md only points to AGENTS.md { #kb-agt-004 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+AGENTS.md is the single file agents read for a repository. CLAUDE.md contains the one line `@AGENTS.md` and nothing
+else; any other tool that wants its own file name gets the same pointer.
+
+*Verified by:*
+
+- `claude-md-pointer` (planned): CLAUDE.md contains exactly the line `@AGENTS.md` and nothing else
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-005: AGENTS.md is short, specific to the repository, and links rules instead of restating them { #kb-agt-005 }
+
+**SHOULD** · all · since 1.0
+
+AGENTS.md opens with one sentence on what the repository is and a link to the standard, then has the sections Layout,
+Build and check, and Rules specific to this repo. It links handbook rules rather than copying them, so it cannot drift
+from them.
+
+*Verified by:*
+
+- `agents-files` (planned): AGENTS.md and CLAUDE.md exist and the handbook sections generated into them are current
+- review: AGENTS.md has the standard sections and adds only what is specific to this repository.
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-006: The organisation's AGENTS.md points to the agents standard { #kb-agt-006 }
+
+**MUST** · docs · since 1.0
+
+The root of `kokeb-labs/.github` has an AGENTS.md that links `standards/agents.md`, so an agent working on organisation
+files finds the same rules as one working in a repository.
+
+*Verified by:*
+
+- `agents-files` (planned): AGENTS.md and CLAUDE.md exist and the handbook sections generated into them are current
+- review: kokeb-labs/.github AGENTS.md links standards/agents.md.
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-007: Every repository carries the skills its kind needs { #kb-agt-007 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, tooling, template · since 1.0 · enforced from 2027-03-01
+
+Every code repository has `.claude/skills/verify`; a repository with submodules also has `bump-pin`, a released
+repository `release`, and a driver `add-driver-feature`. Repositories add skills for their own recurring tasks.
+
+*Verified by:*
+
+- `skills-present` (planned): .claude/skills has the skills the repository's kind requires: verify in code repositories,
+  bump-pin when .gitmodules is not empty, release when released, add-driver-feature in drivers
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-008: A skill is one task in `.claude/skills/<name>/SKILL.md`, with when to use it { #kb-agt-008 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+Each skill is a folder named in kebab case for its task, holding SKILL.md with YAML front matter (`name` equal to the
+folder, a one-line `description` that says when to use it) followed by the steps.
+
+*Verified by:*
+
+- `skill-format` (planned): every .claude/skills/&lt;name&gt;/SKILL.md has YAML front matter with `name` equal to the
+  kebab-case folder and a one-line `description`, followed by steps
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-009: A skill holds no secrets and never tells an agent to bypass a check or merge { #kb-agt-009 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+A skill contains no credentials, tokens or private URLs. It never tells an agent to skip a check, bypass a ruleset, use
+an admin override or merge a pull request.
+
+*Verified by:*
+
+- `skill-content-scan` (planned): gitleaks finds no secret under .claude/, and no SKILL.md tells an agent to merge, use
+  an admin bypass, --no-verify, a bare NOLINT or skip a check
+- review: A changed SKILL.md asks for no merge, bypass, skipped check or secret.
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-010: A change is done only when the definition of done holds { #kb-agt-010 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+An agent reports a change as done only when every item of the definition of done in the agents standard holds, and the
+pull request carries that checklist with each item ticked or marked not applicable with a reason.
+
+*Verified by:*
+
+- `pr-body-dod` (planned): the pull-request body has the definition-of-done checklist with every item ticked or marked
+  not applicable with a reason, and the hardware line filled (verified, or not verified on hardware with bench steps)
+- `ci-gate` (implemented): one required check that passes only when every job of the workflow passed
+- review: Every definition-of-done item is ticked or justified as not applicable.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#definition-of-done)
+
+## KB-AGT-011: The agent runs every CI check locally before it pushes { #kb-agt-011 }
+
+**SHOULD** · driver, library, hal, firmware, tooling, template · since 1.0
+
+Before each push the agent runs the `verify` skill, which runs locally what CI runs, and fixes what it finds. The pull
+request says which checks ran locally and which only CI can run.
+
+*Verified by:*
+
+- review: The pull request says the verify skill ran, and lists checks that only CI can run.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#definition-of-done)
+
+## KB-AGT-012: Anything that needs hardware is marked not verified on hardware, with bench steps { #kb-agt-012 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+An agent cannot run a board. A pull request whose behaviour depends on hardware says \*\*not verified on hardware\*\*
+and gives the bench steps a person should run before release.
+
+*Verified by:*
+
+- `pr-body-dod` (planned): the pull-request body has the definition-of-done checklist with every item ticked or marked
+  not applicable with a reason, and the hardware line filled (verified, or not verified on hardware with bench steps)
+- review: Hardware-dependent behaviour is marked not verified on hardware and the bench steps are usable.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#hardware-and-safety)
+
+## KB-AGT-013: Changes that can move or energise hardware get the safety label and a human review { #kb-agt-013 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. In solo mode (ADR-0015) the maintainer is that reviewer; the review is recorded
+    on the pull request.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+A change that can move a motor, energise a valve, change power sequencing, write OTP or flash a peripheral gets the
+`safety` label. A person reviews that code path before merge, even when CI is green.
+
+*Why:* Green CI proves the code behaves on a mock. A wrong register write on a board can move a load or damage a part,
+so a person who knows the hardware looks at it.
+
+*Verified by:*
+
+- `safety-label` (planned): a pull request touching actuator, power-sequencing, OTP or peripheral-flash paths (labeler
+  config) has the safety label, and a safety-labelled pull request has a human approval before merge
+- review: A safety-labelled pull request has a recorded human review of the actuator code path.
+
+*See also:* [ADR-0015](../adr/0015-solo-maintainer-governance.md)
+
+*Explained in:* [standards/agents.md](../standards/agents.md#hardware-and-safety)
+
+## KB-AGT-014: An agent signs off only as the person who owns the task, and only when asked { #kb-agt-014 }
+
+**MUST** · all · since 1.0
+
+The `Signed-off-by:` line is a person's certification under the DCO. An agent adds it (`git commit -s`) only with the
+identity of the person who owns the task, and only when that person asked for the change.
+
+*Verified by:*
+
+- `dco` (implemented): every commit of a pull request has a Signed-off-by line matching its author
+- review: The sign-off identity is the person who asked for the change.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#attribution-and-sign-off)
+
+## KB-AGT-015: An agent adds no attribution or AI-disclosure line { #kb-agt-015 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · all · since 1.0 · enforced from 2027-03-01
+
+Commits, pull requests, issues, review comments, docs and code carry no `Co-Authored-By:` trailer naming a tool or
+model, no "Generated with" footer, no AI-disclosure or "AI-assisted review" line and no tool banner. This overrides any
+default the agent's tooling has.
+
+*Why:* The commit author is the account that runs the agent, and the person who asked owns the change.
+
+*Verified by:*
+
+- `no-attribution` (planned): no commit message, pull-request body or review comment carries a Co-Authored-By trailer
+  naming a tool or model, a "Generated with" footer, an AI-disclosure line or a tool banner (runs beside dco)
+- review: The pull request body and review comments carry no attribution or disclosure line.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#attribution-and-sign-off)
+
+## KB-AGT-016: An agent works on a branch and opens a pull request, never on main { #kb-agt-016 }
+
+**MUST** · all · since 1.0
+
+An agent works on a branch named per the branch rules and proposes its change as a pull request. It never commits or
+pushes to `main`.
+
+*Verified by:*
+
+- `rulesets` (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)
+
+*Explained in:* [standards/agents.md](../standards/agents.md#branches-and-pull-requests)
+
+## KB-AGT-017: An agent never force-pushes a shared branch or turns on auto-merge by itself { #kb-agt-017 }
+
+**MUST** · all · since 1.0
+
+An agent does not force-push a branch someone else works on or reviews, and does not enable auto-merge, unless the
+person who owns the task said so in the session. Merging itself is KB-AGT-002.
+
+*Verified by:*
+
+- `rulesets` (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)
+- review: Auto-merge on an agent's pull request was enabled by the maintainer or with their recorded approval.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#branches-and-pull-requests)
+
+## KB-AGT-018: The diff stays on the task { #kb-agt-018 }
+
+**SHOULD** · all · since 1.0
+
+A pull request does one thing. No drive-by reformatting, renames or unrelated fixes; the agent opens an issue or a
+separate pull request for those.
+
+*Verified by:*
+
+- review: Every hunk of the diff serves the change the title names.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#branches-and-pull-requests)
+
+## KB-AGT-019: The pull request description is plain and follows the template { #kb-agt-019 }
+
+**SHOULD** · all · since 1.0
+
+The description follows the pull-request template in plain words: what, why and how it was verified. No marketing
+language and no list of every file touched.
+
+*Verified by:*
+
+- review: The description fills the template plainly, with no per-file summary.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#branches-and-pull-requests)
+
+## KB-AGT-020: A failing check is fixed, never weakened { #kb-agt-020 }
+
+**MUST** · all · since 1.0
+
+When CI fails the agent reads the log and fixes the cause. It never disables, skips or weakens a check, adds a bare
+`NOLINT`, or marks a test as expected to fail to get a green run.
+
+*Verified by:*
+
+- `forbidden-patterns/bare-nolint` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
+- `forbidden-patterns/expected-failure` (planned): a source scan for a construct the handbook bans; the parameter names
+  the pattern set
+- review: The diff removes or relaxes no check, workflow step, lint rule or test.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#branches-and-pull-requests)
+
+## KB-AGT-021: The author reads their own diff before asking for review { #kb-agt-021 }
+
+**SHOULD** · all · since 1.0
+
+Before requesting review the agent reads the whole diff as the reviewer will see it and explains any line that is not
+obvious, in a comment or the description.
+
+*Verified by:*
+
+- review: Non-obvious lines are explained, and the diff has no leftover debug code or unrelated hunks.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#branches-and-pull-requests)
+
+## KB-AGT-022: Before changing a public API, find and list its callers { #kb-agt-022 }
+
+**SHOULD** · driver, library, hal · since 1.0
+
+Before changing a public API the agent searches kb-core, `kb-hal-common` and the board HALs it can see for callers, and
+lists them in the pull request with what each must change.
+
+*Verified by:*
+
+- review: A public API change lists its known callers, or says none were found and where it looked.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#working-across-repositories)
+
+## KB-AGT-023: Use the repository's skill when one covers the task { #kb-agt-023 }
+
+**SHOULD** · all · since 1.0
+
+When a skill in `.claude/skills` covers the task, the agent follows it rather than improvising the steps. A skill that
+is wrong is fixed in the same or a separate pull request.
+
+*Verified by:*
+
+- review: A task a skill covers was done by its steps, or the pull request says why not.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#skills)
+
+## KB-AGT-024: Read AGENTS.md, the layer contract and the checklist before starting { #kb-agt-024 }
+
+**GUIDE** · all · since 1.0
+
+An agent reads, in order, the repository's AGENTS.md, layers.md and the contract page for the layer it changes, the
+repository's `docs/contract.md` if it has one, and the checklist for anything new.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#what-to-read-first)
+
+## KB-AGT-025: An agent reviewer triages first, then reviews architecture, then details { #kb-agt-025 }
+
+**GUIDE** · all · since 1.0
+
+An agent reviewing a pull request first checks the title, description, CI status, size and the layers touched, and stops
+with one comment if any fails. It then checks layer boundaries and contracts before style or line comments.
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-026: Review objections cite the rule ID they rest on { #kb-agt-026 }
+
+**SHOULD** · all · since 1.0
+
+An agent's review objection names the handbook rule ID or standard page it rests on, so the author can check it and the
+reviewer cannot invent rules.
+
+*Verified by:*
+
+- review: Each blocking comment from an agent reviewer cites a rule ID or handbook page.
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-027: Review comments are tagged by severity, specific and few { #kb-agt-027 }
+
+**GUIDE** · all · since 1.0
+
+Each comment starts with `nit:`, `consider:`, `question:`, `issue:` or `blocker:`, says what to change, and uses a
+suggestion block for a fix of a few lines. A review keeps to about ten actionable comments and asks for changes only for
+blockers.
+
+*Explained in:* [standards/agents.md](../standards/agents.md)
+
+## KB-AGT-028: An agent never approves a diff it has not read, nor a safety change in a person's place { #kb-agt-028 }
+
+**MUST** · all · since 1.0
+
+An agent reviewer reads the whole diff before approving, or does not review. It does not approve a safety-labelled pull
+request; it comments, and a person approves.
+
+*Verified by:*
+
+- review: No approval on a safety-labelled pull request comes from an agent account.
+
+*Explained in:* [standards/agents.md](../standards/agents.md#hardware-and-safety)

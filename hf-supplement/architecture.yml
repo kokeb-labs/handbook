@@ -1,0 +1,73 @@
+---
+area: architecture
+prefix: HF-ARCH
+title: Architecture (HardFOC supplement)
+intro: >-
+  What the HardFOC board HALs (Flux, Vortex) add to the Kokeb architecture rules: how the HardFOC repositories and
+  entry point map onto the Kokeb stack, the HardFOC manager set and the Vortex access-cost rules. Every KB-ARCH
+  rule still applies; where HardFOC's own handbook differs, the KB rule wins.
+rules:
+  - id: HF-ARCH-001
+    title: HardFOC repositories map onto the Kokeb stack
+    statement: >-
+      `hf-<chip>-driver` repositories are Kokeb drivers, `hf-core` with `hf-internal-interface-wrap` and
+      `hf-core-utils` corresponds to kb-core's handlers, interfaces, rtos and utils, `hf-pincfg` is the `pincfg`
+      framework, and each `hf-hal-<board>` is a board HAL on kb-hal-common. New HardFOC work follows the Kokeb
+      layering for that layer, whatever the repository is called.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    page: standards/layers.md
+    origin:
+      - "inventory: HardFOC-specific material (repo graph and build symbols)"
+      - "hf:process/layered-architecture.md (separate repos and API layer; superseded by ADR-0013)"
+
+  - id: HF-ARCH-002
+    title: The HardFOC entry point wraps the board facade and holds nothing else
+    statement: >-
+      `GetHardFOC()` and `HARDFOC_API` return the board's `FacadeBase`-derived facade held in static storage. The
+      entry point owns no memory beyond diagnostics, contains no application logic, and never includes a manager's
+      `.cpp` file.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    verify:
+      - review: GetHardFOC() returns the static facade; the HAL header has no application logic or `.cpp` include.
+    page: standards/hal.md#facade-and-start-up
+    origin:
+      - "inventory: A-REV-66 (hf:standards/review-checklist.md:210), A-GHW-09 (hf:process/github-workflows.md:112)"
+      - "inventory: A-HAL-15 (hf:process/hal-pattern.md:294)"
+      - "hf:process/architecture.md:71,128-140 (per-manager GetInstance singletons; superseded)"
+
+  - id: HF-ARCH-003
+    title: HardFOC boards start from the HardFOC manager set
+    statement: >-
+      A HardFOC board HAL uses kb-hal-common's comms and GPIO managers on every board and its ADC manager on almost
+      every board; NVS, LED and temperature as the board needs. Valve, MotorController, Encoder and Imu are
+      board-specific managers numbered from `ManagerId::Board`; CAN folds into comms.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal]}
+    page: standards/hal.md#managers
+    origin: ["inventory: A-AG1-125 (hf:agents/hal-authoring.md:76-89)"]
+
+  - id: HF-ARCH-004
+    title: Fast Vortex loops use cached handles, not name lookups
+    statement: >-
+      The Vortex functional-name API (`gpio.SetPin("NAME")`) is for configuration, start-up, UI, diagnostics, error
+      reporting and work below 100 Hz. Code above 1 kHz always uses a handle resolved once at start-up (and between
+      100 Hz and 1 kHz should), and runs from a `PeriodicTimer` or interrupt, since a 1 kHz tick cannot schedule it.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify:
+      - review: No functional-name lookup inside a loop running above 1 kHz.
+    refs: [{adr: 6}]
+    page: standards/threading-and-timing.md#tasks
+    origin:
+      - "inventory: A-PRF-01 (hf:process/performance.md:61-64,464-470,716), A-PRF-02 (performance.md:51-54)"
+      - "hf:process/performance.md (2-10 kHz task loops on pdMS_TO_TICKS; superseded by the 1 kHz tick)"

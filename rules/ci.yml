@@ -27,3 +27,238 @@ rules:
     applies: {profiles: [all]}
     verify: [{check: workflow-permissions}, {check: actionlint}]
     notes: Enforced in ci-tools' own workflows today; the reusable check is planned.
+
+  - id: KB-CI-003
+    title: Workflows call the shared ci-tools workflows at @v1
+    statement: >-
+      Lint, analysis, build, docs and release jobs call `kokeb-labs/ci-tools/.github/workflows/<name>.yml@v1`, never
+      `@main` or a copy. ci-tools stays at 1.x and moves `v1` only to its highest 1.x release.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify:
+      - check: shared-workflows
+      - review: A job that does not use a ci-tools workflow says why in a comment beside it.
+    page: standards/repo-governance.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. driver-template's host tests still use their own workflow rather than
+      ru-host-ci. The v1 side is enforced today by ci-tools' release.yml and the major-tags ruleset.
+    origin:
+      - "inv:B-DRV-68, B-GOV-37, B-NAM-25, B-REL-04, A-GHW-14, A-PRT-38, A-AG1-114"
+      - "hf:process/github-workflows.md:129-140 (IWYU lint, Jekyll docs; superseded by ci-tools)"
+
+  - id: KB-CI-004
+    title: The CI gate needs every other job, including DCO
+    statement: >-
+      The workflow's last job comes from ru-ci-gate, runs with `if: always()` and lists every other job in
+      `needs`, so a skipped or failed job, an unsigned commit or a `[skip ci]` run cannot merge.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: ci-gate}, {check: dco}]
+    refs: [{std: IEC-62304, id: "8.2", note: "a change is verified before it is accepted"}]
+    page: standards/repo-governance.md
+    notes: >-
+      A new repository's gate becomes the required check only once the repository has produced it, so first pull
+      requests are not blocked.
+    origin:
+      - "inv:B-GOV-19, B-GOV-29, B-GOV-30, B-GOV-31, B-AGT-15, B-CHK-11, A-GHW-16, A-GHW-37, A-TST-22, A-AG2-76"
+      - "hf:standards/review-checklist.md:45 (merge with a credible reason for failure; superseded)"
+
+  - id: KB-CI-005
+    title: Code from a fork never runs with secrets
+    statement: >-
+      Workflows triggered by a fork's pull request get no secrets and a read-only token; `pull_request_target` and
+      `workflow_run` never check out or run the pull request's code. Fork runs wait for a maintainer's approval.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: actionlint
+      - review: No workflow triggered by pull_request_target or workflow_run checks out the pull request head.
+    page: standards/repo-governance.md
+    notes: Fork-run approval and the read-only default token are organisation settings from .github org/policy.json.
+    origin:
+      - "inv:B-GOV-34"
+      - "hf:process/github-workflows.md:362-371 (pull_request_target with secrets; superseded)"
+
+  - id: KB-CI-006
+    title: Dependabot keeps the actions current
+    statement: >-
+      Every repository with workflows has `.github/dependabot.yml` updating `github-actions` weekly with the
+      `dependencies` label and the `ci` prefix, plus `pip` where it has Python tooling. It never manages submodules.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [all]}
+    verify: [{check: dependabot-config}]
+    page: standards/repo-governance.md
+    notes: Warns until 2027-03-01, then fails CI. driver-template has the file; org-standard-check does not ask for it.
+    origin: ["inv:B-GOV-35, B-GOV-36"]
+
+  - id: KB-CI-007
+    title: Public repositories run GitHub's security features
+    statement: >-
+      Secret scanning with push protection, Dependabot alerts and security updates, private vulnerability
+      reporting and CodeQL default setup are on for every public repository.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: org-settings-drift
+      - review: "`kokeb_org.py --check --section security` reports no drift for the repository."
+    page: standards/repo-governance.md
+    notes: >-
+      kokeb_org.py applies these today. Private repositories are skipped, because GitHub needs Advanced Security
+      there.
+    origin: ["inv:B-GOV-32"]
+
+  - id: KB-CI-008
+    title: No credentials, private datasheets or personal data are committed
+    statement: >-
+      Tokens, keys, passwords, private datasheet material and personal data never enter a commit, a log or an
+      artifact. A secret that reached a commit is revoked, not just removed.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: secret-scan
+      - review: Nothing in the diff, the logs or the artifacts is a credential or confidential material.
+    page: standards/agents.md
+    notes: Push protection blocks known secret formats on public repositories today; a gitleaks job is planned.
+    origin: ["inv:B-AGT-25, A-REV-51"]
+
+  - id: KB-CI-009
+    title: Tags that start workflows are pushed with a GitHub App token
+    statement: >-
+      A workflow that pushes a tag other workflows react to uses a token from `actions/create-github-app-token`,
+      because tags pushed with `GITHUB_TOKEN` start no workflow.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - review: A tag push meant to trigger release or docs workflows uses a GitHub App token.
+    page: standards/release.md
+    origin: ["inv:B-REL-26"]
+
+  - id: KB-CI-010
+    title: Every example builds in CI, and a platform arrives with its job
+    statement: >-
+      Each `examples/<platform>/` has a CI job that builds it (ru-build for ESP-IDF). A platform is added only in
+      the pull request that adds that job.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify: [{check: examples-build}]
+    page: standards/driver.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. driver-template builds its ESP32 example through ru-build today;
+      nothing maps example folders to jobs.
+    origin: ["inv:B-DRV-14, B-DRV-79, B-HAL-27, A-REV-44, A-GHW-36, A-PRT-04, A-PRT-31, A-AG1-141"]
+
+  - id: KB-CI-011
+    title: kb-core CI builds every part for every MCU family and for no MCU
+    statement: >-
+      kb-core CI builds each target with `KB_MCU=NONE`, `KB_MCU=HOST` and each family, STM32 with stub SDK
+      headers, so every handler compiles everywhere. An all-options ESP32 example proves every toggle builds.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library]}
+    verify: [{check: mcu-matrix}]
+    refs: [{adr: 13}, {adr: 14}]
+    page: standards/library.md
+    notes: Warns until 2027-03-01, then fails CI. The standard describes this matrix as enforced; ci-tools has none.
+    origin: ["inv:B-LAY-22, B-LIB-22, B-HDL-22, A-BLD-21, A-MCU-12, A-AG2-27, A-AG2-58"]
+
+  - id: KB-CI-012
+    title: Tables generated from compat.yml are never stale
+    statement: >-
+      The MCU gate table and every other table generated from `catalog/compat.yml` are regenerated in CI, and any
+      difference fails.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library]}
+    verify: [{check: compat-table}]
+    refs: [{adr: 14}]
+    page: standards/library.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inv:B-LIB-29, B-REL-32"]
+
+  - id: KB-CI-013
+    title: Every board HAL runs the kb-hal-common lints
+    statement: >-
+      Board HAL CI runs the boundary, driver-access, allocation and lock lints that kb-hal-common ships. An
+      exception sits in the lint's allow-list with the issue that will remove it.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [hal]}
+    verify: [{check: hal-lints}]
+    refs: [{adr: 5}]
+    page: standards/hal.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. The lints live only in kb-hal-common; there is no reusable workflow
+      for board HALs yet.
+    origin: ["inv:B-HAL-25, B-CHK-46"]
+
+  - id: KB-CI-014
+    title: version_lock.txt matches the submodule pins
+    statement: >-
+      A board HAL or product lists each submodule in `version_lock.txt` as `REF_<repo>=vX.Y.Z@<sha>`, and CI fails
+      when a line does not match the pinned commit and its tag.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [hal, firmware]}
+    verify: [{check: version-lock}]
+    refs: [{adr: 7}, {std: IEC-62304, id: "8.1", note: "identification of configuration items"}]
+    page: standards/release.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["inv:B-PRD-16, B-REL-29"]
+
+  - id: KB-CI-015
+    title: ESP-IDF builds run the declared IDF matrix, validated first
+    statement: >-
+      The ESP-IDF versions and targets come from the repository's matrix config, which `generate_matrix.py
+      --validate` checks before any build. Toolchain and build caches are keyed per IDF version.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - review: A change to supported IDF versions changes the matrix config, and its validate job passed.
+    page: standards/driver.md
+    origin: ["inv:A-MAN-08, A-GHW-15, A-GHW-17"]
+
+  - id: KB-CI-016
+    title: CI keeps the test and coverage reports as artifacts
+    statement: >-
+      Host test jobs upload a JUnit test report and the line and branch coverage report, so a release's evidence
+      and any trend can be built from them.
+    level: should
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware], from_level: high}
+    verify: [{check: test-report}]
+    page: evidence.md
+    notes: >-
+      Warns until 2027-03-01, then fails CI. Codecov is not on the actions allow-list, so reports stay as workflow
+      artifacts.
+    origin: ["inv:A-TST-14, A-TST-21"]
