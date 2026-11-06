@@ -1,0 +1,22 @@
+nav:
+  - Home: index.md
+  - How rules work: how-rules-work.md
+  - Assurance levels: assurance-levels.md
+  - Rules:
+      - C++ code: rules/cpp.md
+      - Build and CMake: rules/build.md
+      - Testing: rules/testing.md
+      - Documentation: rules/docs.md
+      - Repository: rules/repo.md
+      - Git, review and release: rules/git.md
+      - CI and supply chain: rules/ci.md
+      - Coding agents: rules/agents.md
+      - Coverage: rules/coverage.md
+  - Deviations and waivers: deviations.md
+  - Coding standards: coding-standards.md
+  - Regulated products:
+      - Evidence: evidence.md
+      - IEC 62304: iec-62304.md
+  - Standards: standards
+  - Decision records: adr
+  - Checklists: checklists

@@ -1,0 +1,32 @@
+area: agents
+prefix: KB-AGT
+title: Coding agents
+intro: How coding agents work in Kokeb Labs repositories, held to the same rules as people.
+rules:
+  - id: KB-AGT-001
+    title: Every repository tells agents its rules
+    statement: >-
+      AGENTS.md (with CLAUDE.md pointing to it) states the repository's build and test commands and carries the
+      handbook sections generated for its kind and level.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [all]}
+    verify: [{check: agents-files}]
+    page: standards/agents.md
+    notes: Warns until 2027-01-15, then fails CI.
+
+  - id: KB-AGT-002
+    title: An agent never merges, releases or changes settings without the maintainer's go-ahead
+    statement: >-
+      A coding agent proposes changes as pull requests. Merging, releasing, deleting, and changing repository or
+      organisation settings need the maintainer's explicit approval in the session.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify:
+      - check: rulesets
+      - review: The pull request was opened by an agent and merged by the maintainer, or with their recorded approval.
+    page: standards/agents.md

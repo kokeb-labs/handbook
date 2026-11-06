@@ -1,0 +1,85 @@
+# The handbook's CI: the rules hold together and their pages are current (checks/handbook.py), the site builds
+# strictly, Markdown and YAML pass lint, every commit is signed off, and the organisation-standard files exist.
+# The single required check is "CI gate / gate".
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  rules:
+    name: Rules are valid and their pages current
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
+        with:
+          python-version: "3.12"
+      - name: Install PyYAML
+        run: python -m pip install --disable-pip-version-check "pyyaml==6.0.2"
+      - name: Validate rules and check generated pages
+        run: python checks/handbook.py check
+      - name: Coverage summary
+        run: tail -n +3 docs/rules/coverage.md >> "$GITHUB_STEP_SUMMARY"
+
+  docs:
+    uses: kokeb-labs/ci-tools/.github/workflows/ru-mkdocs-publish.yml@v1
+    permissions:
+      contents: write  # the publish job pushes gh-pages; it is off until the repository is public
+    with:
+      versioning: false
+      deploy: false
+
+  markdown:
+    uses: kokeb-labs/ci-tools/.github/workflows/ru-markdown-lint.yml@v1
+    permissions:
+      contents: read
+
+  yamllint:
+    uses: kokeb-labs/ci-tools/.github/workflows/ru-yaml-lint.yml@v1
+    permissions:
+      contents: read
+    with:
+      paths: '.github/workflows/*.yml,**/*.yml,**/*.yaml'
+      config_file: '.yamllint'
+      strict_mode: true
+      exclude_patterns: '.git/**,site/**'
+
+  dco:
+    if: github.event_name == 'pull_request'
+    uses: kokeb-labs/ci-tools/.github/workflows/dco.yml@v1
+    permissions:
+      contents: read
+      pull-requests: read
+
+  org-standard:
+    uses: kokeb-labs/ci-tools/.github/workflows/org-standard-check.yml@v1
+    permissions:
+      contents: read
+
+  ci-gate:
+    name: CI gate
+    needs: [rules, docs, markdown, yamllint, dco, org-standard]
+    if: always()
+    uses: kokeb-labs/ci-tools/.github/workflows/ru-ci-gate.yml@v1
+    permissions:
+      contents: read
+    with:
+      needs_json: ${{ toJSON(needs) }}
+      allow_skipped: dco  # pull requests only

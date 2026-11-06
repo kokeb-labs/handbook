@@ -1,0 +1,50 @@
+area: git
+prefix: KB-GIT
+title: Git, review and release
+intro: How changes reach main and how releases are cut.
+rules:
+  - id: KB-GIT-001
+    title: Every commit is signed off (DCO)
+    statement: Every commit in a pull request carries a `Signed-off-by:` line that matches its author.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: dco}]
+    page: standards/repo-governance.md
+
+  - id: KB-GIT-002
+    title: Changes reach main only through a pull request that passes the CI gate
+    statement: >-
+      main accepts squash merges of pull requests whose single required check, `CI gate / gate`, passed; no direct
+      pushes, no force-pushes, linear history.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: ci-gate}, {check: rulesets}]
+    refs: [{adr: 15}, {std: IEC-62304, id: "8.2", note: "change control"}]
+
+  - id: KB-GIT-003
+    title: Release tags are immutable
+    statement: A `vX.Y.Z` tag is never moved or deleted; a mistake gets a new version.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: rulesets}]
+    refs: [{std: IEC-62304, id: "8.1.1", note: "identification of configuration items"}]
+
+  - id: KB-GIT-004
+    title: The changelog names every release
+    statement: >-
+      CHANGELOG.md follows Keep a Changelog; a release is cut by adding its dated `[X.Y.Z]` section, the next SemVer
+      step, in the pull request that releases it.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [all]}
+    verify: [{check: changelog}]
+    page: standards/release.md
+    notes: Enforced in ci-tools today; the reusable check for every repository is planned.

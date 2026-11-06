@@ -1,0 +1,70 @@
+area: testing
+prefix: KB-TST
+title: Testing
+intro: >-
+  What every change proves before it merges. Host tests run on every pull request; the high and safety levels add
+  sanitizers, coverage and cross-compilation.
+rules:
+  - id: KB-TST-001
+    title: Host tests build and pass with gcc and clang
+    statement: >-
+      Every driver and library has unit tests that run on the host without hardware, against a mock port, and pass
+      with both gcc and clang on every pull request.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, template]}
+    verify: [{check: host-tests}]
+    refs: [{std: IEC-62304, id: "5.5.5", note: "software unit verification"}]
+
+  - id: KB-TST-002
+    title: API misuse is proved to be a compile error
+    statement: >-
+      Each constraint the public API enforces at compile time (a port missing a hook, a wrong hook signature) has a
+      test that must fail to compile, and CI checks that it does.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, template]}
+    verify: [{check: compile-fail-tests}]
+
+  - id: KB-TST-003
+    title: Tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
+    statement: The host tests also run in a build with `-fsanitize=address,undefined` and pass with no report.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [driver, library, hal, template], from_level: high}
+    verify: [{check: sanitizers}]
+    refs: [{std: CERT-CPP, id: "EXP53-CPP"}, {std: CERT-C, id: "INT32-C"}]
+    notes: Warns until 2027-01-15, then fails CI.
+    origin: ["gap: neither source stated it"]
+
+  - id: KB-TST-004
+    title: Coverage floor per assurance level
+    statement: >-
+      Host-test coverage stays at or above the floor of the repository's level: high, 85% of lines and 75% of
+      branches; safety, every reachable branch, with each unreached one justified in the evidence package.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal], from_level: high}
+    verify: [{check: coverage-floor/level}]
+    refs: [{std: IEC-62304, id: "5.5.5"}, {std: IEC-61508-3, id: "Table B.2"}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["gap: neither source stated it"]
+
+  - id: KB-TST-005
+    title: Compiles for every supported target
+    statement: >-
+      Drivers and libraries compile warning-free with arm-none-eabi-gcc (Cortex-M) and for ESP-IDF in CI, not only
+      on the host.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [driver, library], from_level: high}
+    verify: [{check: cross-build/arm-none-eabi}, {check: cross-build/esp-idf}]
+    notes: Warns until 2027-01-15, then fails CI.

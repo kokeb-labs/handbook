@@ -1,0 +1,29 @@
+# Who a rule applies to. A repository declares one kind and one assurance level in .kokeb/handbook.yml; a rule
+# applies when the kind is in its `applies.profiles` (or it says `all`) and the repository's level is at or above
+# the rule's `applies.from_level`. docs/assurance-levels.md explains the levels.
+kinds:
+  driver: A chip driver (driver-<chip>), header-mostly C++20 behind a CRTP port, host-tested, MCU-agnostic.
+  library: A reusable library without a chip (kb-core targets, utilities, protocol stacks).
+  hal: A board HAL or MCU port that binds libraries and drivers to one board or MCU family.
+  firmware: An application that runs on a target (examples, product firmware, test benches).
+  tooling: Scripts, CLIs and CI tooling that never run on a target.
+  docs: A documentation-only repository (the portal, this handbook).
+  template: A repository others are generated from (driver-template); it follows the rules of what it generates.
+
+levels:
+  standard:
+    summary: Every repository. Lint, format, tests, docs and review as described in the handbook.
+  high:
+    summary: >-
+      Code other teams build products on: drivers, kb-core, HALs. Adds sanitizers, a coverage floor, strict static
+      analysis, documented public API, compile checks on every supported compiler and target, and a recorded
+      deviation for every suppressed finding.
+  safety:
+    summary: >-
+      Components meant to be qualified as part of a safety-classified product (for example software of a medical
+      device in IEC 62304 class C). Adds requirement-to-test traceability, branch coverage with justified gaps,
+      the coding-standard compliance matrix, a commercial MISRA checker run, an anomaly list and a signed evidence
+      package per release.
+
+defaults:
+  level: standard

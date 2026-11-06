@@ -1,0 +1,52 @@
+area: repo
+prefix: KB-REPO
+title: Repository
+intro: What every repository contains and declares.
+rules:
+  - id: KB-REPO-001
+    title: Required root files
+    statement: Every repository has README.md, LICENSE (MIT for code), CHANGELOG.md and .github/CODEOWNERS at its root.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: org-standard-files}]
+    refs: [{adr: 9}, {adr: 11}]
+
+  - id: KB-REPO-002
+    title: Each repository declares the handbook version, kind and level it follows
+    statement: >-
+      `.kokeb/handbook.yml` names a released handbook version, the repository's kind and its assurance level, and
+      lists its waivers.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [all]}
+    verify: [{check: handbook-declaration}]
+    page: how-rules-work.md
+    notes: Warns until 2027-01-15, then fails CI.
+
+  - id: KB-REPO-003
+    title: Waivers name a rule, a reason, an approver and an expiry
+    statement: >-
+      A rule is set aside only by a waiver in `.kokeb/handbook.yml` that names the rule ID, why, who approved it and
+      the date it expires. An expired waiver fails CI.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [all]}
+    verify: [{check: waivers}]
+    page: deviations.md
+    notes: Warns until 2027-01-15, then fails CI.
+
+  - id: KB-REPO-004
+    title: Every source file carries an SPDX licence identifier
+    statement: Each source file starts with `SPDX-License-Identifier:` and a copyright line, as REUSE checks it.
+    level: should
+    status: proposed
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, tooling, template]}
+    verify: [{check: spdx-headers}]
+    origin: ["gap: neither source stated it"]

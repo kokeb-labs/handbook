@@ -1,0 +1,48 @@
+area: docs
+prefix: KB-DOC
+title: Documentation
+intro: How documentation is written, built and checked.
+rules:
+  - id: KB-DOC-001
+    title: Markdown passes the org lint configuration
+    statement: Every Markdown file passes markdownlint-cli2 with the org configuration.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: markdownlint/all}]
+
+  - id: KB-DOC-002
+    title: The documentation site builds strictly
+    statement: >-
+      A repository with a documentation site builds it with `mkdocs --strict`: no broken internal link, no page left
+      out of the navigation.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, tooling, docs, template]}
+    verify: [{check: mkdocs-strict}]
+    page: standards/docs.md
+
+  - id: KB-DOC-003
+    title: No broken links on the built site
+    statement: Every link on the built site resolves, internal and external.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, tooling, docs, template]}
+    verify: [{check: link-check}]
+
+  - id: KB-DOC-004
+    title: Every public API is documented and Doxygen is warning-free
+    statement: >-
+      Every public type, function and parameter in `inc/` has a Doxygen comment; Doxygen runs with
+      `WARN_IF_UNDOCUMENTED = YES` and `WARN_AS_ERROR = FAIL_ON_WARNINGS`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [driver, library, hal, template]}
+    verify: [{check: doxygen-warnings}]
+    page: standards/docs.md
+    notes: Warns until 2027-01-15, then fails CI. ci-tools' Doxyfile has WARN_AS_ERROR = NO today.

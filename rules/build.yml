@@ -1,0 +1,29 @@
+area: build
+prefix: KB-BLD
+title: Build and CMake
+intro: How a repository builds, installs and is consumed.
+rules:
+  - id: KB-BLD-001
+    title: The installed package works with find_package
+    statement: >-
+      A library or driver installs a CMake package (`<name>Config.cmake` with an exported `<name>::<name>` target)
+      that a separate project finds with `find_package` and links; CI builds such a consumer.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, template]}
+    verify: [{check: cmake-consumer}]
+    page: standards/driver.md
+
+  - id: KB-BLD-002
+    title: No file(GLOB) for library sources
+    statement: Library targets list their sources explicitly; `file(GLOB)` is not used for sources or headers.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [driver, library, hal, template]}
+    verify: [{check: forbidden-patterns/cmake-glob}]
+    rationale: A glob hides an added or removed file from review and from the build system's dependency tracking.
+    notes: Warns until 2027-01-15, then fails CI. driver-template uses GLOB today and changes first.
+    origin: ["hf:process/cmake-build-contract.md"]

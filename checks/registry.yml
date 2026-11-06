@@ -1,0 +1,146 @@
+# Every check a rule may name in `verify`. A check is `implemented` (it runs in CI and fails on a finding; `where`
+# says which workflow and job) or `planned` (named so rules can point at it; listed on docs/rules/coverage.md until
+# it is built). A `parametric` check is a family: a rule names `family/parameter`, e.g. `clang-tidy/cert-err33-c`.
+checks:
+  # -- C and C++ ------------------------------------------------------------------------------------------------
+  - id: clang-format
+    status: implemented
+    summary: clang-format with config/.clang-format; any difference fails
+    where: ci-tools ru-cpp-lint (fail_on_findings)
+  - id: clang-tidy
+    status: implemented
+    parametric: true
+    summary: a clang-tidy check from config/.clang-tidy, run with the CMake compile database
+    where: ci-tools ru-cpp-lint (cmake_args, fail_on_findings)
+  - id: cppcheck
+    status: implemented
+    parametric: true
+    summary: cppcheck in strict mode; the parameter names the cppcheck message id
+    where: ci-tools ru-cpp-analysis (strict)
+  - id: compiler-warnings
+    status: implemented
+    parametric: true
+    summary: the build is warning-free with the named flag and -Werror
+    where: driver-template host tests (tests/CMakeLists.txt)
+  - id: compile-fail-tests
+    status: implemented
+    summary: a misuse of the public API is a compile error, proved by a test that must fail to compile
+    where: driver-template tests/compile_fail via ctest
+  - id: host-tests
+    status: implemented
+    summary: the unit tests build and pass on the host with gcc and clang
+    where: driver-template ci-host-tests.yml
+  - id: exceptions-rtti-off
+    status: planned
+    summary: the exported library target compiles with -fno-exceptions -fno-rtti, not only the tests
+  - id: no-heap-link
+    status: planned
+    summary: a test binary that links the library with operator new, malloc and free removed builds and runs
+  - id: header-self-contained
+    status: planned
+    summary: every public header compiles on its own as the first include of a translation unit
+  - id: sanitizers
+    status: planned
+    summary: host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
+  - id: coverage-floor
+    status: planned
+    parametric: true
+    summary: line and branch coverage of the host tests at or above the floor for the repository's level
+  - id: cross-build
+    status: planned
+    parametric: true
+    summary: the library compiles warning-free for the named target (arm-none-eabi, riscv32, esp-idf)
+  - id: misra-checker
+    status: planned
+    summary: a commercial MISRA C++:2023 / C:2025 checker run, mapped to the compliance matrix (safety level)
+  - id: forbidden-patterns
+    status: planned
+    parametric: true
+    summary: a source scan for a construct the handbook bans; the parameter names the pattern set
+  - id: register-layout-asserts
+    status: planned
+    summary: every register or wire frame struct has static_assert on its size and field offsets
+
+  # -- Build and repository -------------------------------------------------------------------------------------
+  - id: cmake-consumer
+    status: implemented
+    summary: the installed package is found and linked by a separate CMake project (find_package)
+    where: driver-template tests/install_consumer
+  - id: org-standard-files
+    status: implemented
+    summary: README.md, LICENSE (MIT), CHANGELOG.md and .github/CODEOWNERS exist
+    where: ci-tools org-standard-check.yml
+  - id: repo-layout
+    status: planned
+    summary: the repository root and directories match the layout for its kind
+  - id: spdx-headers
+    status: planned
+    summary: every source file carries an SPDX licence identifier (REUSE)
+  - id: handbook-declaration
+    status: planned
+    summary: .kokeb/handbook.yml exists and names a released handbook version, a kind and a level
+  - id: waivers
+    status: planned
+    summary: every waiver names an existing rule, a reason, an approver and an expiry date that has not passed
+
+  # -- Documentation --------------------------------------------------------------------------------------------
+  - id: markdownlint
+    status: implemented
+    parametric: true
+    summary: markdownlint-cli2 with the org config; the parameter names the rule (markdownlint/MD040)
+    where: ci-tools ru-markdown-lint
+  - id: mkdocs-strict
+    status: implemented
+    summary: the documentation site builds with mkdocs --strict (no broken internal link, every page in the nav)
+    where: ci-tools ru-mkdocs-publish
+  - id: link-check
+    status: implemented
+    summary: lychee finds no broken link on the built site
+    where: ci-tools ru-mkdocs-publish (link check)
+  - id: doxygen-warnings
+    status: planned
+    summary: Doxygen with WARN_AS_ERROR = FAIL_ON_WARNINGS and WARN_IF_UNDOCUMENTED reports nothing
+  - id: prose-style
+    status: planned
+    parametric: true
+    summary: Vale with the Kokeb style; the parameter names the style rule
+  - id: spelling
+    status: planned
+    summary: typos finds no misspelling (project words in config/typos.toml)
+
+  # -- Git, review and release ----------------------------------------------------------------------------------
+  - id: dco
+    status: implemented
+    summary: every commit of a pull request has a Signed-off-by line matching its author
+    where: ci-tools dco.yml
+  - id: ci-gate
+    status: implemented
+    summary: one required check that passes only when every job of the workflow passed
+    where: ci-tools ru-ci-gate.yml, required by the main-checks ruleset
+  - id: rulesets
+    status: implemented
+    summary: branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags kept)
+    where: GitHub rulesets applied by .github org/kokeb_org.py
+  - id: changelog
+    status: planned
+    summary: CHANGELOG.md follows Keep a Changelog; a new version section is the next SemVer step, dated, not empty
+  - id: release-evidence
+    status: planned
+    summary: a release carries SHA256SUMS, an SBOM and build provenance; at safety level the evidence package too
+
+  # -- CI and supply chain --------------------------------------------------------------------------------------
+  - id: actions-allowlist
+    status: implemented
+    summary: only allow-listed actions, pinned to a full commit SHA, can run (organisation Actions policy)
+    where: GitHub organisation Actions policy from .github org/actions-allowlist.json
+  - id: actionlint
+    status: planned
+    summary: actionlint and zizmor find nothing in the repository's workflows
+  - id: workflow-permissions
+    status: planned
+    summary: every workflow sets permissions at the top and grants each job the least it needs
+
+  # -- Agents ---------------------------------------------------------------------------------------------------
+  - id: agents-files
+    status: planned
+    summary: AGENTS.md and CLAUDE.md exist and the handbook sections generated into them are current

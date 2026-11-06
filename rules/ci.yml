@@ -1,0 +1,28 @@
+area: ci
+prefix: KB-CI
+title: CI and supply chain
+intro: What workflows may run and how they are written.
+rules:
+  - id: KB-CI-001
+    title: Only allow-listed actions, pinned to a full commit SHA
+    statement: >-
+      Workflows use GitHub's own actions, the organisation's, or a third-party action on the allow-list in
+      `.github/org/actions-allowlist.json`, always pinned to a full commit SHA with the version in a comment.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: actions-allowlist}]
+
+  - id: KB-CI-002
+    title: Least privilege in every workflow
+    statement: >-
+      Each workflow sets `permissions:` at the top (read or none) and each job asks only for what it needs; a
+      workflow never interpolates untrusted input into a shell command.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [all]}
+    verify: [{check: workflow-permissions}, {check: actionlint}]
+    notes: Enforced in ci-tools' own workflows today; the reusable check is planned.

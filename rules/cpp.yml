@@ -1,0 +1,179 @@
+area: cpp
+prefix: KB-CPP
+title: C++ code
+intro: >-
+  How C++ is written in every Kokeb Labs repository: the language level, what the code may and may not use on a
+  microcontroller, errors, naming and format. The pages under Standards explain the reasoning; this list is what CI
+  and review hold each change to.
+rules:
+  - id: KB-CPP-001
+    title: C++20, no compiler extensions
+    statement: >-
+      Code is written in ISO C++20 and builds with `CMAKE_CXX_STANDARD 20`, `CMAKE_CXX_STANDARD_REQUIRED ON` and
+      `CMAKE_CXX_EXTENSIONS OFF`. Features beyond C++20 are not used.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - check: compiler-warnings/-Wpedantic
+      - check: forbidden-patterns/cmake-cxx-standard
+    rationale: >-
+      One language level across the stack lets any driver sit under any library. C++20 gives concepts and constexpr
+      enough for zero-cost ports without the toolchain lag of C++23 on vendor compilers.
+    refs: [{adr: 10}, {std: MISRA-CPP-2023, id: "Rule 4.1.1", note: "the language standard is fixed"}]
+    origin: ["kb:standards/adr/0010-cpp20.md", "hf:standards/coding-style.md (C++17; superseded)"]
+
+  - id: KB-CPP-002
+    title: No exceptions and no RTTI
+    statement: >-
+      Code does not throw, catch or use `typeid` or `dynamic_cast`. Every target, including the exported library
+      target, compiles with `-fno-exceptions -fno-rtti`.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - check: exceptions-rtti-off
+      - check: clang-tidy/cert-err58-cpp
+    rationale: >-
+      Exceptions and RTTI cost flash and RAM, are disabled on most embedded toolchains, and hide control flow that a
+      safety review has to see. Errors travel as values (KB-CPP-004).
+    refs: [{std: MISRA-CPP-2023, id: "Rule 18.1.1", note: "no exceptions in our profile"}, {std: CPPCG, id: "E.6"}]
+    origin: ["kb:standards/driver.md", "kb:standards/library.md"]
+
+  - id: KB-CPP-003
+    title: No heap in drivers; no heap after start-up anywhere
+    statement: >-
+      Driver code never allocates from the heap. In libraries, HALs and firmware, dynamic allocation happens only
+      during start-up, before the scheduler runs; after that no code calls `new`, `malloc` or anything that does.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - check: no-heap-link
+      - check: clang-tidy/cppcoreguidelines-no-malloc
+      - check: clang-tidy/cppcoreguidelines-owning-memory
+    rationale: >-
+      Heap fragmentation and allocation failure after start-up are failure modes that cannot be tested away. Fixed
+      memory makes the worst case the normal case.
+    refs:
+      - {adr: 4}
+      - {std: MISRA-CPP-2023, id: "Rule 21.6.1", note: "dynamic memory should not be used"}
+      - {std: NASA-P10, id: "Rule 3"}
+      - {std: CERT-CPP, id: "MEM51-CPP"}
+    origin: ["kb:standards/adr/0004-no-heap.md", "hf:standards/embedded-coding.md (heap at init; narrowed)"]
+
+  - id: KB-CPP-004
+    title: Errors are values, and every result is used
+    statement: >-
+      A function that can fail returns `<chip>::Result<T>` (drivers) or `kb::Result<T>` / `kb::Status` (above the
+      drivers), marked `[[nodiscard]]`. A caller never discards a result; each layer boundary maps errors once.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - check: compiler-warnings/-Wunused-result
+      - check: clang-tidy/bugprone-unused-return-value
+      - check: compile-fail-tests
+    rationale: >-
+      A bus error that is dropped turns into a stale reading. Typed results make the failure visible at every call
+      and keep the original code for diagnostics.
+    refs:
+      - {adr: 1}
+      - {std: MISRA-CPP-2023, id: "Rule 0.1.2", note: "the value returned by a function shall be used"}
+      - {std: CERT-C, id: "ERR33-C"}
+    page: standards/errors.md
+    origin: ["kb:standards/errors.md", "hf:standards/embedded-coding.md (bool + GetLastError; superseded)"]
+
+  - id: KB-CPP-005
+    title: Format with the org clang-format configuration
+    statement: >-
+      Every C and C++ file is formatted with the handbook's `config/.clang-format` (LLVM base, 2-space indent, 100
+      columns). Formatting is never argued in review; the tool decides.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: clang-format}]
+    page: standards/naming-and-style.md
+    origin: ["kb:standards/naming-and-style.md", "hf:standards/coding-style.md (4 spaces, 120 columns; superseded)"]
+
+  - id: KB-CPP-006
+    title: Names follow the org naming scheme
+    statement: >-
+      Types and public functions are `PascalCase`, private member functions `camelBack`, variables `snake_case`,
+      private members `snake_case_`, constants and enumerators `kPascalCase`, namespaces `lower_case`, macros
+      `UPPER_SNAKE`, exactly as `config/.clang-tidy` encodes it.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [all]}
+    verify: [{check: clang-tidy/readability-identifier-naming}]
+    refs: [{adr: 8}]
+    page: standards/naming-and-style.md
+    origin: ["kb:standards/adr/0008-naming.md", "hf:standards/coding-style.md (differs; superseded)"]
+
+  - id: KB-CPP-007
+    title: No reinterpret_cast or C-style casts outside the port layer
+    statement: >-
+      Driver and library code does not use `reinterpret_cast` or C-style casts. Register access that needs them
+      lives in the MCU port, behind a function whose comment names the datasheet register.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, template]}
+    verify:
+      - check: clang-tidy/cppcoreguidelines-pro-type-reinterpret-cast
+      - check: clang-tidy/cppcoreguidelines-pro-type-cstyle-cast
+    refs: [{std: MISRA-CPP-2023, id: "Rule 8.2.5"}, {std: CPPCG, id: "Type.1"}]
+
+  - id: KB-CPP-008
+    title: Static analysis is clean, and every suppression is a recorded deviation
+    statement: >-
+      clang-tidy and cppcheck report nothing. A finding on correct code is suppressed on its line with
+      `NOLINT(<check>)` or `cppcheck-suppress <id>` and a reason; at the high and safety levels each suppression also
+      has a deviation record (see Deviations).
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - check: clang-tidy/all
+      - check: cppcheck/all
+      - review: Each new NOLINT or cppcheck-suppress names the check and says why the code is correct.
+    page: deviations.md
+    refs: [{std: IEC-62304, id: "5.5.3", note: "software unit acceptance criteria"}]
+
+  - id: KB-CPP-009
+    title: Register frames have their layout asserted
+    statement: >-
+      A struct or union that mirrors a hardware register or a wire frame has `static_assert`s on its size and on the
+      offset of every field, and states its byte order.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal], from_level: high}
+    verify: [{check: register-layout-asserts}]
+    rationale: Padding and byte order differ between compilers and targets; a silent layout change reads the wrong register.
+    refs: [{std: CERT-C, id: "EXP42-C"}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["gap: neither source stated it"]
+
+  - id: KB-CPP-010
+    title: Data shared with an interrupt is atomic or explicitly guarded
+    statement: >-
+      A variable written in an interrupt handler and read elsewhere (or the reverse) is a lock-free `std::atomic` or
+      is accessed only inside a critical section, and the function that runs in interrupt context says so in its
+      documentation. `volatile` is for memory-mapped registers only, never for synchronisation.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal, firmware]}
+    verify:
+      - review: Every variable shared with an ISR is atomic or guarded, and the ISR-context function is documented as such.
+    refs: [{std: CERT-C, id: "SIG31-C"}, {std: CPPCG, id: "CP.8"}]
+    origin: ["gap: neither source stated it"]
