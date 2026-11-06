@@ -18,18 +18,21 @@ Every Markdown file passes markdownlint-cli2 with the org configuration.
 
 *Verified by:*
 
-- `markdownlint/all` (implemented): markdownlint-cli2 with the org config; the parameter names the rule (markdownlint/MD040)
+- `markdownlint/all` (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)
 
 
 ## KB-DOC-002: The documentation site builds strictly { #kb-doc-002 }
 
 **MUST** · driver, library, hal, tooling, docs, template · since 1.0
 
-A repository with a documentation site builds it with `mkdocs --strict`: no broken internal link, no page left out of the navigation.
+A repository with a documentation site builds it with `mkdocs --strict`: no broken internal link, no page left out of
+the navigation.
 
 *Verified by:*
 
-- `mkdocs-strict` (implemented): the documentation site builds with mkdocs --strict (no broken internal link, every page in the nav)
+- `mkdocs-strict` (implemented): the documentation site builds with mkdocs --strict (no broken internal link, every page
+  in the nav)
 
 *Explained in:* [standards/docs.md](../standards/docs.md)
 
@@ -52,7 +55,8 @@ Every link on the built site resolves, internal and external.
 
 **MUST** · driver, library, hal, template · since 1.0 · enforced from 2027-01-15
 
-Every public type, function and parameter in `inc/` has a Doxygen comment; Doxygen runs with `WARN_IF_UNDOCUMENTED = YES` and `WARN_AS_ERROR = FAIL_ON_WARNINGS`.
+Every public type, function and parameter in `inc/` has a Doxygen comment; Doxygen runs with `WARN_IF_UNDOCUMENTED =
+YES` and `WARN_AS_ERROR = FAIL_ON_WARNINGS`.
 
 *Verified by:*
 

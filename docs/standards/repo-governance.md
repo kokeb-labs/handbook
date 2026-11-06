@@ -170,7 +170,7 @@ private repositories it is the repository setting alone.
 - Firmware, libraries, drivers and tooling are MIT. Hardware designs are CERN-OHL-P-2.0
   ([ADR-0009](../adr/0009-licensing.md)). Each repository carries its own `LICENSE`.
 - The MIT licence covers the code, not the **Kokeb Labs** name or logos. Their use is governed by the
-  [trademark policy](https://github.com/kokeb-labs/.github/blob/main/TRADEMARKS.md). A fork distributed as its own project uses its own name; drivers make that
+  [trademark policy][trademarks]. A fork distributed as its own project uses its own name; drivers make that
   easy because they carry no brand ([ADR-0012](../adr/0012-unbranded-drivers.md)).
 
 ## Metadata
@@ -227,3 +227,5 @@ Then follow the checklist for its kind in [`checklists/`](../checklists/new-driv
 A repository that is superseded gets the `legacy` topic and a `[Legacy] ... superseded by <repo>.` description in
 the metadata, a README note pointing to its successor, and is archived. Archived repositories are skipped by the
 settings script.
+
+[trademarks]: https://github.com/kokeb-labs/.github/blob/main/TRADEMARKS.md

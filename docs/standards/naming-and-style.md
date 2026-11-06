@@ -1,8 +1,8 @@
 # Naming and style
 
 How Kokeb Labs code is named, laid out and formatted. The naming rules are enforced by
-`readability-identifier-naming` in the org [`.clang-tidy`](https://github.com/kokeb-labs/handbook/blob/main/config/.clang-tidy), and formatting by the org
-[`.clang-format`](https://github.com/kokeb-labs/handbook/blob/main/config/.clang-format). Decisions: [ADR-0008](../adr/0008-naming.md) and, for drivers,
+`readability-identifier-naming` in the org [`.clang-tidy`][cfg-clang-tidy], and formatting by the org
+[`.clang-format`][cfg-clang-format]. Decisions: [ADR-0008](../adr/0008-naming.md) and, for drivers,
 [ADR-0012](../adr/0012-unbranded-drivers.md).
 
 ## Prefixes
@@ -88,7 +88,7 @@ Allowed exceptions, also allowed by the tidy config:
 
 ## Formatting
 
-[`config/.clang-format`](https://github.com/kokeb-labs/handbook/blob/main/config/.clang-format): LLVM base, 2-space indent, 100-column limit, pointer and
+[`config/.clang-format`][cfg-clang-format]: LLVM base, 2-space indent, 100-column limit, pointer and
 reference attached to the type (`uint8_t* data`), attached braces, short functions only when empty, template
 declarations on their own line.
 
@@ -98,7 +98,7 @@ Markdown wraps at 120 columns (markdownlint `MD013`, tables and code blocks exem
 
 ## Static analysis
 
-[`config/.clang-tidy`](https://github.com/kokeb-labs/handbook/blob/main/config/.clang-tidy) enables `bugprone-*`, `clang-analyzer-*`, `cppcoreguidelines-*`,
+[`config/.clang-tidy`][cfg-clang-tidy] enables `bugprone-*`, `clang-analyzer-*`, `cppcoreguidelines-*`,
 `modernize-*`, `performance-*`, `portability-*` and `readability-*`, turns off the checks that fight register-level
 code (each with its reason in the file), and sets the naming rules above.
 
@@ -131,3 +131,6 @@ A rule that is wrong for every repository is changed here, in both configs and o
   `Status` values it returns, and whether it does I/O. See [docs.md](docs.md#doxygen).
 - Comments say why. Datasheet references name the section or table (`SBASB22 Table 7-12`).
 - No commented-out code, no `TODO` without an issue link, no author or date banners, no tool attribution lines.
+
+[cfg-clang-format]: https://github.com/kokeb-labs/handbook/blob/main/config/.clang-format
+[cfg-clang-tidy]: https://github.com/kokeb-labs/handbook/blob/main/config/.clang-tidy

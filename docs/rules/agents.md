@@ -16,7 +16,8 @@ How coding agents work in Kokeb Labs repositories, held to the same rules as peo
 
 **MUST** · all · since 1.0 · enforced from 2027-01-15
 
-AGENTS.md (with CLAUDE.md pointing to it) states the repository's build and test commands and carries the handbook sections generated for its kind and level.
+AGENTS.md (with CLAUDE.md pointing to it) states the repository's build and test commands and carries the handbook
+sections generated for its kind and level.
 
 *Verified by:*
 
@@ -28,11 +29,13 @@ AGENTS.md (with CLAUDE.md pointing to it) states the repository's build and test
 
 **MUST** · all · since 1.0
 
-A coding agent proposes changes as pull requests. Merging, releasing, deleting, and changing repository or organisation settings need the maintainer's explicit approval in the session.
+A coding agent proposes changes as pull requests. Merging, releasing, deleting, and changing repository or organisation
+settings need the maintainer's explicit approval in the session.
 
 *Verified by:*
 
-- `rulesets` (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags kept)
+- `rulesets` (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)
 - review: The pull request was opened by an agent and merged by the maintainer, or with their recorded approval.
 
 *Explained in:* [standards/agents.md](../standards/agents.md)

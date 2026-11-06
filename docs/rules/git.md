@@ -26,12 +26,14 @@ Every commit in a pull request carries a `Signed-off-by:` line that matches its 
 
 **MUST** · all · since 1.0
 
-main accepts squash merges of pull requests whose single required check, `CI gate / gate`, passed; no direct pushes, no force-pushes, linear history.
+main accepts squash merges of pull requests whose single required check, `CI gate / gate`, passed; no direct pushes, no
+force-pushes, linear history.
 
 *Verified by:*
 
 - `ci-gate` (implemented): one required check that passes only when every job of the workflow passed
-- `rulesets` (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags kept)
+- `rulesets` (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)
 
 *See also:* [ADR-0015](../adr/0015-solo-maintainer-governance.md); IEC 62304:2006+A1:2015 8.2 (change control)
 
@@ -44,7 +46,8 @@ A `vX.Y.Z` tag is never moved or deleted; a mistake gets a new version.
 
 *Verified by:*
 
-- `rulesets` (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags kept)
+- `rulesets` (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)
 
 *See also:* IEC 62304:2006+A1:2015 8.1.1 (identification of configuration items)
 
@@ -57,10 +60,12 @@ A `vX.Y.Z` tag is never moved or deleted; a mistake gets a new version.
 
 **MUST** · all · since 1.0 · enforced from 2027-01-15
 
-CHANGELOG.md follows Keep a Changelog; a release is cut by adding its dated `[X.Y.Z]` section, the next SemVer step, in the pull request that releases it.
+CHANGELOG.md follows Keep a Changelog; a release is cut by adding its dated `[X.Y.Z]` section, the next SemVer step, in
+the pull request that releases it.
 
 *Verified by:*
 
-- `changelog` (planned): CHANGELOG.md follows Keep a Changelog; a new version section is the next SemVer step, dated, not empty
+- `changelog` (planned): CHANGELOG.md follows Keep a Changelog; a new version section is the next SemVer step, dated,
+  not empty
 
 *Explained in:* [standards/release.md](../standards/release.md)

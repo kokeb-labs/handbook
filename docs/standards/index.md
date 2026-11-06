@@ -38,7 +38,7 @@ tracked by an issue, not exempted.
 | --- | --- |
 | [Errors](errors.md) | `kb::Status`, `kb::Result<T>` and the mapping at each layer boundary |
 | [Threading and timing](threading-and-timing.md) | One lock, one clock, one delay; the 1 kHz FreeRTOS tick |
-| [Naming and style](naming-and-style.md) | Names, units, namespaces, include roots, and the org [`.clang-format`](https://github.com/kokeb-labs/handbook/blob/main/config/.clang-format) and [`.clang-tidy`](https://github.com/kokeb-labs/handbook/blob/main/config/.clang-tidy) |
+| [Naming and style](naming-and-style.md) | Names, units, namespaces, include roots, and the org [`.clang-format`][cfg-clang-format] and [`.clang-tidy`][cfg-clang-tidy] |
 
 ### Process
 
@@ -62,7 +62,7 @@ tracked by an issue, not exempted.
 ## Using the standard in a repository
 
 - Link the standard from the repository's `CONTRIBUTING.md` (or rely on the org default) and from its `AGENTS.md`.
-- Copy [`config/.clang-format`](https://github.com/kokeb-labs/handbook/blob/main/config/.clang-format) and [`config/.clang-tidy`](https://github.com/kokeb-labs/handbook/blob/main/config/.clang-tidy) into
+- Copy [`config/.clang-format`][cfg-clang-format] and [`config/.clang-tidy`][cfg-clang-tidy] into
   `_config/` unchanged. A repository MUST NOT carry local edits to them; propose the change here. All other tool
   configuration lives in `_config/` too, and the root follows [ADR-0011](../adr/0011-repository-root-layout.md).
 - When a PR deviates from a MUST, say so in the PR description, name the rule, and link the issue that tracks the
@@ -102,3 +102,6 @@ These are not reopened without a superseding ADR:
 | kb-core is one monorepo with four targets and one version | [ADR-0013](../adr/0013-kb-core-monorepo.md) |
 | Chip-, MCU- and product-specific code each have one place; shared code never tests a platform macro | [ADR-0014](../adr/0014-three-kinds-of-specific.md) |
 | Governance for one maintainer open to contributors: squash, linear, signed, DCO | [ADR-0015](../adr/0015-solo-maintainer-governance.md) |
+
+[cfg-clang-format]: https://github.com/kokeb-labs/handbook/blob/main/config/.clang-format
+[cfg-clang-tidy]: https://github.com/kokeb-labs/handbook/blob/main/config/.clang-tidy

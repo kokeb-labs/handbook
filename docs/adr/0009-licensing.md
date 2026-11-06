@@ -18,7 +18,7 @@ images, which combine many drivers into one binary. Hardware designs need a lice
 - Contributions come in under the repository's licence with a DCO sign-off; there is no CLA
   ([ADR-0015](0015-solo-maintainer-governance.md)).
 - The licences cover the work, not the Kokeb Labs name or logos; those are covered by the
-  [trademark policy](https://github.com/kokeb-labs/.github/blob/main/TRADEMARKS.md).
+  [trademark policy][trademarks].
 
 ## Consequences
 
@@ -26,3 +26,5 @@ images, which combine many drivers into one binary. Hardware designs need a lice
 - Code copied in from elsewhere must be MIT compatible; third-party code keeps its own licence in `third_party/`
   with its notice.
 - A fork may use the code freely but not the name; unbranded drivers make that easy.
+
+[trademarks]: https://github.com/kokeb-labs/.github/blob/main/TRADEMARKS.md

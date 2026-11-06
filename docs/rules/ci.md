@@ -12,11 +12,13 @@ What workflows may run and how they are written.
 
 **MUST** · all · since 1.0
 
-Workflows use GitHub's own actions, the organisation's, or a third-party action on the allow-list in `.github/org/actions-allowlist.json`, always pinned to a full commit SHA with the version in a comment.
+Workflows use GitHub's own actions, the organisation's, or a third-party action on the allow-list in
+`.github/org/actions-allowlist.json`, always pinned to a full commit SHA with the version in a comment.
 
 *Verified by:*
 
-- `actions-allowlist` (implemented): only allow-listed actions, pinned to a full commit SHA, can run (organisation Actions policy)
+- `actions-allowlist` (implemented): only allow-listed actions, pinned to a full commit SHA, can run (organisation
+  Actions policy)
 
 
 ## KB-CI-002: Least privilege in every workflow { #kb-ci-002 }
@@ -27,7 +29,8 @@ Workflows use GitHub's own actions, the organisation's, or a third-party action 
 
 **MUST** · all · since 1.0 · enforced from 2027-01-15
 
-Each workflow sets `permissions:` at the top (read or none) and each job asks only for what it needs; a workflow never interpolates untrusted input into a shell command.
+Each workflow sets `permissions:` at the top (read or none) and each job asks only for what it needs; a workflow never
+interpolates untrusted input into a shell command.
 
 *Verified by:*
 

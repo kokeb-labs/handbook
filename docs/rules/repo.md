@@ -31,7 +31,8 @@ Every repository has README.md, LICENSE (MIT for code), CHANGELOG.md and .github
 
 **MUST** · all · since 1.0 · enforced from 2027-01-15
 
-`.kokeb/handbook.yml` names a released handbook version, the repository's kind and its assurance level, and lists its waivers.
+`.kokeb/handbook.yml` names a released handbook version, the repository's kind and its assurance level, and lists its
+waivers.
 
 *Verified by:*
 
@@ -47,7 +48,8 @@ Every repository has README.md, LICENSE (MIT for code), CHANGELOG.md and .github
 
 **MUST** · all · since 1.0 · enforced from 2027-01-15
 
-A rule is set aside only by a waiver in `.kokeb/handbook.yml` that names the rule ID, why, who approved it and the date it expires. An expired waiver fails CI.
+A rule is set aside only by a waiver in `.kokeb/handbook.yml` that names the rule ID, why, who approved it and the date
+it expires. An expired waiver fails CI.
 
 *Verified by:*
 

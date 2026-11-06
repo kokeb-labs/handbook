@@ -1,3 +1,4 @@
+---
 area: cpp
 prefix: KB-CPP
 title: C++ code
@@ -158,7 +159,9 @@ rules:
     enforce_from: "2027-03-01"
     applies: {profiles: [driver, library, hal], from_level: high}
     verify: [{check: register-layout-asserts}]
-    rationale: Padding and byte order differ between compilers and targets; a silent layout change reads the wrong register.
+    rationale: >-
+      Padding and byte order differ between compilers and targets; a silent layout change reads the wrong
+      register.
     refs: [{std: CERT-C, id: "EXP42-C"}]
     notes: Warns until 2027-03-01, then fails CI.
     origin: ["gap: neither source stated it"]
@@ -174,6 +177,8 @@ rules:
     since: "1.0"
     applies: {profiles: [driver, library, hal, firmware]}
     verify:
-      - review: Every variable shared with an ISR is atomic or guarded, and the ISR-context function is documented as such.
+      - review: >-
+          Every variable shared with an ISR is atomic or guarded, and the ISR-context function is documented as
+          such.
     refs: [{std: CERT-C, id: "SIG31-C"}, {std: CPPCG, id: "CP.8"}]
     origin: ["gap: neither source stated it"]

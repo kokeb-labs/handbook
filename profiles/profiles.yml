@@ -1,6 +1,7 @@
 # Who a rule applies to. A repository declares one kind and one assurance level in .kokeb/handbook.yml; a rule
 # applies when the kind is in its `applies.profiles` (or it says `all`) and the repository's level is at or above
 # the rule's `applies.from_level`. docs/assurance-levels.md explains the levels.
+---
 kinds:
   driver: A chip driver (driver-<chip>), header-mostly C++20 behind a CRTP port, host-tested, MCU-agnostic.
   library: A reusable library without a chip (kb-core targets, utilities, protocol stacks).

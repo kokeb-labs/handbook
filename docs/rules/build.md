@@ -12,7 +12,8 @@ How a repository builds, installs and is consumed.
 
 **MUST** · driver, library, template · since 1.0
 
-A library or driver installs a CMake package (`<name>Config.cmake` with an exported `<name>::<name>` target) that a separate project finds with `find_package` and links; CI builds such a consumer.
+A library or driver installs a CMake package (`<name>Config.cmake` with an exported `<name>::<name>` target) that a
+separate project finds with `find_package` and links; CI builds such a consumer.
 
 *Verified by:*
 
@@ -34,5 +35,6 @@ Library targets list their sources explicitly; `file(GLOB)` is not used for sour
 
 *Verified by:*
 
-- `forbidden-patterns/cmake-glob` (planned): a source scan for a construct the handbook bans; the parameter names the pattern set
+- `forbidden-patterns/cmake-glob` (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
 

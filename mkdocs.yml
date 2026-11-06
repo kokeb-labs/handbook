@@ -3,6 +3,7 @@
 #   pip install "git+https://github.com/kokeb-labs/ci-tools@v1#subdirectory=packages/kokeb-mkdocs-theme"
 #   python checks/handbook.py gen     regenerate docs/rules/ from rules/*.yml
 #   mkdocs serve                      http://127.0.0.1:8000
+---
 site_name: Kokeb Labs handbook
 site_description: >-
   How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that

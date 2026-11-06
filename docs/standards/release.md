@@ -24,7 +24,7 @@ order a release wave follows. Decisions: [ADR-0007](../adr/0007-submodule-pinnin
 
 Every firmware and tooling release is MIT; a release of a hardware design is CERN-OHL-P-2.0
 ([ADR-0009](../adr/0009-licensing.md)). Release notes do not grant use of the Kokeb Labs name or logos
-([trademark policy](https://github.com/kokeb-labs/.github/blob/main/TRADEMARKS.md)).
+([trademark policy][trademarks]).
 
 ## Tags and release candidates
 
@@ -175,3 +175,5 @@ A release wave goes bottom-up. Each layer is re-pinned to the tags under it befo
 4. **Promote** the same commits to `vX.Y.Z` if nothing failed, or cut `-rc.2` with the fixes.
 
 The per-repository steps are in the [release checklist](../checklists/release.md).
+
+[trademarks]: https://github.com/kokeb-labs/.github/blob/main/TRADEMARKS.md

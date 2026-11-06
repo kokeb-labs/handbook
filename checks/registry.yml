@@ -1,6 +1,7 @@
 # Every check a rule may name in `verify`. A check is `implemented` (it runs in CI and fails on a finding; `where`
 # says which workflow and job) or `planned` (named so rules can point at it; listed on docs/rules/coverage.md until
 # it is built). A `parametric` check is a family: a rule names `family/parameter`, e.g. `clang-tidy/cert-err33-c`.
+---
 checks:
   # -- C and C++ ------------------------------------------------------------------------------------------------
   - id: clang-format

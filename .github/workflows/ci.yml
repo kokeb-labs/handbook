@@ -1,6 +1,7 @@
 # The handbook's CI: the rules hold together and their pages are current (checks/handbook.py), the site builds
 # strictly, Markdown and YAML pass lint, every commit is signed off, and the organisation-standard files exist.
 # The single required check is "CI gate / gate".
+---
 name: CI
 
 on:
@@ -50,6 +51,9 @@ jobs:
     uses: kokeb-labs/ci-tools/.github/workflows/ru-markdown-lint.yml@v1
     permissions:
       contents: read
+    with:
+      config_file: config/.markdownlint.json
+      exclude_patterns: 'site/**'
 
   yamllint:
     uses: kokeb-labs/ci-tools/.github/workflows/ru-yaml-lint.yml@v1
