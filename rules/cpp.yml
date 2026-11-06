@@ -199,7 +199,7 @@ rules:
       - check: host-tests
       - check: include-allowlist/driver
     rationale: >-
-      A driver that includes nothing but its own code and a freestanding subset of the library builds on any MCU and
+      A driver that includes nothing but its own code and the target library subset (ADR-0017) builds on any MCU and
       in any framework. The host build without SDK include paths already rejects SDK headers.
     refs: [{adr: 12}, {adr: 14}]
     page: standards/layers.md
@@ -212,23 +212,24 @@ rules:
       - "hf:agents/driver-authoring.md:17"
 
   - id: KB-CPP-012
-    title: Target code uses only freestanding-friendly headers and C++20 the pinned compilers share
+    title: Target code uses only the target library subset and C++20 the pinned compilers share
     statement: >-
-      Code that runs on a target uses only the standard headers the Layers page allows for its part (never
-      `<iostream>`, `<fstream>`, `<thread>`, `<future>`, `<regex>` or `<filesystem>`) and only C++20 features that
-      both the pinned ESP-IDF GCC and the CI clang support. Host-only test code is exempt.
+      Code that runs on a target includes only the standard headers ADR-0017 allows for its part (no allocating,
+      throwing or OS-dependent header such as `<string>`, `<vector>`, `<memory>`, `<functional>`, `<iostream>` or
+      `<thread>`) and uses only C++20 features both the pinned ESP-IDF GCC and the CI clang support. Host-only test
+      code is exempt.
     level: must
     status: proposed
     since: "1.0"
     enforce_from: "2027-03-01"
     applies: {profiles: [driver, library, hal, firmware, template]}
     verify:
-      - check: include-allowlist/hosted
+      - check: include-allowlist/target
       - check: cross-build/esp-idf
     rationale: >-
       Hosted-only headers pull in allocation, locale and threading support that a microcontroller build either lacks
       or pays for in flash.
-    refs: [{adr: 10}]
+    refs: [{adr: 17}, {adr: 10}]
     notes: Warns until 2027-03-01, then fails CI.
     origin: ["kb:standards/adr/0010-cpp20.md:15", "gap: freestanding library subset (inventory gap 9)"]
 
@@ -1033,8 +1034,8 @@ rules:
       - check: compiler-warnings/-Wswitch
       - review: Mapping switches over enums have no default and cover every enumerator.
     notes: >-
-      config/.clang-tidy enables bugprone-switch-missing-default-case, which flags these switches; the config must
-      exempt them (or the check be disabled) for this rule and KB-CPP-008 to agree.
+      No conflict with `bugprone-switch-missing-default-case`: that check flags only switches on non-enum values,
+      which do need a `default:`. An enum switch leaves it out so `-Wswitch` reports a missing enumerator.
     page: standards/errors.md
     origin:
       - "kb:standards/errors.md:57,122"
@@ -2082,3 +2083,23 @@ rules:
     since: "1.0"
     applies: {profiles: [library, hal, firmware]}
     origin: ["hf:standards/review-checklist.md:108"]
+
+  - id: KB-CPP-115
+    title: Functions stay within the complexity, length and parameter limits of their level
+    statement: >-
+      Every function in library code stays within the limits of the repository's level, measured by lizard with the
+      modified cyclomatic complexity: standard 15 / 80 lines / 7 parameters; high 15 / 60 / 6; safety 10 / 60 / 6.
+      A function over a limit that is clearer as one piece has a deviation record.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-01-15"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify: [{check: complexity/level}]
+    rationale: >-
+      Complex functions are where defects hide and where tests miss paths; the numbers and their sources are in
+      ADR-0020.
+    refs: [{adr: 20}, {std: NASA-P10, id: "Rule 4"}, {std: CPPCG, id: "F.3"}]
+    page: deviations.md
+    notes: Warns until 2027-01-15, then fails CI.
+    origin: ["gap: neither source stated a complexity limit"]

@@ -22,3 +22,13 @@ loosened rule is a major release.
 - 53 HardFOC-only rules in `hf-supplement/`, validated against the same registry.
 - 134 checks in the registry: 15 implemented, the rest planned and listed on the coverage page.
 - The generator escapes Markdown in rule text, so names like `<chip>` and `KB_` render as written.
+- Decision records 0016 to 0020: virtual functions only at three run-time boundaries; the target library subset
+  replaces "freestanding"; `sdkconfig.defaults` only, the effective `sdkconfig` attached to releases; datasheets
+  referenced by revision and SHA-256, never committed; complexity limits and coverage floors per assurance level.
+- Rules for complexity (KB-CPP-115), MC/DC at safety level (KB-TST-027), justified coverage gaps (KB-TST-028) and
+  mutation testing (KB-TST-029); the coverage floor now says how coverage is measured.
+
+### Fixed
+
+- The five conflicts found while loading the rules are settled, and the affected rules and pages agree. The
+  switch-default "conflict" was not one: clang-tidy's check covers only non-enum switches.

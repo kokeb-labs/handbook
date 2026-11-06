@@ -45,15 +45,19 @@ rules:
   - id: KB-TST-004
     title: Coverage floor per assurance level
     statement: >-
-      Host-test coverage stays at or above the floor of the repository's level: high, 85% of lines and 75% of
-      branches; safety, every reachable branch, with each unreached one justified in the evidence package.
+      Coverage of library code by the host tests, measured with gcovr over a GCC `-O0 --coverage` build, stays at
+      or above the floor of the repository's level: high, 85% of lines and 75% of branches; safety, 100% of
+      reachable lines and branches. Tests, examples and compile-only targets are not counted.
     level: must
     status: proposed
     since: "1.0"
     enforce_from: "2027-03-01"
     applies: {profiles: [driver, library, hal], from_level: high}
     verify: [{check: coverage-floor/level}]
-    refs: [{std: IEC-62304, id: "5.5.5"}, {std: IEC-61508-3, id: "Table B.2"}]
+    rationale: >-
+      A floor that is defined by tool, build and scope can be reproduced by anyone; ADR-0020 says why these
+      numbers.
+    refs: [{adr: 20}, {std: IEC-62304, id: "5.5.5"}, {std: IEC-61508-3, id: "Table B.2"}]
     notes: Warns until 2027-03-01, then fails CI.
     origin: ["gap: neither source stated it"]
 
@@ -412,3 +416,50 @@ rules:
     verify:
       - review: The release checklist records an OTA update and an OTA rollback on hardware.
     origin: ["hf:agents/application-engineering.md:288"]
+
+  - id: KB-TST-027
+    title: At safety level, every decision has full MC/DC coverage
+    statement: >-
+      Library code reaches 100% modified condition/decision coverage, measured with GCC's `-fcondition-coverage`
+      and gcovr; at the high level the figure is reported but not gated.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal], from_level: safety}
+    verify: [{check: coverage-floor/mcdc}]
+    rationale: >-
+      Branch coverage can pass while a condition inside a compound decision never decided anything; MC/DC shows
+      each condition independently changes the outcome.
+    refs: [{adr: 20}, {std: IEC-62304, id: "5.5.4", note: "additional acceptance criteria for class C"}]
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["gap: ADR-0020"]
+
+  - id: KB-TST-028
+    title: At safety level, every uncovered item is justified
+    statement: >-
+      Each line, branch or condition the tests do not reach is listed in `docs/coverage-justification.yml` with the
+      reason and who accepted it; an entry for an item the tests now reach is removed.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal], from_level: safety}
+    verify: [{check: coverage-justification}]
+    refs: [{adr: 20}]
+    page: evidence.md
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["gap: ADR-0020"]
+
+  - id: KB-TST-029
+    title: At safety level, mutation testing checks that the tests check something
+    statement: >-
+      Each release of a safety component runs mutation testing (for example Mull) over library code and reviews the
+      surviving mutants; each survivor gets a test or a note on why it is equivalent.
+    level: guide
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, library, hal], from_level: safety}
+    rationale: Coverage shows which code ran, not whether a test would notice it being wrong.
+    refs: [{adr: 20}]
+    origin: ["gap: ADR-0020"]

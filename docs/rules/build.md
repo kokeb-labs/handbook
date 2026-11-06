@@ -368,8 +368,7 @@ configuration)
 
 !!! note "Proposed"
 
-    Warns until 2027-03-01, then fails CI. Whether a generated sdkconfig may be committed is unresolved in the Kokeb pages
-    (driver.md:296 forbids it, threading-and-timing.md:84 tolerates it); this rule names only the defaults file.
+    Warns until 2027-03-01, then fails CI.
 
 **MUST** · driver, hal, firmware, template · since 1.0 · enforced from 2027-03-01
 
@@ -381,7 +380,7 @@ should set `TX_TIMER_TICKS_PER_SECOND` to 1000.
 - `sdkconfig-defaults/freertos-hz` (planned): sdkconfig.defaults of every ESP-IDF project sets the named value
   (freertos-hz is CONFIG\_FREERTOS\_HZ=1000)
 
-*See also:* [ADR-0006](../adr/0006-freertos-1khz-tick.md)
+*See also:* [ADR-0006](../adr/0006-freertos-1khz-tick.md); [ADR-0018](../adr/0018-sdkconfig.md)
 
 *Explained in:* [standards/threading-and-timing.md](../standards/threading-and-timing.md)
 

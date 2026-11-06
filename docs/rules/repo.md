@@ -308,17 +308,19 @@ header comment. Every command and workflow passes the `_config/` path to its too
 
 !!! note "Proposed"
 
-    Warns until 2027-03-01, then fails CI. threading-and-timing.md still tolerates a committed sdkconfig and needs aligning.
+    Warns until 2027-03-01, then fails CI.
 
 **MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
 
-The settings an ESP-IDF project needs are in `sdkconfig.defaults`; the generated `sdkconfig` is gitignored and never
-committed.
+The settings an ESP-IDF project needs are in `sdkconfig.defaults` (and `sdkconfig.defaults.<target>`); the generated
+`sdkconfig` is gitignored and never committed. A firmware release attaches the effective `sdkconfig` instead.
 
 *Verified by:*
 
 - `tracked-files/sdkconfig` (planned): git tracks no file of a banned kind; the parameter names it
   (tracked-files/symlinks, tracked-files/sdkconfig, tracked-files/idf-component)
+
+*See also:* [ADR-0018](../adr/0018-sdkconfig.md)
 
 *Explained in:* [standards/driver.md](../standards/driver.md)
 

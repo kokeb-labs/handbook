@@ -81,8 +81,9 @@ Every FreeRTOS project runs at 1000 Hz: products, board HALs, kb-core and every 
 ESP-IDF's default of 100 Hz turns a 1 ms wait into 10 to 20 ms, and the millisecond helpers in `kb::rtos` assume
 1 kHz.
 
-- Set `CONFIG_FREERTOS_HZ=1000` in `sdkconfig.defaults`. A project that still commits a full `sdkconfig` sets it
-  there too, because a committed `sdkconfig` overrides the defaults files.
+- Set `CONFIG_FREERTOS_HZ=1000` in `sdkconfig.defaults`. A generated `sdkconfig` is never committed
+  ([ADR-0018](../adr/0018-sdkconfig.md)): a project that still has one deletes it and moves its settings into the
+  defaults files, because a committed `sdkconfig` overrides them.
 - Convert milliseconds with `pdMS_TO_TICKS()` (inside the rtos backend) or the `kb::rtos` helpers. Never pass a
   raw tick count that assumes a rate.
 - At 1 kHz, `pdMS_TO_TICKS()` overflows its 32-bit arithmetic above about 71 minutes, and the tick counter wraps

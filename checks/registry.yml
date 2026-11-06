@@ -46,7 +46,16 @@ checks:
   - id: coverage-floor
     status: planned
     parametric: true
-    summary: line and branch coverage of the host tests at or above the floor for the repository's level
+    summary: >-
+      gcovr coverage of library code by the host tests at or above the floor (coverage-floor/level for lines and
+      branches, coverage-floor/mcdc for condition coverage), as ADR-0020 defines it
+  - id: coverage-justification
+    status: planned
+    summary: every uncovered line, branch or condition is in docs/coverage-justification.yml, and nothing else is
+  - id: complexity
+    status: planned
+    parametric: true
+    summary: lizard finds no library function over the complexity, length or parameter limit of the level (ADR-0020)
   - id: cross-build
     status: planned
     parametric: true

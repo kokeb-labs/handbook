@@ -330,12 +330,9 @@ rules:
     enforce_from: "2027-03-01"
     applies: {profiles: [driver, hal, firmware, template]}
     verify: [{check: sdkconfig-defaults/freertos-hz}]
-    refs: [{adr: 6}]
+    refs: [{adr: 6}, {adr: 18}]
     page: standards/threading-and-timing.md
-    notes: >-
-      Warns until 2027-03-01, then fails CI. Whether a generated sdkconfig may be committed is unresolved in the
-      Kokeb pages (driver.md:296 forbids it, threading-and-timing.md:84 tolerates it); this rule names only the
-      defaults file.
+    notes: Warns until 2027-03-01, then fails CI.
     origin:
       - "kb:standards/threading-and-timing.md:84,92"
       - "kb:standards/product.md:52"

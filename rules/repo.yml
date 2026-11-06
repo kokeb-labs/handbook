@@ -242,18 +242,18 @@ rules:
   - id: KB-REPO-016
     title: ESP-IDF projects commit sdkconfig.defaults, never sdkconfig
     statement: >-
-      The settings an ESP-IDF project needs are in `sdkconfig.defaults`; the generated `sdkconfig` is gitignored
-      and never committed.
+      The settings an ESP-IDF project needs are in `sdkconfig.defaults` (and `sdkconfig.defaults.<target>`); the
+      generated `sdkconfig` is gitignored and never committed. A firmware release attaches the effective
+      `sdkconfig` instead.
     level: must
     status: proposed
     since: "1.0"
     enforce_from: "2027-03-01"
     applies: {profiles: [driver, library, hal, firmware, template]}
     verify: [{check: tracked-files/sdkconfig}]
+    refs: [{adr: 18}]
     page: standards/driver.md
-    notes: >-
-      Warns until 2027-03-01, then fails CI. threading-and-timing.md still tolerates a committed sdkconfig and
-      needs aligning.
+    notes: Warns until 2027-03-01, then fails CI.
     origin: ["inv:B-DRV-52"]
 
   - id: KB-REPO-017

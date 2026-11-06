@@ -17,7 +17,7 @@ pages under Standards hold the detail. Rules marked guide are design advice for 
 | [KB-ARCH-008](#kb-arch-008) Only a chip's driver and handler know its registers | must | library, hal, firmware | review |
 | [KB-ARCH-009](#kb-arch-009) MCU-specific code lives only in the selected family's folders | must | driver, library, hal, firmware | planned |
 | [KB-ARCH-010](#kb-arch-010) Product-specific needs reach kb-core and drivers only as generic extension points | must | driver, library, template | review |
-| [KB-ARCH-011](#kb-arch-011) Run-time polymorphism lives only in Base\* interfaces and the HAL manager base | must | driver, library, hal, template | planned |
+| [KB-ARCH-011](#kb-arch-011) Virtual functions only at the three run-time boundaries | must | driver, library, hal, template | planned |
 | [KB-ARCH-012](#kb-arch-012) A peripheral only one MCU family has gets a Base\* interface and a gate row | must | driver, library | review |
 | [KB-ARCH-013](#kb-arch-013) A protocol client follows the driver contract except the chip rules | should | driver | review |
 | [KB-ARCH-014](#kb-arch-014) Split a large chip into sub-object facades that share the driver | guide | driver | none |
@@ -240,13 +240,13 @@ merge.
 
 *Explained in:* [standards/layers.md](../standards/layers.md#product-specific-code)
 
-## KB-ARCH-011: Run-time polymorphism lives only in Base\* interfaces and the HAL manager base { #kb-arch-011 }
+## KB-ARCH-011: Virtual functions only at the three run-time boundaries { #kb-arch-011 }
 
 **MUST** · driver, library, hal, template · since 1.0
 
-Above the bind, virtual functions are declared only by the `Base*` interfaces in kb-core's `interfaces/base/` and by
-kb-hal-common's `ManagerBase` and the sink interfaces it uses. Drivers, ports, handlers and utils have no virtual
-functions; code above the bind holds a `Base*&`.
+Virtual functions appear only in kb-core's `Base*` peripheral interfaces, kb-hal-common's `ManagerBase`, `FacadeBase`
+and their sink interfaces, and kb-core's `BaseThread` and `BaseThreadsManager`. Drivers, ports, handlers and utilities
+have none; code above the bind holds a `Base*&`.
 
 *Why:* Static dispatch keeps drivers and handlers inlined and checkable at compile time; the two run-time boundaries are
 where the concrete type is not known until the board is built (the MCU object, the board's managers).
@@ -255,9 +255,10 @@ where the concrete type is not known until the board is built (the MCU object, t
 
 - `forbidden-patterns/virtual-outside-interfaces` (planned): a source scan for a construct the handbook bans; the
   parameter names the pattern set
-- review: A new virtual function is in a `Base*` interface or kb-hal-common's manager base, nowhere else.
+- review: A new virtual function is in one of the three boundaries of ADR-0016, nowhere else.
 
-*See also:* [ADR-0003](../adr/0003-crtp-ports.md); [ADR-0005](../adr/0005-kb-hal-common.md)
+*See also:* [ADR-0016](../adr/0016-virtual-functions.md); [ADR-0003](../adr/0003-crtp-ports.md);
+[ADR-0005](../adr/0005-kb-hal-common.md)
 
 *Explained in:* [standards/library.md](../standards/library.md#interfaces)
 

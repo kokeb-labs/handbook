@@ -39,7 +39,7 @@ How documentation is written, built and checked.
 | [KB-DOC-032](#kb-doc-032) ADRs use the standard format and are numbered in acceptance order | must | all | planned |
 | [KB-DOC-033](#kb-doc-033) An accepted decision is superseded, never rewritten | must | all | review |
 | [KB-DOC-034](#kb-doc-034) Cross-repository decisions are handbook ADRs; local ones stay in the repository | should | all | review |
-| [KB-DOC-035](#kb-doc-035) Datasheets are linked, and committed only where their licence allows | should | driver, hal, template | review |
+| [KB-DOC-035](#kb-doc-035) Datasheets are referenced by exact revision, never committed | must | driver, hal, template | planned |
 | [KB-DOC-036](#kb-doc-036) Markdown wraps at 120 columns | must | all | checked |
 | [KB-DOC-037](#kb-doc-037) Every page has one title, a purpose line and sections in reading order | should | all | checked |
 | [KB-DOC-038](#kb-doc-038) Headings step one level at a time and code fences name their language | must | all | checked |
@@ -593,16 +593,24 @@ repository, including a product's, is an ADR in its own `docs/adr/` in the same 
 
 *Explained in:* [standards/docs.md](../standards/docs.md#changelog-and-decisions)
 
-## KB-DOC-035: Datasheets are linked, and committed only where their licence allows { #kb-doc-035 }
+## KB-DOC-035: Datasheets are referenced by exact revision, never committed { #kb-doc-035 }
 
-**SHOULD** · driver, hal, template · since 1.0
+!!! note "Proposed"
 
-A datasheet or manual is linked from the page, never embedded. It is committed under `docs/datasheet/` only when its
-licence allows redistribution; otherwise the page links the vendor's copy.
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, hal, template · since 1.0 · enforced from 2027-03-01
+
+No datasheet, reference manual or application note is committed. `docs/datasheets.yml` lists each document the code was
+written against: vendor, title, document number, revision, date, URL and the SHA-256 of the PDF that was used.
 
 *Verified by:*
 
-- review: Any PDF under docs/datasheet/ has a licence that allows redistribution; none is embedded.
+- `tracked-files/datasheets` (planned): git tracks no file of a banned kind; the parameter names it
+  (tracked-files/symlinks, tracked-files/sdkconfig, tracked-files/idf-component)
+- review: docs/datasheets.yml names the document number, revision and SHA-256 of every datasheet the code cites.
+
+*See also:* [ADR-0019](../adr/0019-datasheets.md)
 
 
 ## KB-DOC-036: Markdown wraps at 120 columns { #kb-doc-036 }

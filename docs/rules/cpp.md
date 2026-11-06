@@ -18,7 +18,7 @@ review hold each change to.
 | [KB-CPP-009](#kb-cpp-009) Register frames have their layout asserted | must | driver, library, hal (high level and above) | planned |
 | [KB-CPP-010](#kb-cpp-010) Data shared with an interrupt is atomic or explicitly guarded | must | driver, library, hal, firmware | review |
 | [KB-CPP-011](#kb-cpp-011) Driver code includes only its own headers and the allowed standard headers | must | driver, template | checked |
-| [KB-CPP-012](#kb-cpp-012) Target code uses only freestanding-friendly headers and C++20 the pinned compilers share | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-012](#kb-cpp-012) Target code uses only the target library subset and C++20 the pinned compilers share | must | driver, library, hal, firmware, template | planned |
 | [KB-CPP-013](#kb-cpp-013) Each kb-core part includes only what its layer table allows | must | library | planned |
 | [KB-CPP-014](#kb-cpp-014) Handlers include only their driver, Base headers and kb-core utilities | must | library | planned |
 | [KB-CPP-015](#kb-cpp-015) HAL and product code reach hardware only through their bind and handlers | must | hal, firmware | planned |
@@ -119,6 +119,7 @@ review hold each change to.
 | [KB-CPP-112](#kb-cpp-112) No commented-out code, untracked TODOs, author banners or tool attribution | must | all | planned |
 | [KB-CPP-113](#kb-cpp-113) Class members are grouped by access | guide | driver, library, hal, firmware, template | none |
 | [KB-CPP-114](#kb-cpp-114) Slow start-up steps are opt-in or visible | guide | library, hal, firmware | none |
+| [KB-CPP-115](#kb-cpp-115) Functions stay within the complexity, length and parameter limits of their level | must | driver, library, hal, firmware, template | planned |
 
 ## KB-CPP-001: C++20, no compiler extensions { #kb-cpp-001 }
 
@@ -315,7 +316,7 @@ Layers page (such as `<cstdint>`, `<array>`, `<span>`, `<optional>` and `<bit>`)
 Kokeb Labs repository, an SDK, RTOS or vendor header, or `<iostream>`, `<cstdio>`, `<string>`, `<functional>`,
 `<memory>`, `<vector>`, `<map>`, `<thread>` or `<mutex>`.
 
-*Why:* A driver that includes nothing but its own code and a freestanding subset of the library builds on any MCU and in
+*Why:* A driver that includes nothing but its own code and the target library subset (ADR-0017) builds on any MCU and in
 any framework. The host build without SDK include paths already rejects SDK headers.
 
 *Verified by:*
@@ -328,7 +329,7 @@ any framework. The host build without SDK include paths already rejects SDK head
 
 *Explained in:* [standards/layers.md](../standards/layers.md)
 
-## KB-CPP-012: Target code uses only freestanding-friendly headers and C++20 the pinned compilers share { #kb-cpp-012 }
+## KB-CPP-012: Target code uses only the target library subset and C++20 the pinned compilers share { #kb-cpp-012 }
 
 !!! note "Proposed"
 
@@ -336,21 +337,21 @@ any framework. The host build without SDK include paths already rejects SDK head
 
 **MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
 
-Code that runs on a target uses only the standard headers the Layers page allows for its part (never `<iostream>`,
-`<fstream>`, `<thread>`, `<future>`, `<regex>` or `<filesystem>`) and only C++20 features that both the pinned ESP-IDF
-GCC and the CI clang support. Host-only test code is exempt.
+Code that runs on a target includes only the standard headers ADR-0017 allows for its part (no allocating, throwing or
+OS-dependent header such as `<string>`, `<vector>`, `<memory>`, `<functional>`, `<iostream>` or `<thread>`) and uses
+only C++20 features both the pinned ESP-IDF GCC and the CI clang support. Host-only test code is exempt.
 
 *Why:* Hosted-only headers pull in allocation, locale and threading support that a microcontroller build either lacks or
 pays for in flash.
 
 *Verified by:*
 
-- `include-allowlist/hosted` (planned): a script over the include graph that fails on a header outside the allowed set
+- `include-allowlist/target` (planned): a script over the include graph that fails on a header outside the allowed set
   for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
 - `cross-build/esp-idf` (planned): the library compiles warning-free for the named target (arm-none-eabi, riscv32,
   esp-idf)
 
-*See also:* [ADR-0010](../adr/0010-cpp20.md)
+*See also:* [ADR-0017](../adr/0017-target-library-subset.md); [ADR-0010](../adr/0010-cpp20.md)
 
 
 ## KB-CPP-013: Each kb-core part includes only what its layer table allows { #kb-cpp-013 }
@@ -2079,3 +2080,27 @@ section and data members last.
 A start-up step that can take long (probing a bus with retries, waiting for a chip to boot) is either behind a
 configuration option or reported to the caller, so a board does not appear to hang at boot.
 
+
+## KB-CPP-115: Functions stay within the complexity, length and parameter limits of their level { #kb-cpp-115 }
+
+!!! note "Proposed"
+
+    Warns until 2027-01-15, then fails CI.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-01-15
+
+Every function in library code stays within the limits of the repository's level, measured by lizard with the modified
+cyclomatic complexity: standard 15 / 80 lines / 7 parameters; high 15 / 60 / 6; safety 10 / 60 / 6. A function over a
+limit that is clearer as one piece has a deviation record.
+
+*Why:* Complex functions are where defects hide and where tests miss paths; the numbers and their sources are in
+ADR-0020.
+
+*Verified by:*
+
+- `complexity/level` (planned): lizard finds no library function over the complexity, length or parameter limit of the
+  level (ADR-0020)
+
+*See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md); NASA/JPL Power of Ten Rule 4; C++ Core Guidelines F.3
+
+*Explained in:* [deviations.md](../deviations.md)

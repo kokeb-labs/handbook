@@ -112,8 +112,9 @@ build, which compiles only that folder, so no header in `base/` tests a family m
 
 Rules:
 
-- `Base*` classes are the one place above the bind with virtual functions: the bind creates the concrete object,
-  and everything above holds a `Base*&`. This is the run-time boundary between portable code and the MCU.
+- `Base*` classes are the MCU boundary, one of the three places with virtual functions
+  ([ADR-0016](../adr/0016-virtual-functions.md)): the bind creates the concrete object, and everything above holds a
+  `Base*&`. The other two are kb-hal-common's managers and kb-core's thread bases.
 - Each `Base*` keeps its `kb_<periph>_err_t` X-macro list and adds `kb::Status ToStatus(kb_<periph>_err_t)`
   following [errors.md](errors.md#interfaces-codes-to-kbstatus).
 - `Initialize()` is idempotent and `EnsureInitialized()` lazy; neither allocates after start-up.

@@ -49,7 +49,8 @@ checks; [driver.md](../standards/driver.md) is the contract.
 - [ ] The driver page set, including `docs/contract.md` and `docs/platforms.md`; site config `_config/mkdocs.yml`
 - [ ] Doxygen clean with `EXTRACT_ALL = NO` and warnings as errors on `inc/`
 - [ ] Quickstart checks every return value; Porting shows a complete, compiled port
-- [ ] README sections per the README standard; datasheet in `docs/datasheet/` where its licence allows
+- [ ] README sections per the README standard; `docs/datasheets.yml` names each datasheet's number, revision and
+  SHA-256, and no vendor PDF is committed ([ADR-0019](../adr/0019-datasheets.md))
 - [ ] `CHANGELOG.md` with `## [Unreleased]`
 
 ### kb-core (separate PRs, after the first release)

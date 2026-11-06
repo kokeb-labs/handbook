@@ -194,26 +194,23 @@ rules:
       - "inventory: B-PRD-06 (product.md:29), B-ERR-15 (errors.md:160), B-ADR-63 (adr/0014:28)"
 
   - id: KB-ARCH-011
-    title: Run-time polymorphism lives only in Base* interfaces and the HAL manager base
+    title: Virtual functions only at the three run-time boundaries
     statement: >-
-      Above the bind, virtual functions are declared only by the `Base*` interfaces in kb-core's `interfaces/base/`
-      and by kb-hal-common's `ManagerBase` and the sink interfaces it uses. Drivers, ports, handlers and utils have
-      no virtual functions; code above the bind holds a `Base*&`.
+      Virtual functions appear only in kb-core's `Base*` peripheral interfaces, kb-hal-common's `ManagerBase`,
+      `FacadeBase` and their sink interfaces, and kb-core's `BaseThread` and `BaseThreadsManager`. Drivers, ports,
+      handlers and utilities have none; code above the bind holds a `Base*&`.
     level: must
     status: active
     since: "1.0"
     applies: {profiles: [driver, library, hal, template]}
     verify:
       - check: forbidden-patterns/virtual-outside-interfaces
-      - review: A new virtual function is in a `Base*` interface or kb-hal-common's manager base, nowhere else.
+      - review: A new virtual function is in one of the three boundaries of ADR-0016, nowhere else.
     rationale: >-
       Static dispatch keeps drivers and handlers inlined and checkable at compile time; the two run-time boundaries
       are where the concrete type is not known until the board is built (the MCU object, the board's managers).
-    refs: [{adr: 3}, {adr: 5}]
+    refs: [{adr: 16}, {adr: 3}, {adr: 5}]
     page: standards/library.md#interfaces
-    notes: >-
-      library.md says `Base*` holds the only virtuals above the bind, while hal.md defines a virtual `ManagerBase`
-      that `FacadeBase` iterates. ADR-0005 makes `ManagerBase` part of kb-hal-common, so both are allowed.
     origin:
       - "inventory: B-LIB-18 (kb:standards/library.md:115; kb:standards/adr/0003-crtp-ports.md:22,27)"
       - "hf:process/architecture.md:156-161 (public pure virtuals; superseded)"

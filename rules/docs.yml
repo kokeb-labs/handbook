@@ -563,20 +563,21 @@ rules:
       - "kb:standards/product.md:73 (B-PRD-18)"
 
   - id: KB-DOC-035
-    title: Datasheets are linked, and committed only where their licence allows
+    title: Datasheets are referenced by exact revision, never committed
     statement: >-
-      A datasheet or manual is linked from the page, never embedded. It is committed under `docs/datasheet/` only
-      when its licence allows redistribution; otherwise the page links the vendor's copy.
-    level: should
-    status: active
+      No datasheet, reference manual or application note is committed. `docs/datasheets.yml` lists each document
+      the code was written against: vendor, title, document number, revision, date, URL and the SHA-256 of the PDF
+      that was used.
+    level: must
+    status: proposed
     since: "1.0"
+    enforce_from: "2027-03-01"
     applies: {profiles: [driver, hal, template]}
     verify:
-      - review: Any PDF under docs/datasheet/ has a licence that allows redistribution; none is embedded.
-    notes: >-
-      Sources disagree: the new-driver checklist stores the datasheet, driver-template's template-init and the org
-      pull-request template say no vendor PDF is committed, and agents.md bans private datasheet material. The
-      licence test reconciles them; private or NDA material is never committed.
+      - check: tracked-files/datasheets
+      - review: docs/datasheets.yml names the document number, revision and SHA-256 of every datasheet the code cites.
+    refs: [{adr: 19}]
+    notes: Warns until 2027-03-01, then fails CI.
     origin:
       - "kb:standards/checklists/new-driver.md:52 (B-DOC-30)"
       - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Figures, PDFs)"

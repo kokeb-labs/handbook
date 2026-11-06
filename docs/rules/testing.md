@@ -31,6 +31,9 @@ sanitizers, coverage and cross-compilation.
 | [KB-TST-024](#kb-tst-024) Real-time paths have a measured worst-case time and a regression check | should | driver, library, hal, firmware (high level and above) | planned |
 | [KB-TST-025](#kb-tst-025) Concurrent code is tested under ThreadSanitizer | must | library, hal (high level and above) | planned |
 | [KB-TST-026](#kb-tst-026) OTA updates are tested on both the update and the rollback path | should | firmware | review |
+| [KB-TST-027](#kb-tst-027) At safety level, every decision has full MC/DC coverage | must | driver, library, hal (safety level and above) | planned |
+| [KB-TST-028](#kb-tst-028) At safety level, every uncovered item is justified | must | driver, library, hal (safety level and above) | planned |
+| [KB-TST-029](#kb-tst-029) At safety level, mutation testing checks that the tests check something | guide | driver, library, hal (safety level and above) | none |
 
 ## KB-TST-001: Host tests build and pass with gcc and clang { #kb-tst-001 }
 
@@ -84,15 +87,18 @@ The host tests also run in a build with `-fsanitize=address,undefined` and pass 
 
 **MUST** · driver, library, hal (high level and above) · since 1.0 · enforced from 2027-03-01
 
-Host-test coverage stays at or above the floor of the repository's level: high, 85% of lines and 75% of branches;
-safety, every reachable branch, with each unreached one justified in the evidence package.
+Coverage of library code by the host tests, measured with gcovr over a GCC `-O0 --coverage` build, stays at or above the
+floor of the repository's level: high, 85% of lines and 75% of branches; safety, 100% of reachable lines and branches.
+Tests, examples and compile-only targets are not counted.
+
+*Why:* A floor that is defined by tool, build and scope can be reproduced by anyone; ADR-0020 says why these numbers.
 
 *Verified by:*
 
-- `coverage-floor/level` (planned): line and branch coverage of the host tests at or above the floor for the
-  repository's level
+- `coverage-floor/level` (planned): gcovr coverage of library code by the host tests at or above the floor
+  (coverage-floor/level for lines and branches, coverage-floor/mcdc for condition coverage), as ADR-0020 defines it
 
-*See also:* IEC 62304:2006+A1:2015 5.5.5; IEC 61508-3:2010 Table B.2
+*See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md); IEC 62304:2006+A1:2015 5.5.5; IEC 61508-3:2010 Table B.2
 
 
 ## KB-TST-005: Compiles for every supported target { #kb-tst-005 }
@@ -452,4 +458,59 @@ hardware and recorded in the release checklist.
 *Verified by:*
 
 - review: The release checklist records an OTA update and an OTA rollback on hardware.
+
+
+## KB-TST-027: At safety level, every decision has full MC/DC coverage { #kb-tst-027 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal (safety level and above) · since 1.0 · enforced from 2027-03-01
+
+Library code reaches 100% modified condition/decision coverage, measured with GCC's `-fcondition-coverage` and gcovr; at
+the high level the figure is reported but not gated.
+
+*Why:* Branch coverage can pass while a condition inside a compound decision never decided anything; MC/DC shows each
+condition independently changes the outcome.
+
+*Verified by:*
+
+- `coverage-floor/mcdc` (planned): gcovr coverage of library code by the host tests at or above the floor
+  (coverage-floor/level for lines and branches, coverage-floor/mcdc for condition coverage), as ADR-0020 defines it
+
+*See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md); IEC 62304:2006+A1:2015 5.5.4 (additional acceptance
+criteria for class C)
+
+
+## KB-TST-028: At safety level, every uncovered item is justified { #kb-tst-028 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, hal (safety level and above) · since 1.0 · enforced from 2027-03-01
+
+Each line, branch or condition the tests do not reach is listed in `docs/coverage-justification.yml` with the reason and
+who accepted it; an entry for an item the tests now reach is removed.
+
+*Verified by:*
+
+- `coverage-justification` (planned): every uncovered line, branch or condition is in docs/coverage-justification.yml,
+  and nothing else is
+
+*See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md)
+
+*Explained in:* [evidence.md](../evidence.md)
+
+## KB-TST-029: At safety level, mutation testing checks that the tests check something { #kb-tst-029 }
+
+**GUIDE** · driver, library, hal (safety level and above) · since 1.0
+
+Each release of a safety component runs mutation testing (for example Mull) over library code and reviews the surviving
+mutants; each survivor gets a test or a note on why it is equivalent.
+
+*Why:* Coverage shows which code ran, not whether a test would notice it being wrong.
+
+*See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md)
 

@@ -21,6 +21,11 @@ supersedes it, and the old one gets a `Superseded by ADR-NNNN` status.
 | [0013](0013-kb-core-monorepo.md) | kb-core is one monorepo with four targets and one version | Accepted |
 | [0014](0014-three-kinds-of-specific.md) | Chip-, MCU- and product-specific code each have one place | Accepted |
 | [0015](0015-solo-maintainer-governance.md) | Governance for one maintainer, open to contributors | Accepted |
+| [0016](0016-virtual-functions.md) | Virtual functions only at the three run-time boundaries | Accepted |
+| [0017](0017-target-library-subset.md) | Target code uses a named subset of the standard library | Accepted |
+| [0018](0018-sdkconfig.md) | Commit `sdkconfig.defaults`, never the generated `sdkconfig` | Accepted |
+| [0019](0019-datasheets.md) | Datasheets are referenced by exact revision, never committed | Accepted |
+| [0020](0020-complexity-and-coverage.md) | Complexity limits and coverage floors per assurance level | Accepted |
 
 ## Format
 
