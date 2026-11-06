@@ -28,6 +28,10 @@ loosened rule is a major release.
 - Rules for complexity (KB-CPP-115), MC/DC at safety level (KB-TST-027), justified coverage gaps (KB-TST-028) and
   mutation testing (KB-TST-029); the coverage floor now says how coverage is measured.
 
+- The complexity, coverage and sanitizer checks are implemented by ci-tools' `ru-host-quality` (v1.2.0); rules
+  KB-CPP-115 (complexity), KB-TST-003 (sanitizers), KB-TST-004 (coverage floors) and KB-TST-027 (MC/DC at safety
+  level) are active.
+
 ### Fixed
 
 - The five conflicts found while loading the rules are settled, and the affected rules and pages agree. The

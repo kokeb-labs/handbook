@@ -8,8 +8,8 @@ sanitizers, coverage and cross-compilation.
 | --- | --- | --- | --- |
 | [KB-TST-001](#kb-tst-001) Host tests build and pass with gcc and clang | must | driver, library, hal, template | checked |
 | [KB-TST-002](#kb-tst-002) API misuse is proved to be a compile error | must | driver, library, template | checked |
-| [KB-TST-003](#kb-tst-003) Tests pass under AddressSanitizer and UndefinedBehaviorSanitizer | must | driver, library, hal, template (high level and above) | planned |
-| [KB-TST-004](#kb-tst-004) Coverage floor per assurance level | must | driver, library, hal (high level and above) | planned |
+| [KB-TST-003](#kb-tst-003) Tests pass under AddressSanitizer and UndefinedBehaviorSanitizer | must | driver, library, hal, template (high level and above) | checked |
+| [KB-TST-004](#kb-tst-004) Coverage floor per assurance level | must | driver, library, hal (high level and above) | checked |
 | [KB-TST-005](#kb-tst-005) Compiles for every supported target | must | driver, library (high level and above) | planned |
 | [KB-TST-006](#kb-tst-006) Host tests compile every header with the firmware's flags and no platform paths | must | driver, library, template | checked |
 | [KB-TST-007](#kb-tst-007) Driver tests run against a register-level model of the chip | must | driver, template | review |
@@ -31,7 +31,7 @@ sanitizers, coverage and cross-compilation.
 | [KB-TST-024](#kb-tst-024) Real-time paths have a measured worst-case time and a regression check | should | driver, library, hal, firmware (high level and above) | planned |
 | [KB-TST-025](#kb-tst-025) Concurrent code is tested under ThreadSanitizer | must | library, hal (high level and above) | planned |
 | [KB-TST-026](#kb-tst-026) OTA updates are tested on both the update and the rollback path | should | firmware | review |
-| [KB-TST-027](#kb-tst-027) At safety level, every decision has full MC/DC coverage | must | driver, library, hal (safety level and above) | planned |
+| [KB-TST-027](#kb-tst-027) At safety level, every decision has full MC/DC coverage | must | driver, library, hal (safety level and above) | checked |
 | [KB-TST-028](#kb-tst-028) At safety level, every uncovered item is justified | must | driver, library, hal (safety level and above) | planned |
 | [KB-TST-029](#kb-tst-029) At safety level, mutation testing checks that the tests check something | guide | driver, library, hal (safety level and above) | none |
 
@@ -64,28 +64,20 @@ must fail to compile, and CI checks that it does.
 
 ## KB-TST-003: Tests pass under AddressSanitizer and UndefinedBehaviorSanitizer { #kb-tst-003 }
 
-!!! note "Proposed"
-
-    Warns until 2027-01-15, then fails CI.
-
-**MUST** · driver, library, hal, template (high level and above) · since 1.0 · enforced from 2027-01-15
+**MUST** · driver, library, hal, template (high level and above) · since 1.0
 
 The host tests also run in a build with `-fsanitize=address,undefined` and pass with no report.
 
 *Verified by:*
 
-- `sanitizers` (planned): host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
+- `sanitizers` (implemented): host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
 
 *See also:* SEI CERT C++ EXP53-CPP; SEI CERT C INT32-C
 
 
 ## KB-TST-004: Coverage floor per assurance level { #kb-tst-004 }
 
-!!! note "Proposed"
-
-    Warns until 2027-03-01, then fails CI.
-
-**MUST** · driver, library, hal (high level and above) · since 1.0 · enforced from 2027-03-01
+**MUST** · driver, library, hal (high level and above) · since 1.0
 
 Coverage of library code by the host tests, measured with gcovr over a GCC `-O0 --coverage` build, stays at or above the
 floor of the repository's level: high, 85% of lines and 75% of branches; safety, 100% of reachable lines and branches.
@@ -95,7 +87,7 @@ Tests, examples and compile-only targets are not counted.
 
 *Verified by:*
 
-- `coverage-floor/level` (planned): gcovr coverage of library code by the host tests at or above the floor
+- `coverage-floor/level` (implemented): gcovr coverage of library code by the host tests at or above the floor
   (coverage-floor/level for lines and branches, coverage-floor/mcdc for condition coverage), as ADR-0020 defines it
 
 *See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md); IEC 62304:2006+A1:2015 5.5.5; IEC 61508-3:2010 Table B.2
@@ -462,11 +454,7 @@ hardware and recorded in the release checklist.
 
 ## KB-TST-027: At safety level, every decision has full MC/DC coverage { #kb-tst-027 }
 
-!!! note "Proposed"
-
-    Warns until 2027-03-01, then fails CI.
-
-**MUST** · driver, library, hal (safety level and above) · since 1.0 · enforced from 2027-03-01
+**MUST** · driver, library, hal (safety level and above) · since 1.0
 
 Library code reaches 100% modified condition/decision coverage, measured with GCC's `-fcondition-coverage` and gcovr; at
 the high level the figure is reported but not gated.
@@ -476,7 +464,7 @@ condition independently changes the outcome.
 
 *Verified by:*
 
-- `coverage-floor/mcdc` (planned): gcovr coverage of library code by the host tests at or above the floor
+- `coverage-floor/mcdc` (implemented): gcovr coverage of library code by the host tests at or above the floor
   (coverage-floor/level for lines and branches, coverage-floor/mcdc for condition coverage), as ADR-0020 defines it
 
 *See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md); IEC 62304:2006+A1:2015 5.5.4 (additional acceptance

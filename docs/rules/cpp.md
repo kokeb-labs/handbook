@@ -113,13 +113,13 @@ review hold each change to.
 | [KB-CPP-105](#kb-cpp-105) Bit operations use unsigned operands and shifts stay within the width | must | driver, library, hal, firmware, template | checked |
 | [KB-CPP-106](#kb-cpp-106) Register fields and wire bytes are packed with masks, shifts and explicit byte order | must | driver, library, hal, template | planned |
 | [KB-CPP-107](#kb-cpp-107) Register maps are written as tables | guide | driver, template | none |
-| [KB-CPP-108](#kb-cpp-108) Parsers of external input check length and type before use | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-108](#kb-cpp-108) Parsers of external input check length and type before use | must | driver, library, hal, firmware, template | checked |
 | [KB-CPP-110](#kb-cpp-110) At the safety level, code follows the MISRA subset in the compliance matrix | must | driver, library, hal, firmware (safety level and above) | planned |
 | [KB-CPP-111](#kb-cpp-111) Comments explain why, and datasheet references are exact | should | all | review |
 | [KB-CPP-112](#kb-cpp-112) No commented-out code, untracked TODOs, author banners or tool attribution | must | all | planned |
 | [KB-CPP-113](#kb-cpp-113) Class members are grouped by access | guide | driver, library, hal, firmware, template | none |
 | [KB-CPP-114](#kb-cpp-114) Slow start-up steps are opt-in or visible | guide | library, hal, firmware | none |
-| [KB-CPP-115](#kb-cpp-115) Functions stay within the complexity, length and parameter limits of their level | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-115](#kb-cpp-115) Functions stay within the complexity, length and parameter limits of their level | must | driver, library, hal, firmware, template | checked |
 
 ## KB-CPP-001: C++20, no compiler extensions { #kb-cpp-001 }
 
@@ -1992,7 +1992,7 @@ length, type and range before reading any field and returns an error for malform
 
 *Verified by:*
 
-- `sanitizers` (planned): host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
+- `sanitizers` (implemented): host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
 - review: Each new parser rejects short, oversized and mistyped input before reading fields.
 
 *See also:* SEI CERT C ARR30-C; NASA/JPL Power of Ten Rule 7
@@ -2083,11 +2083,7 @@ configuration option or reported to the caller, so a board does not appear to ha
 
 ## KB-CPP-115: Functions stay within the complexity, length and parameter limits of their level { #kb-cpp-115 }
 
-!!! note "Proposed"
-
-    Warns until 2027-01-15, then fails CI.
-
-**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-01-15
+**MUST** · driver, library, hal, firmware, template · since 1.0
 
 Every function in library code stays within the limits of the repository's level, measured by lizard with the modified
 cyclomatic complexity: standard 15 / 80 lines / 7 parameters; high 15 / 60 / 6; safety 10 / 60 / 6. A function over a
@@ -2098,8 +2094,8 @@ ADR-0020.
 
 *Verified by:*
 
-- `complexity/level` (planned): lizard finds no library function over the complexity, length or parameter limit of the
-  level (ADR-0020)
+- `complexity/level` (implemented): lizard finds no library function over the complexity, length or parameter limit of
+  the level (ADR-0020)
 
 *See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md); NASA/JPL Power of Ten Rule 4; C++ Core Guidelines F.3
 

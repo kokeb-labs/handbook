@@ -41,11 +41,13 @@ checks:
     status: planned
     summary: every public header compiles on its own as the first include of a translation unit
   - id: sanitizers
-    status: planned
+    status: implemented
     summary: host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
+    where: ci-tools ru-host-quality (sanitizers job)
   - id: coverage-floor
-    status: planned
+    status: implemented
     parametric: true
+    where: ci-tools ru-host-quality (coverage job, GCC 14 and gcovr 8.7)
     summary: >-
       gcovr coverage of library code by the host tests at or above the floor (coverage-floor/level for lines and
       branches, coverage-floor/mcdc for condition coverage), as ADR-0020 defines it
@@ -53,8 +55,9 @@ checks:
     status: planned
     summary: every uncovered line, branch or condition is in docs/coverage-justification.yml, and nothing else is
   - id: complexity
-    status: planned
+    status: implemented
     parametric: true
+    where: ci-tools ru-host-quality (complexity job, lizard 1.24.1)
     summary: lizard finds no library function over the complexity, length or parameter limit of the level (ADR-0020)
   - id: cross-build
     status: planned

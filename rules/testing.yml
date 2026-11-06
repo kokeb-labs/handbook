@@ -33,13 +33,11 @@ rules:
     title: Tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
     statement: The host tests also run in a build with `-fsanitize=address,undefined` and pass with no report.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-01-15"
     applies: {profiles: [driver, library, hal, template], from_level: high}
     verify: [{check: sanitizers}]
     refs: [{std: CERT-CPP, id: "EXP53-CPP"}, {std: CERT-C, id: "INT32-C"}]
-    notes: Warns until 2027-01-15, then fails CI.
     origin: ["gap: neither source stated it"]
 
   - id: KB-TST-004
@@ -49,16 +47,14 @@ rules:
       or above the floor of the repository's level: high, 85% of lines and 75% of branches; safety, 100% of
       reachable lines and branches. Tests, examples and compile-only targets are not counted.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-03-01"
     applies: {profiles: [driver, library, hal], from_level: high}
     verify: [{check: coverage-floor/level}]
     rationale: >-
       A floor that is defined by tool, build and scope can be reproduced by anyone; ADR-0020 says why these
       numbers.
     refs: [{adr: 20}, {std: IEC-62304, id: "5.5.5"}, {std: IEC-61508-3, id: "Table B.2"}]
-    notes: Warns until 2027-03-01, then fails CI.
     origin: ["gap: neither source stated it"]
 
   - id: KB-TST-005
@@ -423,16 +419,14 @@ rules:
       Library code reaches 100% modified condition/decision coverage, measured with GCC's `-fcondition-coverage`
       and gcovr; at the high level the figure is reported but not gated.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-03-01"
     applies: {profiles: [driver, library, hal], from_level: safety}
     verify: [{check: coverage-floor/mcdc}]
     rationale: >-
       Branch coverage can pass while a condition inside a compound decision never decided anything; MC/DC shows
       each condition independently changes the outcome.
     refs: [{adr: 20}, {std: IEC-62304, id: "5.5.4", note: "additional acceptance criteria for class C"}]
-    notes: Warns until 2027-03-01, then fails CI.
     origin: ["gap: ADR-0020"]
 
   - id: KB-TST-028

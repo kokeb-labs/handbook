@@ -11,13 +11,13 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 | [Build and CMake](build.md) | 21 | 4 | 16 | 1 | 19% |
 | [C code](c.md) | 7 | 1 | 4 | 2 | 14% |
 | [CI and supply chain](ci.md) | 12 | 2 | 10 | 0 | 16% |
-| [C++ code](cpp.md) | 92 | 38 | 42 | 12 | 41% |
+| [C++ code](cpp.md) | 92 | 40 | 40 | 12 | 43% |
 | [Documentation](docs.md) | 34 | 12 | 15 | 7 | 35% |
 | [Git, review and release](git.md) | 21 | 6 | 14 | 1 | 28% |
 | [Hardware and porting](hardware.md) | 7 | 0 | 6 | 1 | 0% |
 | [Repository](repo.md) | 16 | 2 | 14 | 0 | 12% |
-| [Testing](testing.md) | 20 | 4 | 14 | 2 | 20% |
-| **All** | 274 | 76 | 163 | 35 | 27% |
+| [Testing](testing.md) | 20 | 7 | 11 | 2 | 35% |
+| **All** | 274 | 81 | 158 | 35 | 29% |
 
 ## Checks still to build
 
@@ -44,13 +44,10 @@ is not built yet. *Review*: verified in review against the pull-request checklis
   backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults, single-toggles
 - `codeowners`: .github/CODEOWNERS has a `*` rule naming at least one owner
 - `compat-table`: regenerating the tables derived from catalog/compat.yml leaves the tree unchanged
-- `complexity`: lizard finds no library function over the complexity, length or parameter limit of the level (ADR-0020)
 - `config-drift`: \_config/.clang-format and \_config/.clang-tidy equal the handbook's config/ files apart from the
   header
 - `conformance-tests`: every kb::interfaces method has a conformance test, and each mcu/&lt;family&gt; port runs and
   passes the suite
-- `coverage-floor`: gcovr coverage of library code by the host tests at or above the floor (coverage-floor/level for
-  lines and branches, coverage-floor/mcdc for condition coverage), as ADR-0020 defines it
 - `coverage-justification`: every uncovered line, branch or condition is in docs/coverage-justification.yml, and nothing
   else is
 - `cross-build`: the library compiles warning-free for the named target (arm-none-eabi, riscv32, esp-idf)
@@ -171,7 +168,6 @@ is not built yet. *Review*: verified in review against the pull-request checklis
   bool conversion, and that T is default-constructible and trivially copyable
 - `safety-label`: a pull request touching actuator, power-sequencing, OTP or peripheral-flash paths (labeler config) has
   the safety label, and a safety-labelled pull request has a human approval before merge
-- `sanitizers`: host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
 - `sbom`: the release attaches an SPDX SBOM listing every component and submodule the build contains
 - `sdkconfig-defaults`: sdkconfig.defaults of every ESP-IDF project sets the named value (freertos-hz is
   CONFIG\_FREERTOS\_HZ=1000)

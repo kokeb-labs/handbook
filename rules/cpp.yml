@@ -2091,9 +2091,8 @@ rules:
       modified cyclomatic complexity: standard 15 / 80 lines / 7 parameters; high 15 / 60 / 6; safety 10 / 60 / 6.
       A function over a limit that is clearer as one piece has a deviation record.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-01-15"
     applies: {profiles: [driver, library, hal, firmware, template]}
     verify: [{check: complexity/level}]
     rationale: >-
@@ -2101,5 +2100,4 @@ rules:
       ADR-0020.
     refs: [{adr: 20}, {std: NASA-P10, id: "Rule 4"}, {std: CPPCG, id: "F.3"}]
     page: deviations.md
-    notes: Warns until 2027-01-15, then fails CI.
     origin: ["gap: neither source stated a complexity limit"]
