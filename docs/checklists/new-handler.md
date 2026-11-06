@@ -1,7 +1,7 @@
 # Checklist: new handler
 
-Copy this list into the PR that adds `kb-core/handlers/<chip>/`. [handler.md](../standards/handler.md) is the contract. The
-driver is released and pinned in kb-core first.
+Copy this list into the PR that adds `kb-core/handlers/<chip>/`. [handler.md](../standards/handler.md) is the
+contract. The driver is released and pinned in kb-core first.
 
 ```markdown
 ### Files and build
