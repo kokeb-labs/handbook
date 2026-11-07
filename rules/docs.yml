@@ -242,8 +242,9 @@ rules:
   - id: KB-DOC-015
     title: The README has the standard sections in order
     statement: >-
-      The README has, in order and only where they apply: title and hero line, true badges, the bold docs link, one
-      figure, In 30 seconds, What it does, Install, Documentation, Tests and License.
+      The README has, in order and only where they apply: title and hero line, true badges, the bold docs link, a
+      plain-language paragraph, one figure, At a glance (with the status), Datasheet, Try it on your PC, Use it on
+      your MCU, What it does, Install, Documentation (with "Read it when you want to"), Tests and quality, License.
     level: should
     status: proposed
     since: "1.0"
@@ -1033,3 +1034,24 @@ rules:
       - review: Each new or changed test has a comment naming what it verifies, its data and expected result.
     rationale: The comment is the trace from a requirement to its test that an assessor reads.
     origin: ["hf:process/testing-requirements.md:670-694,781 (A-TST-16)"]
+
+  - id: KB-DOC-065
+    title: A driver's docs trace each part of the driver to its datasheet section
+    statement: >-
+      `docs/datasheets.yml` lists, besides the documents, one topic per thing the driver takes from them: the
+      datasheet's section and printed page, the driver API and the docs pages that explain it. The README and home
+      page carry the generated datasheet card, `docs/datasheet.md` the generated map, and each page a topic names
+      the generated box of the sections it relies on.
+    level: must
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: docs-drift
+      - review: Each topic names the right section and page; every docs page that rests on the datasheet has its box.
+    rationale: >-
+      A reader, a reviewer or an assessor can check any behaviour against the source document in one step, and a
+      new datasheet revision shows exactly which parts of the driver to re-check.
+    refs: [{adr: 19}]
+    page: standards/docs.md#the-datasheet-trail
+    origin: ["kb:driver-as5047u docs/datasheets.yml (pilot)"]

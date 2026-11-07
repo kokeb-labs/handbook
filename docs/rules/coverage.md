@@ -12,12 +12,12 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 | [C code](c.md) | 7 | 1 | 4 | 2 | 14% |
 | [CI and supply chain](ci.md) | 12 | 2 | 10 | 0 | 16% |
 | [C++ code](cpp.md) | 92 | 41 | 39 | 12 | 44% |
-| [Documentation](docs.md) | 34 | 15 | 12 | 7 | 44% |
+| [Documentation](docs.md) | 35 | 15 | 13 | 7 | 42% |
 | [Git, review and release](git.md) | 21 | 6 | 14 | 1 | 28% |
 | [Hardware and porting](hardware.md) | 7 | 0 | 6 | 1 | 0% |
 | [Repository](repo.md) | 16 | 12 | 4 | 0 | 75% |
 | [Testing](testing.md) | 20 | 8 | 10 | 2 | 40% |
-| **All** | 274 | 98 | 141 | 35 | 35% |
+| **All** | 275 | 98 | 142 | 35 | 35% |
 
 ## Checks still to build
 

@@ -94,19 +94,45 @@ and the error values it can return, and whether it does I/O or blocks.
 
 ## README
 
-The README is short and points to the site. Sections, in this order, only those that apply:
+The README is the front door: someone who reads only it knows what the part is, whether the driver fits their
+project, where the datasheet is, and how to get to a first reading. The reference stays on the site. Sections, in
+this order, only those that apply:
 
 1. `# Name` and a one-sentence hero line: what it is and does.
-2. Badges that are true: the main test workflow, docs, license, latest release (once one exists).
+2. Badges that are true: the main test workflow, license, C++ standard, latest release (once one exists).
 3. **The documentation link** in bold.
-4. One layer or block figure.
-5. **In 30 seconds**: the generated quickstart region (`<!-- generated: quickstart-code -->`), which checks every
-   return value.
-6. **What it does**: five to seven bullets.
-7. **Install**: the submodule line and the CMake lines.
-8. **Documentation**: a table of the five or six most useful pages, linked to `/latest/`.
-9. **Tests**: one command line.
-10. **License**: one line (MIT, or CERN-OHL-P-2.0 for a hardware design).
+4. One short paragraph in plain words: what the part does and what the driver gives you.
+5. One layer or block figure.
+6. **At a glance**: a two-column table: the part (vendor, package, supply), what it measures or does, the bus, what
+   else it drives, the driver's properties, where it runs, and its **status** (version, and "not yet verified on
+   hardware" until it is).
+7. **Datasheet** (drivers): the generated card (`<!-- generated: datasheet-card -->`): document, revision, where to
+   get it, and the link to the Datasheet map.
+8. **Try it on your PC**: the host example in one command.
+9. **Use it on your MCU**: 1. a minimal wiring table, 2. one line on the port with a link to Porting, 3. the generated
+   quickstart region (`<!-- generated: quickstart-code -->`), which checks every return value, and one line on how
+   the driver starts (`EnsureInitialized()`).
+10. **What it does**: five to seven bullets.
+11. **Install**: the submodule line and the CMake lines.
+12. **Documentation**: a table of the pages with a "Read it when you want to" column. Links go to the pages in the
+    repository (`docs/<page>.md`) while the site is not published, to `/latest/` once it is.
+13. **Tests and quality**: one command line, and one sentence on what CI checks.
+14. **License**: one line (MIT, or CERN-OHL-P-2.0 for a hardware design).
+
+### The datasheet trail
+
+A driver lists the vendor documents it was written against in `docs/datasheets.yml`
+([ADR-0019](../adr/0019-datasheets.md)), and, for each thing it takes from them, a **topic**: the datasheet's own
+section name and printed page, the driver API that implements it, and the docs pages that explain it. The
+`datasheet` generator (shipped in the template, `tools/docs/generators/datasheet.py`) builds three regions from it,
+so a revision or a page number is written once:
+
+- `datasheet-card` on the README, the home page and Hardware: document, revision, date, where to get it;
+- `datasheet-map` on `docs/datasheet.md`: every topic with section, page, driver API and docs page;
+- `datasheet-refs` at the top of each page a topic names: a collapsed box listing the sections that page relies on.
+
+Page numbers link into the PDF (`#page=N`) when the vendor publishes a stable PDF URL (`pdf`, with `page_offset` when
+the printed and PDF page numbers differ). The repository never contains the PDF.
 
 A driver's README names the chip and the part, not the org: the driver is usable on its own
 ([ADR-0012](../adr/0012-unbranded-drivers.md)).

@@ -69,6 +69,7 @@ How documentation is written, built and checked.
 | [KB-DOC-062](#kb-doc-062) Doxygen reads only the public headers and keeps private members out | must | driver, library, hal, template | planned |
 | [KB-DOC-063](#kb-doc-063) A public function's comment gives units, errors and whether it blocks | must | driver, library, hal, template | checked |
 | [KB-DOC-064](#kb-doc-064) Each test says what it verifies, with its data and expected result | should | driver, library, hal, firmware, template (safety level and above) | review |
+| [KB-DOC-065](#kb-doc-065) A driver's docs trace each part of the driver to its datasheet section | must | driver, template | planned |
 
 ## KB-DOC-001: Markdown passes the org lint configuration { #kb-doc-001 }
 
@@ -304,8 +305,9 @@ under `docs/` and the CHANGELOG entry that describe it, in the same pull request
 
 **SHOULD** · driver, library, hal, firmware, tooling, template · since 1.0 · enforced from 2027-03-01
 
-The README has, in order and only where they apply: title and hero line, true badges, the bold docs link, one figure, In
-30 seconds, What it does, Install, Documentation, Tests and License.
+The README has, in order and only where they apply: title and hero line, true badges, the bold docs link, a
+plain-language paragraph, one figure, At a glance (with the status), Datasheet, Try it on your PC, Use it on your MCU,
+What it does, Install, Documentation (with "Read it when you want to"), Tests and quality, License.
 
 *Verified by:*
 
@@ -1031,3 +1033,25 @@ the expected result.
 
 - review: Each new or changed test has a comment naming what it verifies, its data and expected result.
 
+
+## KB-DOC-065: A driver's docs trace each part of the driver to its datasheet section { #kb-doc-065 }
+
+**MUST** · driver, template · since 1.0
+
+`docs/datasheets.yml` lists, besides the documents, one topic per thing the driver takes from them: the datasheet's
+section and printed page, the driver API and the docs pages that explain it. The README and home page carry the
+generated datasheet card, `docs/datasheet.md` the generated map, and each page a topic names the generated box of the
+sections it relies on.
+
+*Why:* A reader, a reviewer or an assessor can check any behaviour against the source document in one step, and a new
+datasheet revision shows exactly which parts of the driver to re-check.
+
+*Verified by:*
+
+- `docs-drift` (planned): kokeb-docs check finds no generated region (README quickstart, examples list) or figure that
+  differs from what the code generates
+- review: Each topic names the right section and page; every docs page that rests on the datasheet has its box.
+
+*See also:* [ADR-0019](../adr/0019-datasheets.md)
+
+*Explained in:* [standards/docs.md](../standards/docs.md#the-datasheet-trail)
