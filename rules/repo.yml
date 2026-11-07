@@ -20,13 +20,11 @@ rules:
       `.kokeb/handbook.yml` names a released handbook version, the repository's kind and its assurance level, and
       lists its waivers.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-01-15"
     applies: {profiles: [all]}
     verify: [{check: handbook-declaration}]
     page: how-rules-work.md
-    notes: Warns until 2027-01-15, then fails CI.
 
   - id: KB-REPO-003
     title: Waivers name a rule, a reason, an approver and an expiry
@@ -34,13 +32,11 @@ rules:
       A rule is set aside only by a waiver in `.kokeb/handbook.yml` that names the rule ID, why, who approved it and
       the date it expires. An expired waiver fails CI.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-01-15"
     applies: {profiles: [all]}
     verify: [{check: waivers}]
     page: deviations.md
-    notes: Warns until 2027-01-15, then fails CI.
 
   - id: KB-REPO-004
     title: Every source file carries an SPDX licence identifier
@@ -59,16 +55,15 @@ rules:
       Tool configuration lives in `_config/`, not at the root. An extra root file a tool insists on is listed, with
       the tool, in AGENTS.md; a pull request adding a root entry without such a reason is refused.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-03-01"
     applies: {profiles: [all]}
     verify: [{check: repo-layout}]
     refs: [{adr: 11}]
     page: standards/repo-governance.md
     notes: >-
-      Warns until 2027-03-01, then fails CI. Only driver-template's self-test checks the root today. The ADR-0011
-      list still omits `driver.yml` (KB-REPO-018) and `third_party/` (KB-REPO-019).
+      The handbook check covers drivers and templates (the ADR-0011 list plus `driver.yml`, `.kokeb/` and
+      `third_party/`); other kinds have no fixed list yet.
     origin: ["inv:B-DRV-05, B-GOV-44, B-GOV-45, B-GOV-46, B-GOV-49"]
 
   - id: KB-REPO-006
@@ -246,14 +241,12 @@ rules:
       generated `sdkconfig` is gitignored and never committed. A firmware release attaches the effective
       `sdkconfig` instead.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-03-01"
     applies: {profiles: [driver, library, hal, firmware, template]}
     verify: [{check: tracked-files/sdkconfig}]
     refs: [{adr: 18}]
     page: standards/driver.md
-    notes: Warns until 2027-03-01, then fails CI.
     origin: ["inv:B-DRV-52"]
 
   - id: KB-REPO-017
@@ -278,16 +271,15 @@ rules:
       A driver's root `driver.yml` gives its name, version, bus, supported MCUs, peripheral and minimum kb-core
       version, and CI checks it against the build settings and the examples it builds.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-03-01"
     applies: {profiles: [driver, template]}
     verify: [{check: driver-manifest}]
     refs: [{adr: 7}, {adr: 11}]
     page: standards/driver.md
     notes: >-
-      Warns until 2027-03-01, then fails CI. Neither the file nor its check exists: driver-template has no
-      driver.yml, its scaffold root allow-list rejects one, and ADR-0011's root list must add it.
+      driver-template carries driver.yml and its scaffold writes the bus; `kb_core_min` stays null until kb-core
+      has a release.
     origin: ["inv:B-DRV-04, B-DRV-72, B-ADR-31"]
 
   - id: KB-REPO-019

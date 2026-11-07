@@ -8,7 +8,7 @@ How documentation is written, built and checked.
 | [KB-DOC-001](#kb-doc-001) Markdown passes the org lint configuration | must | all | checked |
 | [KB-DOC-002](#kb-doc-002) The documentation site builds strictly | must | driver, library, hal, tooling, docs, template | checked |
 | [KB-DOC-003](#kb-doc-003) No broken links on the built site | must | driver, library, hal, tooling, docs, template | checked |
-| [KB-DOC-004](#kb-doc-004) Every public API is documented and Doxygen is warning-free | must | driver, library, hal, template | planned |
+| [KB-DOC-004](#kb-doc-004) Every public API is documented and Doxygen is warning-free | must | driver, library, hal, template | checked |
 | [KB-DOC-005](#kb-doc-005) Every public repository publishes a versioned MkDocs site | must | driver, library, hal, firmware, tooling, docs, template | checked |
 | [KB-DOC-006](#kb-doc-006) Pages live in docs/ and the site config in \_config/mkdocs.yml | must | driver, library, hal, firmware, tooling, docs, template | checked |
 | [KB-DOC-007](#kb-doc-007) The navigation has the five standard tabs | must | driver, library, hal, firmware, tooling, docs, template | planned |
@@ -39,7 +39,7 @@ How documentation is written, built and checked.
 | [KB-DOC-032](#kb-doc-032) ADRs use the standard format and are numbered in acceptance order | must | all | planned |
 | [KB-DOC-033](#kb-doc-033) An accepted decision is superseded, never rewritten | must | all | review |
 | [KB-DOC-034](#kb-doc-034) Cross-repository decisions are handbook ADRs; local ones stay in the repository | should | all | review |
-| [KB-DOC-035](#kb-doc-035) Datasheets are referenced by exact revision, never committed | must | driver, hal, template | planned |
+| [KB-DOC-035](#kb-doc-035) Datasheets are referenced by exact revision, never committed | must | driver, hal, template | checked |
 | [KB-DOC-036](#kb-doc-036) Markdown wraps at 120 columns | must | all | checked |
 | [KB-DOC-037](#kb-doc-037) Every page has one title, a purpose line and sections in reading order | should | all | checked |
 | [KB-DOC-038](#kb-doc-038) Headings step one level at a time and code fences name their language | must | all | checked |
@@ -67,7 +67,7 @@ How documentation is written, built and checked.
 | [KB-DOC-060](#kb-doc-060) Patches to vendor-generated code are listed in PATCHES.md | should | hal | review |
 | [KB-DOC-061](#kb-doc-061) The Doxyfile lives in \_config/ and Doxygen runs from the root | must | driver, library, hal, template | planned |
 | [KB-DOC-062](#kb-doc-062) Doxygen reads only the public headers and keeps private members out | must | driver, library, hal, template | planned |
-| [KB-DOC-063](#kb-doc-063) A public function's comment gives units, errors and whether it blocks | must | driver, library, hal, template | planned |
+| [KB-DOC-063](#kb-doc-063) A public function's comment gives units, errors and whether it blocks | must | driver, library, hal, template | checked |
 | [KB-DOC-064](#kb-doc-064) Each test says what it verifies, with its data and expected result | should | driver, library, hal, firmware, template (safety level and above) | review |
 
 ## KB-DOC-001: Markdown passes the org lint configuration { #kb-doc-001 }
@@ -109,18 +109,14 @@ Every link on the built site resolves, internal and external.
 
 ## KB-DOC-004: Every public API is documented and Doxygen is warning-free { #kb-doc-004 }
 
-!!! note "Proposed"
-
-    Warns until 2027-01-15, then fails CI. ci-tools' Doxyfile has WARN\_AS\_ERROR = NO today.
-
-**MUST** · driver, library, hal, template · since 1.0 · enforced from 2027-01-15
+**MUST** · driver, library, hal, template · since 1.0
 
 Every public type, function and parameter in `inc/` has a Doxygen comment; Doxygen runs with `WARN_IF_UNDOCUMENTED =
 YES` and `WARN_AS_ERROR = FAIL_ON_WARNINGS`.
 
 *Verified by:*
 
-- `doxygen-warnings` (planned): Doxygen with WARN\_AS\_ERROR = FAIL\_ON\_WARNINGS and WARN\_IF\_UNDOCUMENTED reports
+- `doxygen-warnings` (implemented): Doxygen with WARN\_AS\_ERROR = FAIL\_ON\_WARNINGS and WARN\_IF\_UNDOCUMENTED reports
   nothing
 
 *Explained in:* [standards/docs.md](../standards/docs.md)
@@ -595,18 +591,14 @@ repository, including a product's, is an ADR in its own `docs/adr/` in the same 
 
 ## KB-DOC-035: Datasheets are referenced by exact revision, never committed { #kb-doc-035 }
 
-!!! note "Proposed"
-
-    Warns until 2027-03-01, then fails CI.
-
-**MUST** · driver, hal, template · since 1.0 · enforced from 2027-03-01
+**MUST** · driver, hal, template · since 1.0
 
 No datasheet, reference manual or application note is committed. `docs/datasheets.yml` lists each document the code was
 written against: vendor, title, document number, revision, date, URL and the SHA-256 of the PDF that was used.
 
 *Verified by:*
 
-- `tracked-files/datasheets` (planned): git tracks no file of a banned kind; the parameter names it
+- `tracked-files/datasheets` (implemented): git tracks no file of a banned kind; the parameter names it
   (tracked-files/symlinks, tracked-files/sdkconfig, tracked-files/idf-component)
 - review: docs/datasheets.yml names the document number, revision and SHA-256 of every datasheet the code cites.
 
@@ -1018,7 +1010,7 @@ value and the error values it can return, and whether it does I/O or blocks.
 
 *Verified by:*
 
-- `doxygen-warnings` (planned): Doxygen with WARN\_AS\_ERROR = FAIL\_ON\_WARNINGS and WARN\_IF\_UNDOCUMENTED reports
+- `doxygen-warnings` (implemented): Doxygen with WARN\_AS\_ERROR = FAIL\_ON\_WARNINGS and WARN\_IF\_UNDOCUMENTED reports
   nothing
 - review: Changed public functions document units, error values and whether they do I/O or block.
 

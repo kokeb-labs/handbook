@@ -9,7 +9,9 @@ it, so the prose and the data can never disagree:
              resolves
   gen        write docs/rules/<area>.md (one section per rule, anchored by its ID) and docs/rules/coverage.md
   check      validate, then fail if the generated pages are stale (CI runs this)
-  export     write rules, profiles and checks as one JSON document (for ru-handbook-check and other tools)
+  export     write rules, profiles and checks as one JSON document; with --checker, the snapshot ci-tools'
+             handbook checker reads (tools/handbook_check/rules.json); with --compare FILE, warn about every rule
+             whose checker fields differ from that snapshot
 
 Usage: handbook.py {validate,gen,check,export} [--root .] [--rules rules] [--out FILE]
 
@@ -114,6 +116,14 @@ class Book:
         c = self.checks.get(cid.split("/", 1)[0])
         return c if c and c.get("parametric") and "/" in cid else None
 
+    def implemented(self, cid: str) -> bool:
+        """Whether a check runs in CI. For a parametric family with `implemented_params`, only those parameters do."""
+        c = self.check_for(cid) or {}
+        if c.get("status") != "implemented":
+            return False
+        params = c.get("implemented_params")
+        return params is None or "/" not in cid or cid.split("/", 1)[1] in params
+
     def rules(self):
         for area in self.areas:
             for r in area.get("rules") or []:
@@ -131,6 +141,9 @@ class Book:
                 self.err("checks/registry.yml", f"{cid}: an implemented check says `where` it runs")
             if not c.get("summary"):
                 self.err("checks/registry.yml", f"{cid}: needs a summary")
+            if "implemented_params" in c and not (c.get("parametric") and c.get("status") == "implemented"
+                                                  and isinstance(c["implemented_params"], list)):
+                self.err("checks/registry.yml", f"{cid}: implemented_params belongs to an implemented parametric check")
         seen: dict[str, str] = {}
         used: set[str] = set()
         for area in self.areas:
@@ -214,8 +227,7 @@ class Book:
         states = set()
         for v in r.get("verify") or []:
             if "check" in v:
-                implemented = (self.check_for(str(v["check"])) or {}).get("status") == "implemented"
-                states.add("checked" if implemented else "planned")
+                states.add("checked" if self.implemented(str(v["check"])) else "planned")
             else:
                 states.add("review")
         return next((s for s in STATES if s in states), "none")
@@ -250,7 +262,8 @@ class Book:
             for v in r.get("verify") or []:
                 if "check" in v:
                     c = self.check_for(str(v["check"])) or {}
-                    ver.append(f"`{v['check']}` ({c.get('status', 'unknown')}): {md(c.get('summary', ''))}")
+                    state = "implemented" if self.implemented(str(v["check"])) else "planned"
+                    ver.append(f"`{v['check']}` ({state}): {md(c.get('summary', ''))}")
                 else:
                     ver.append(f"review: {md(v['review'])}")
             if ver:
@@ -304,6 +317,17 @@ class Book:
         out[self.root / "docs/rules/coverage.md"] = self.coverage_page()
         return out
 
+    def checker_snapshot(self) -> dict:
+        """The rule fields ci-tools' handbook checker needs (tools/handbook_check/rules.json in kokeb-labs/ci-tools)."""
+        rules = {}
+        for a, r in self.rules():
+            ap = r.get("applies") or {}
+            rules[r["id"]] = {"area": a["area"], "title": r["title"], "level": r["level"], "status": r["status"],
+                              "enforce_from": str(r["enforce_from"]) if r.get("enforce_from") else None,
+                              "from_level": ap.get("from_level", "standard"), "profiles": ap.get("profiles", [])}
+        return {"source": "kokeb-labs/handbook rules, exported by checks/handbook.py",
+                "exported": datetime.date.today().isoformat(), "rules": rules}
+
     def export(self) -> dict:
         return {
             "generated": datetime.date.today().isoformat(),
@@ -319,6 +343,8 @@ def main() -> int:
     ap.add_argument("--root", default=".")
     ap.add_argument("--rules", default="rules")
     ap.add_argument("--out", default="-")
+    ap.add_argument("--checker", action="store_true", help="export the ci-tools checker snapshot")
+    ap.add_argument("--compare", default="", help="a checker snapshot to compare with")
     a = ap.parse_args()
     book = Book(pathlib.Path(a.root).resolve(), a.rules)
     if a.rules != "rules" and a.cmd in ("gen", "check"):
@@ -347,8 +373,17 @@ def main() -> int:
         if stale:
             return 1
         print(f"{n} rules valid; generated pages current")
+    elif a.compare:
+        mine = book.checker_snapshot()["rules"]
+        theirs = json.loads(pathlib.Path(a.compare).read_text(encoding="utf-8"))["rules"]
+        drift = sorted(k for k in set(mine) | set(theirs) if mine.get(k) != theirs.get(k))
+        for k in drift:
+            print(f"::warning::{k} differs from ci-tools' checker snapshot; refresh it with "
+                  "`python checks/handbook.py export --checker --out <ci-tools>/tools/handbook_check/rules.json`")
+        print(f"{len(drift)} rule(s) differ from the checker snapshot")
     else:
-        text = json.dumps(book.export(), indent=1, default=str)
+        data = book.checker_snapshot() if a.checker else book.export()
+        text = json.dumps(data, indent=1, default=str, sort_keys=a.checker)
         if a.out == "-":
             print(text)
         else:

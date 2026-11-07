@@ -6,23 +6,23 @@ What every repository contains and declares.
 | Rule | Level | Applies to | Verified |
 | --- | --- | --- | --- |
 | [KB-REPO-001](#kb-repo-001) Required root files | must | all | checked |
-| [KB-REPO-002](#kb-repo-002) Each repository declares the handbook version, kind and level it follows | must | all | planned |
-| [KB-REPO-003](#kb-repo-003) Waivers name a rule, a reason, an approver and an expiry | must | all | planned |
+| [KB-REPO-002](#kb-repo-002) Each repository declares the handbook version, kind and level it follows | must | all | checked |
+| [KB-REPO-003](#kb-repo-003) Waivers name a rule, a reason, an approver and an expiry | must | all | checked |
 | [KB-REPO-004](#kb-repo-004) Every source file carries an SPDX licence identifier | should | driver, library, hal, firmware, tooling, template | planned |
-| [KB-REPO-005](#kb-repo-005) The root holds only the entries listed for the repository's kind | must | all | planned |
-| [KB-REPO-006](#kb-repo-006) A driver has the driver layout | must | driver, template | planned |
+| [KB-REPO-005](#kb-repo-005) The root holds only the entries listed for the repository's kind | must | all | checked |
+| [KB-REPO-006](#kb-repo-006) A driver has the driver layout | must | driver, template | checked |
 | [KB-REPO-007](#kb-repo-007) File names follow the layer's convention | should | driver, library, hal, template | planned |
-| [KB-REPO-008](#kb-repo-008) A standalone library starts from driver-template and keeps its layout | must | library | planned |
-| [KB-REPO-009](#kb-repo-009) kb-core keeps its monorepo layout | must | library | planned |
-| [KB-REPO-010](#kb-repo-010) A board HAL has the board HAL layout | must | hal | planned |
-| [KB-REPO-011](#kb-repo-011) A product has the product layout | must | firmware | planned |
+| [KB-REPO-008](#kb-repo-008) A standalone library starts from driver-template and keeps its layout | must | library | checked |
+| [KB-REPO-009](#kb-repo-009) kb-core keeps its monorepo layout | must | library | checked |
+| [KB-REPO-010](#kb-repo-010) A board HAL has the board HAL layout | must | hal | checked |
+| [KB-REPO-011](#kb-repo-011) A product has the product layout | must | firmware | checked |
 | [KB-REPO-012](#kb-repo-012) Board HALs and products live in the product's organisation | guide | hal, firmware | review |
-| [KB-REPO-013](#kb-repo-013) Each example platform stands alone, and sources have one home | should | driver, library, template | planned |
+| [KB-REPO-013](#kb-repo-013) Each example platform stands alone, and sources have one home | should | driver, library, template | checked |
 | [KB-REPO-014](#kb-repo-014) No symlinks anywhere in a repository | must | all | planned |
 | [KB-REPO-015](#kb-repo-015) \_config/ holds the org's tool configs unchanged, and tools are pointed at it | must | driver, library, hal, firmware, template | planned |
-| [KB-REPO-016](#kb-repo-016) ESP-IDF projects commit sdkconfig.defaults, never sdkconfig | must | driver, library, hal, firmware, template | planned |
+| [KB-REPO-016](#kb-repo-016) ESP-IDF projects commit sdkconfig.defaults, never sdkconfig | must | driver, library, hal, firmware, template | checked |
 | [KB-REPO-017](#kb-repo-017) No ESP-IDF wrapper component or idf\_component.yml unless the registry is chosen | should | driver, library, template | planned |
-| [KB-REPO-018](#kb-repo-018) Every driver declares itself in driver.yml | must | driver, template | planned |
+| [KB-REPO-018](#kb-repo-018) Every driver declares itself in driver.yml | must | driver, template | checked |
 | [KB-REPO-019](#kb-repo-019) Third-party code keeps its own licence under third\_party/ | must | all | planned |
 | [KB-REPO-020](#kb-repo-020) Hardware is CERN-OHL-P-2.0; a product owner picks the board HAL licence | should | all | review |
 | [KB-REPO-021](#kb-repo-021) CODEOWNERS gives every path a default owner | should | all | planned |
@@ -48,35 +48,29 @@ Every repository has README.md, LICENSE (MIT for code), CHANGELOG.md and .github
 
 ## KB-REPO-002: Each repository declares the handbook version, kind and level it follows { #kb-repo-002 }
 
-!!! note "Proposed"
-
-    Warns until 2027-01-15, then fails CI.
-
-**MUST** · all · since 1.0 · enforced from 2027-01-15
+**MUST** · all · since 1.0
 
 `.kokeb/handbook.yml` names a released handbook version, the repository's kind and its assurance level, and lists its
 waivers.
 
 *Verified by:*
 
-- `handbook-declaration` (planned): .kokeb/handbook.yml exists and names a released handbook version, a kind and a level
+- `handbook-declaration` (implemented): .kokeb/handbook.yml exists and names a released handbook version, a kind and a
+  level
 
 *Explained in:* [how-rules-work.md](../how-rules-work.md)
 
 ## KB-REPO-003: Waivers name a rule, a reason, an approver and an expiry { #kb-repo-003 }
 
-!!! note "Proposed"
-
-    Warns until 2027-01-15, then fails CI.
-
-**MUST** · all · since 1.0 · enforced from 2027-01-15
+**MUST** · all · since 1.0
 
 A rule is set aside only by a waiver in `.kokeb/handbook.yml` that names the rule ID, why, who approved it and the date
 it expires. An expired waiver fails CI.
 
 *Verified by:*
 
-- `waivers` (planned): every waiver names an existing rule, a reason, an approver and an expiry date that has not passed
+- `waivers` (implemented): every waiver names an existing rule, a reason, an approver and an expiry date that has not
+  passed
 
 *Explained in:* [deviations.md](../deviations.md)
 
@@ -97,19 +91,15 @@ Each source file starts with `SPDX-License-Identifier:` and a copyright line, as
 
 ## KB-REPO-005: The root holds only the entries listed for the repository's kind { #kb-repo-005 }
 
-!!! note "Proposed"
-
-    Warns until 2027-03-01, then fails CI. Only driver-template's self-test checks the root today. The ADR-0011 list still
-    omits `driver.yml` (KB-REPO-018) and `third_party/` (KB-REPO-019).
-
-**MUST** · all · since 1.0 · enforced from 2027-03-01
+**MUST** · all · since 1.0
 
 Tool configuration lives in `_config/`, not at the root. An extra root file a tool insists on is listed, with the tool,
 in AGENTS.md; a pull request adding a root entry without such a reason is refused.
 
 *Verified by:*
 
-- `repo-layout` (planned): the repository root and directories match the layout for its kind
+- `repo-layout` (implemented): the committed root entries match the layout for the repository's kind (drivers and
+  templates today)
 
 *See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
 
@@ -128,7 +118,8 @@ A driver keeps `inc/<chip>.hpp`, `inc/<chip>_<bus>_interface.hpp`, `inc/<chip>_t
 
 *Verified by:*
 
-- `repo-layout` (planned): the repository root and directories match the layout for its kind
+- `repo-layout` (implemented): the committed root entries match the layout for the repository's kind (drivers and
+  templates today)
 
 *See also:* [ADR-0011](../adr/0011-repository-root-layout.md); [ADR-0012](../adr/0012-unbranded-drivers.md)
 
@@ -166,7 +157,8 @@ A library outside kb-core is generated with `driver-template --kind library` and
 
 *Verified by:*
 
-- `repo-layout` (planned): the repository root and directories match the layout for its kind
+- `repo-layout` (implemented): the committed root entries match the layout for the repository's kind (drivers and
+  templates today)
 
 *See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
 
@@ -185,7 +177,8 @@ per driver, `cmake/kb_build_settings.cmake` and `catalog/compat.yml`.
 
 *Verified by:*
 
-- `repo-layout` (planned): the repository root and directories match the layout for its kind
+- `repo-layout` (implemented): the committed root entries match the layout for the repository's kind (drivers and
+  templates today)
 
 *See also:* [ADR-0013](../adr/0013-kb-core-monorepo.md)
 
@@ -205,7 +198,8 @@ root extras are `CMakePresets.json` and `version_lock.txt`.
 
 *Verified by:*
 
-- `repo-layout` (planned): the repository root and directories match the layout for its kind
+- `repo-layout` (implemented): the committed root entries match the layout for the repository's kind (drivers and
+  templates today)
 
 *See also:* [ADR-0005](../adr/0005-kb-hal-common.md); [ADR-0011](../adr/0011-repository-root-layout.md)
 
@@ -224,7 +218,8 @@ A product holds `main/` (or `app/`), `platform/`, `hal/`, `version_lock.txt`, `s
 
 *Verified by:*
 
-- `repo-layout` (planned): the repository root and directories match the layout for its kind
+- `repo-layout` (implemented): the committed root entries match the layout for the repository's kind (drivers and
+  templates today)
 
 *See also:* [ADR-0011](../adr/0011-repository-root-layout.md)
 
@@ -258,7 +253,8 @@ PlatformIO manifests are added only when a user needs them, and never copy the s
 
 *Verified by:*
 
-- `repo-layout` (planned): the repository root and directories match the layout for its kind
+- `repo-layout` (implemented): the committed root entries match the layout for the repository's kind (drivers and
+  templates today)
 - review: Any extra ecosystem manifest points at the existing sources.
 
 *Explained in:* [standards/driver.md](../standards/driver.md)
@@ -306,18 +302,14 @@ header comment. Every command and workflow passes the `_config/` path to its too
 
 ## KB-REPO-016: ESP-IDF projects commit sdkconfig.defaults, never sdkconfig { #kb-repo-016 }
 
-!!! note "Proposed"
-
-    Warns until 2027-03-01, then fails CI.
-
-**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+**MUST** · driver, library, hal, firmware, template · since 1.0
 
 The settings an ESP-IDF project needs are in `sdkconfig.defaults` (and `sdkconfig.defaults.<target>`); the generated
 `sdkconfig` is gitignored and never committed. A firmware release attaches the effective `sdkconfig` instead.
 
 *Verified by:*
 
-- `tracked-files/sdkconfig` (planned): git tracks no file of a banned kind; the parameter names it
+- `tracked-files/sdkconfig` (implemented): git tracks no file of a banned kind; the parameter names it
   (tracked-files/symlinks, tracked-files/sdkconfig, tracked-files/idf-component)
 
 *See also:* [ADR-0018](../adr/0018-sdkconfig.md)
@@ -346,20 +338,15 @@ publish it to the ESP Component Registry.
 
 ## KB-REPO-018: Every driver declares itself in driver.yml { #kb-repo-018 }
 
-!!! note "Proposed"
-
-    Warns until 2027-03-01, then fails CI. Neither the file nor its check exists: driver-template has no driver.yml, its
-    scaffold root allow-list rejects one, and ADR-0011's root list must add it.
-
-**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+**MUST** · driver, template · since 1.0
 
 A driver's root `driver.yml` gives its name, version, bus, supported MCUs, peripheral and minimum kb-core version, and
 CI checks it against the build settings and the examples it builds.
 
 *Verified by:*
 
-- `driver-manifest` (planned): driver.yml exists, validates against its schema, and its version, MCUs and examples match
-  the build settings and the examples folder
+- `driver-manifest` (implemented): driver.yml exists, validates against its schema, and its version, MCUs and examples
+  match the build settings and the examples folder
 
 *See also:* [ADR-0007](../adr/0007-submodule-pinning-and-tags.md); [ADR-0011](../adr/0011-repository-root-layout.md)
 

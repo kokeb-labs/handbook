@@ -6,7 +6,7 @@ How a repository builds, installs and is consumed.
 | Rule | Level | Applies to | Verified |
 | --- | --- | --- | --- |
 | [KB-BLD-001](#kb-bld-001) The installed package works with find\_package | must | driver, library, template | checked |
-| [KB-BLD-002](#kb-bld-002) No file(GLOB) for library sources | must | driver, library, hal, template | planned |
+| [KB-BLD-002](#kb-bld-002) No file(GLOB) for library sources | must | driver, library, hal, template | checked |
 | [KB-BLD-003](#kb-bld-003) The root CMakeLists.txt is also the ESP-IDF component | must | driver, library, template | planned |
 | [KB-BLD-004](#kb-bld-004) One build-settings file holds the version, target name and source list | must | driver, library, template | planned |
 | [KB-BLD-005](#kb-bld-005) Every copy of the version derives from or is tested against the build settings | must | driver, library, template | planned |
@@ -50,11 +50,7 @@ separate project finds with `find_package` and links; CI builds such a consumer.
 
 ## KB-BLD-002: No file(GLOB) for library sources { #kb-bld-002 }
 
-!!! note "Proposed"
-
-    Warns until 2027-01-15, then fails CI. driver-template uses GLOB today and changes first.
-
-**MUST** · driver, library, hal, template · since 1.0 · enforced from 2027-01-15
+**MUST** · driver, library, hal, template · since 1.0
 
 Library targets list their sources explicitly; `file(GLOB)` is not used for sources or headers.
 
@@ -62,8 +58,8 @@ Library targets list their sources explicitly; `file(GLOB)` is not used for sour
 
 *Verified by:*
 
-- `forbidden-patterns/cmake-glob` (planned): a source scan for a construct the handbook bans; the parameter names the
-  pattern set
+- `forbidden-patterns/cmake-glob` (implemented): a source scan for a construct the handbook bans; the parameter names
+  the pattern set
 
 
 ## KB-BLD-003: The root CMakeLists.txt is also the ESP-IDF component { #kb-bld-003 }

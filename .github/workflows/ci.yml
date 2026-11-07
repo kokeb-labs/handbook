@@ -38,6 +38,13 @@ jobs:
         run: python checks/handbook.py check
       - name: Validate the HardFOC supplement against the same registry
         run: python checks/handbook.py validate --rules hf-supplement
+      # ci-tools' handbook checker carries a snapshot of these rules; a warning here means it needs a refresh.
+      - name: Compare with ci-tools' checker snapshot
+        run: |
+          set -euo pipefail
+          curl -fsSL https://raw.githubusercontent.com/kokeb-labs/ci-tools/main/tools/handbook_check/rules.json \
+            -o "$RUNNER_TEMP/rules.json" || { echo "::notice::no checker snapshot on ci-tools main yet"; exit 0; }
+          python checks/handbook.py export --compare "$RUNNER_TEMP/rules.json"
       - name: Coverage summary
         run: tail -n +3 docs/rules/coverage.md >> "$GITHUB_STEP_SUMMARY"
 

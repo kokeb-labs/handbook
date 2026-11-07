@@ -18,7 +18,7 @@ review hold each change to.
 | [KB-CPP-009](#kb-cpp-009) Register frames have their layout asserted | must | driver, library, hal (high level and above) | planned |
 | [KB-CPP-010](#kb-cpp-010) Data shared with an interrupt is atomic or explicitly guarded | must | driver, library, hal, firmware | review |
 | [KB-CPP-011](#kb-cpp-011) Driver code includes only its own headers and the allowed standard headers | must | driver, template | checked |
-| [KB-CPP-012](#kb-cpp-012) Target code uses only the target library subset and C++20 the pinned compilers share | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-012](#kb-cpp-012) Target code uses only the target library subset and C++20 the pinned compilers share | must | driver, library, hal, firmware, template | checked |
 | [KB-CPP-013](#kb-cpp-013) Each kb-core part includes only what its layer table allows | must | library | planned |
 | [KB-CPP-014](#kb-cpp-014) Handlers include only their driver, Base headers and kb-core utilities | must | library | planned |
 | [KB-CPP-015](#kb-cpp-015) HAL and product code reach hardware only through their bind and handlers | must | hal, firmware | planned |
@@ -134,7 +134,7 @@ enough for zero-cost ports without the toolchain lag of C++23 on vendor compiler
 *Verified by:*
 
 - `compiler-warnings/-Wpedantic` (implemented): the build is warning-free with the named flag and -Werror
-- `forbidden-patterns/cmake-cxx-standard` (planned): a source scan for a construct the handbook bans; the parameter
+- `forbidden-patterns/cmake-cxx-standard` (implemented): a source scan for a construct the handbook bans; the parameter
   names the pattern set
 
 *See also:* [ADR-0010](../adr/0010-cpp20.md); MISRA C++:2023 Rule 4.1.1 (the language standard is fixed)
@@ -154,6 +154,8 @@ safety review has to see. Errors travel as values (KB-CPP-004).
 
 - `exceptions-rtti-off` (planned): the exported library target compiles with -fno-exceptions -fno-rtti, not only the
   tests
+- `forbidden-patterns/exceptions-rtti` (implemented): a source scan for a construct the handbook bans; the parameter
+  names the pattern set
 - `clang-tidy/cert-err58-cpp` (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake compile
   database
 
@@ -174,6 +176,8 @@ memory makes the worst case the normal case.
 
 - `no-heap-link` (planned): a test binary that links the library with operator new, malloc and free removed builds and
   runs
+- `forbidden-patterns/heap` (implemented): a source scan for a construct the handbook bans; the parameter names the
+  pattern set
 - `clang-tidy/cppcoreguidelines-no-malloc` (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake
   compile database
 - `clang-tidy/cppcoreguidelines-owning-memory` (implemented): a clang-tidy check from config/.clang-tidy, run with the
@@ -322,8 +326,8 @@ any framework. The host build without SDK include paths already rejects SDK head
 *Verified by:*
 
 - `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
-- `include-allowlist/driver` (planned): a script over the include graph that fails on a header outside the allowed set
-  for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+- `include-allowlist/driver` (implemented): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
 
 *See also:* [ADR-0012](../adr/0012-unbranded-drivers.md); [ADR-0014](../adr/0014-three-kinds-of-specific.md)
 
@@ -331,11 +335,7 @@ any framework. The host build without SDK include paths already rejects SDK head
 
 ## KB-CPP-012: Target code uses only the target library subset and C++20 the pinned compilers share { #kb-cpp-012 }
 
-!!! note "Proposed"
-
-    Warns until 2027-03-01, then fails CI.
-
-**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+**MUST** · driver, library, hal, firmware, template · since 1.0
 
 Code that runs on a target includes only the standard headers ADR-0017 allows for its part (no allocating, throwing or
 OS-dependent header such as `<string>`, `<vector>`, `<memory>`, `<functional>`, `<iostream>` or `<thread>`) and uses
@@ -346,10 +346,10 @@ pays for in flash.
 
 *Verified by:*
 
-- `include-allowlist/target` (planned): a script over the include graph that fails on a header outside the allowed set
-  for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
-- `cross-build/esp-idf` (planned): the library compiles warning-free for the named target (arm-none-eabi, riscv32,
-  esp-idf)
+- `include-allowlist/target` (implemented): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+- `cross-build/esp-idf` (implemented): the code compiles warning-free for the named target (arm-none-eabi Cortex-M
+  cores, esp-idf, riscv32)
 
 *See also:* [ADR-0017](../adr/0017-target-library-subset.md); [ADR-0010](../adr/0010-cpp20.md)
 

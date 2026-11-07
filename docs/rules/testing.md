@@ -10,7 +10,7 @@ sanitizers, coverage and cross-compilation.
 | [KB-TST-002](#kb-tst-002) API misuse is proved to be a compile error | must | driver, library, template | checked |
 | [KB-TST-003](#kb-tst-003) Tests pass under AddressSanitizer and UndefinedBehaviorSanitizer | must | driver, library, hal, template (high level and above) | checked |
 | [KB-TST-004](#kb-tst-004) Coverage floor per assurance level | must | driver, library, hal (high level and above) | checked |
-| [KB-TST-005](#kb-tst-005) Compiles for every supported target | must | driver, library (high level and above) | planned |
+| [KB-TST-005](#kb-tst-005) Compiles for every supported target | must | driver, library (high level and above) | checked |
 | [KB-TST-006](#kb-tst-006) Host tests compile every header with the firmware's flags and no platform paths | must | driver, library, template | checked |
 | [KB-TST-007](#kb-tst-007) Driver tests run against a register-level model of the chip | must | driver, template | review |
 | [KB-TST-008](#kb-tst-008) Host tests cover the failure paths, not only the happy path | must | driver, library, hal, template | planned |
@@ -95,21 +95,17 @@ Tests, examples and compile-only targets are not counted.
 
 ## KB-TST-005: Compiles for every supported target { #kb-tst-005 }
 
-!!! note "Proposed"
-
-    Warns until 2027-01-15, then fails CI.
-
-**MUST** · driver, library (high level and above) · since 1.0 · enforced from 2027-01-15
+**MUST** · driver, library (high level and above) · since 1.0
 
 Drivers and libraries compile warning-free with arm-none-eabi-gcc (Cortex-M) and for ESP-IDF in CI, not only on the
 host.
 
 *Verified by:*
 
-- `cross-build/arm-none-eabi` (planned): the library compiles warning-free for the named target (arm-none-eabi, riscv32,
-  esp-idf)
-- `cross-build/esp-idf` (planned): the library compiles warning-free for the named target (arm-none-eabi, riscv32,
-  esp-idf)
+- `cross-build/arm-none-eabi` (implemented): the code compiles warning-free for the named target (arm-none-eabi Cortex-M
+  cores, esp-idf, riscv32)
+- `cross-build/esp-idf` (implemented): the code compiles warning-free for the named target (arm-none-eabi Cortex-M
+  cores, esp-idf, riscv32)
 
 
 ## KB-TST-006: Host tests compile every header with the firmware's flags and no platform paths { #kb-tst-006 }

@@ -17,7 +17,7 @@ pages under Standards hold the detail. Rules marked guide are design advice for 
 | [KB-ARCH-008](#kb-arch-008) Only a chip's driver and handler know its registers | must | library, hal, firmware | review |
 | [KB-ARCH-009](#kb-arch-009) MCU-specific code lives only in the selected family's folders | must | driver, library, hal, firmware | planned |
 | [KB-ARCH-010](#kb-arch-010) Product-specific needs reach kb-core and drivers only as generic extension points | must | driver, library, template | review |
-| [KB-ARCH-011](#kb-arch-011) Virtual functions only at the three run-time boundaries | must | driver, library, hal, template | planned |
+| [KB-ARCH-011](#kb-arch-011) Virtual functions only at the three run-time boundaries | must | driver, library, hal, template | checked |
 | [KB-ARCH-012](#kb-arch-012) A peripheral only one MCU family has gets a Base\* interface and a gate row | must | driver, library | review |
 | [KB-ARCH-013](#kb-arch-013) A protocol client follows the driver contract except the chip rules | should | driver | review |
 | [KB-ARCH-014](#kb-arch-014) Split a large chip into sub-object facades that share the driver | guide | driver | none |
@@ -253,7 +253,7 @@ where the concrete type is not known until the board is built (the MCU object, t
 
 *Verified by:*
 
-- `forbidden-patterns/virtual-outside-interfaces` (planned): a source scan for a construct the handbook bans; the
+- `forbidden-patterns/virtual-outside-interfaces` (implemented): a source scan for a construct the handbook bans; the
   parameter names the pattern set
 - review: A new virtual function is in one of the three boundaries of ADR-0016, nowhere else.
 

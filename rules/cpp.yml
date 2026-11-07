@@ -36,6 +36,7 @@ rules:
     applies: {profiles: [driver, library, hal, firmware, template]}
     verify:
       - check: exceptions-rtti-off
+      - check: forbidden-patterns/exceptions-rtti
       - check: clang-tidy/cert-err58-cpp
     rationale: >-
       Exceptions and RTTI cost flash and RAM, are disabled on most embedded toolchains, and hide control flow that a
@@ -54,6 +55,7 @@ rules:
     applies: {profiles: [driver, library, hal, firmware, template]}
     verify:
       - check: no-heap-link
+      - check: forbidden-patterns/heap
       - check: clang-tidy/cppcoreguidelines-no-malloc
       - check: clang-tidy/cppcoreguidelines-owning-memory
     rationale: >-
@@ -219,9 +221,8 @@ rules:
       `<thread>`) and uses only C++20 features both the pinned ESP-IDF GCC and the CI clang support. Host-only test
       code is exempt.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-03-01"
     applies: {profiles: [driver, library, hal, firmware, template]}
     verify:
       - check: include-allowlist/target
@@ -230,7 +231,6 @@ rules:
       Hosted-only headers pull in allocation, locale and threading support that a microcontroller build either lacks
       or pays for in flash.
     refs: [{adr: 17}, {adr: 10}]
-    notes: Warns until 2027-03-01, then fails CI.
     origin: ["kb:standards/adr/0010-cpp20.md:15", "gap: freestanding library subset (inventory gap 9)"]
 
   - id: KB-CPP-013

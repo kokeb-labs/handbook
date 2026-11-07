@@ -20,13 +20,14 @@ rules:
     title: No file(GLOB) for library sources
     statement: Library targets list their sources explicitly; `file(GLOB)` is not used for sources or headers.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-01-15"
     applies: {profiles: [driver, library, hal, template]}
     verify: [{check: forbidden-patterns/cmake-glob}]
     rationale: A glob hides an added or removed file from review and from the build system's dependency tracking.
-    notes: Warns until 2027-01-15, then fails CI. driver-template uses GLOB today and changes first.
+    notes: >-
+      Applies to library and firmware targets; `tests/` and `examples/` may glob their own sources (the handbook
+      check skips them).
     origin: ["hf:process/cmake-build-contract.md"]
 
   - id: KB-BLD-003

@@ -7,17 +7,17 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 | Area | Must rules | Checked | Planned | Review | Checked share |
 | --- | --- | --- | --- | --- | --- |
 | [Coding agents](agents.md) | 17 | 5 | 10 | 2 | 29% |
-| [Architecture](architecture.md) | 27 | 2 | 18 | 7 | 7% |
-| [Build and CMake](build.md) | 21 | 4 | 16 | 1 | 19% |
+| [Architecture](architecture.md) | 27 | 3 | 17 | 7 | 11% |
+| [Build and CMake](build.md) | 21 | 5 | 15 | 1 | 23% |
 | [C code](c.md) | 7 | 1 | 4 | 2 | 14% |
 | [CI and supply chain](ci.md) | 12 | 2 | 10 | 0 | 16% |
-| [C++ code](cpp.md) | 92 | 40 | 40 | 12 | 43% |
-| [Documentation](docs.md) | 34 | 12 | 15 | 7 | 35% |
+| [C++ code](cpp.md) | 92 | 41 | 39 | 12 | 44% |
+| [Documentation](docs.md) | 34 | 15 | 12 | 7 | 44% |
 | [Git, review and release](git.md) | 21 | 6 | 14 | 1 | 28% |
 | [Hardware and porting](hardware.md) | 7 | 0 | 6 | 1 | 0% |
-| [Repository](repo.md) | 16 | 2 | 14 | 0 | 12% |
-| [Testing](testing.md) | 20 | 7 | 11 | 2 | 35% |
-| **All** | 274 | 81 | 158 | 35 | 29% |
+| [Repository](repo.md) | 16 | 12 | 4 | 0 | 75% |
+| [Testing](testing.md) | 20 | 8 | 10 | 2 | 40% |
+| **All** | 274 | 98 | 141 | 35 | 35% |
 
 ## Checks still to build
 
@@ -50,7 +50,6 @@ is not built yet. *Review*: verified in review against the pull-request checklis
   passes the suite
 - `coverage-justification`: every uncovered line, branch or condition is in docs/coverage-justification.yml, and nothing
   else is
-- `cross-build`: the library compiles warning-free for the named target (arm-none-eabi, riscv32, esp-idf)
 - `ctest-timeouts`: every test ctest lists has a TIMEOUT property
 - `cubemx-discipline`: the .ioc sets ProjectManager.CoupleFile=true and the library-copy option, and regenerating from
   the .ioc reproduces the committed tree except for USER CODE blocks and the patches listed in PATCHES.md
@@ -72,9 +71,6 @@ is not built yet. *Review*: verified in review against the pull-request checklis
   or CHANGELOG.md
 - `doxyfile-baseline`: \_config/Doxyfile exists and sets INPUT to the public headers, EXTRACT\_ALL and EXTRACT\_PRIVATE
   to NO, WARN\_NO\_PARAMDOC to YES and the org mainpage, compared with the ci-tools baseline
-- `doxygen-warnings`: Doxygen with WARN\_AS\_ERROR = FAIL\_ON\_WARNINGS and WARN\_IF\_UNDOCUMENTED reports nothing
-- `driver-manifest`: driver.yml exists, validates against its schema, and its version, MCUs and examples match the build
-  settings and the examples folder
 - `driver-names`: the driver's namespace, class, CMake target, macro prefix and Kconfig prefix all derive from the chip
   name in the repository name (driver-&lt;chip&gt;)
 - `duplicate-code`: jscpd finds no block in a board HAL that duplicates kb-hal-common code above the configured
@@ -89,7 +85,6 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 - `exported-target-flags`: the library target's own sources and every public header compile with
   &lt;CHIP&gt;\_ENABLE\_WARNINGS=ON, the org warning set and -Werror
 - `file-names`: source and test file names match the pattern for the repository's kind
-- `forbidden-patterns`: a source scan for a construct the handbook bans; the parameter names the pattern set
 - `frozen-specs`: a pull request changes no specification file whose `frozen:` field is set
 - `fuzzing`: each parser's libFuzzer target runs on the host for a fixed time under ASan and UBSan without a finding
 - `hal-lint`: the kb-hal-common lints run in a board HAL's or product's CI; the parameter names the lint (boundary,
@@ -97,7 +92,6 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 - `hal-lints`: the kb-hal-common boundary, driver-access, allocation and lock lints pass in the board HAL
 - `hal-startup-test`: a HAL host test with the host bind injects a failure into each manager in turn and checks that
   start-up stops, deinitialises the started managers in reverse and reports the failing ManagerId
-- `handbook-declaration`: .kokeb/handbook.yml exists and names a released handbook version, a kind and a level
 - `header-self-contained`: every public header compiles on its own as the first include of a translation unit
 - `heading-skeleton`: a Markdown file's headings match a required skeleton in order (parameter: contract, readme, adr,
   hf-hal-readme, hf-board-spec, hf-protocol-spec)
@@ -109,8 +103,6 @@ is not built yet. *Review*: verified in review against the pull-request checklis
   release and each supported board, in the evidence format
 - `host-tests-matrix`: the host tests pass with gcc and clang for each configuration of the named matrix (kb-rtos:
   KB\_RTOS=FREERTOS host shim and KB\_RTOS=NONE, with KB\_MCU=HOST)
-- `include-allowlist`: a script over the include graph that fails on a header outside the allowed set for the directory;
-  the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
 - `include-graph`: every #include in library code is allowed by the Layers include table for its folder; the parameter
   names the layer (driver, utils, rtos, interfaces, mcu, handlers, hal, product) or `all`
 - `installed-header-collisions`: the install trees of the kb-core packages contain no path twice
@@ -162,7 +154,6 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 - `release-notes`: the GitHub Release body equals the version's changelog section and has a `Bench status:` line
 - `release-tag`: on a v\* tag: the tag matches the declared version, the commit is on main or release/\*, its CI gate
   passed, and a final tag points at the same commit as the latest rc of that version
-- `repo-layout`: the repository root and directories match the layout for its kind
 - `reproducible-build`: two clean builds of the same commit in different directories produce byte-identical artefacts
 - `result-type-traits`: static\_asserts that the driver's Result&lt;T&gt; is [[nodiscard]], has ok() and an explicit
   bool conversion, and that T is default-constructible and trivially copyable
@@ -200,8 +191,6 @@ is not built yet. *Review*: verified in review against the pull-request checklis
   beyond its margin
 - `toolchain-pins`: the repository lists exact versions of every supported compiler and ESP-IDF, and every CI build uses
   exactly those versions
-- `tracked-files`: git tracks no file of a banned kind; the parameter names it (tracked-files/symlinks,
-  tracked-files/sdkconfig, tracked-files/idf-component)
 - `tsan`: the concurrency host tests pass under ThreadSanitizer
 - `unused-error-codes`: every chip-specific Error enumerator (16 and up) is returned somewhere in src/ or inc/
 - `vendor-regen-diff`: CI regenerates vendor code (CubeMX) from the committed project file and fails if the result
@@ -210,5 +199,4 @@ is not built yet. *Review*: verified in review against the pull-request checklis
   and the version getter all equal the version in the build settings (driver-template version ctests, less driver.yml)
 - `version-lock`: each version\_lock.txt line REF\_&lt;repo&gt;=vX.Y.Z@&lt;sha&gt; matches the submodule's pinned commit
   and its tag
-- `waivers`: every waiver names an existing rule, a reason, an approver and an expiry date that has not passed
 - `workflow-permissions`: every workflow sets permissions at the top and grants each job the least it needs

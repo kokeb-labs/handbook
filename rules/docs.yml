@@ -40,13 +40,14 @@ rules:
       Every public type, function and parameter in `inc/` has a Doxygen comment; Doxygen runs with
       `WARN_IF_UNDOCUMENTED = YES` and `WARN_AS_ERROR = FAIL_ON_WARNINGS`.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-01-15"
     applies: {profiles: [driver, library, hal, template]}
     verify: [{check: doxygen-warnings}]
     page: standards/docs.md
-    notes: Warns until 2027-01-15, then fails CI. ci-tools' Doxyfile has WARN_AS_ERROR = NO today.
+    notes: >-
+      Enforced through the repository's own Doxyfile (driver-template sets both options). ci-tools' Doxyfile
+      for the older ru-docs-publish still has WARN_AS_ERROR = NO.
 
   # -- The site ---------------------------------------------------------------------------------------------------
   - id: KB-DOC-005
@@ -569,15 +570,13 @@ rules:
       the code was written against: vendor, title, document number, revision, date, URL and the SHA-256 of the PDF
       that was used.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-03-01"
     applies: {profiles: [driver, hal, template]}
     verify:
       - check: tracked-files/datasheets
       - review: docs/datasheets.yml names the document number, revision and SHA-256 of every datasheet the code cites.
     refs: [{adr: 19}]
-    notes: Warns until 2027-03-01, then fails CI.
     origin:
       - "kb:standards/checklists/new-driver.md:52 (B-DOC-30)"
       - "ci-tools:docs/DOCS-STYLE-GUIDE.md (Figures, PDFs)"

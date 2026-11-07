@@ -63,12 +63,10 @@ rules:
       Drivers and libraries compile warning-free with arm-none-eabi-gcc (Cortex-M) and for ESP-IDF in CI, not only
       on the host.
     level: must
-    status: proposed
+    status: active
     since: "1.0"
-    enforce_from: "2027-01-15"
     applies: {profiles: [driver, library], from_level: high}
     verify: [{check: cross-build/arm-none-eabi}, {check: cross-build/esp-idf}]
-    notes: Warns until 2027-01-15, then fails CI.
 
   - id: KB-TST-006
     title: Host tests compile every header with the firmware's flags and no platform paths

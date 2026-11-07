@@ -60,16 +60,20 @@ checks:
     where: ci-tools ru-host-quality (complexity job, lizard 1.24.1)
     summary: lizard finds no library function over the complexity, length or parameter limit of the level (ADR-0020)
   - id: cross-build
-    status: planned
+    status: implemented
     parametric: true
-    summary: the library compiles warning-free for the named target (arm-none-eabi, riscv32, esp-idf)
+    implemented_params: [arm-none-eabi, esp-idf]
+    summary: the code compiles warning-free for the named target (arm-none-eabi Cortex-M cores, esp-idf, riscv32)
+    where: ci-tools ru-cross-build (Cortex-M0+, M3, M4F, M7F, M33F); ru-build (ESP-IDF)
   - id: misra-checker
     status: planned
     summary: a commercial MISRA C++:2023 / C:2025 checker run, mapped to the compliance matrix (safety level)
   - id: forbidden-patterns
-    status: planned
+    status: implemented
     parametric: true
+    implemented_params: [heap, exceptions-rtti, virtual-outside-interfaces, cmake-glob, cmake-cxx-standard]
     summary: a source scan for a construct the handbook bans; the parameter names the pattern set
+    where: ci-tools ru-handbook-check (tools/handbook_check), on drivers, libraries, HALs, firmware and templates
   - id: register-layout-asserts
     status: planned
     summary: every register or wire frame struct has static_assert on its size and field offsets
@@ -84,17 +88,20 @@ checks:
     summary: README.md, LICENSE (MIT), CHANGELOG.md and .github/CODEOWNERS exist
     where: ci-tools org-standard-check.yml
   - id: repo-layout
-    status: planned
-    summary: the repository root and directories match the layout for its kind
+    status: implemented
+    summary: the committed root entries match the layout for the repository's kind (drivers and templates today)
+    where: ci-tools ru-handbook-check (tools/handbook_check), on drivers, libraries, HALs, firmware and templates
   - id: spdx-headers
     status: planned
     summary: every source file carries an SPDX licence identifier (REUSE)
   - id: handbook-declaration
-    status: planned
+    status: implemented
     summary: .kokeb/handbook.yml exists and names a released handbook version, a kind and a level
+    where: ci-tools ru-handbook-check (tools/handbook_check), on drivers, libraries, HALs, firmware and templates
   - id: waivers
-    status: planned
+    status: implemented
     summary: every waiver names an existing rule, a reason, an approver and an expiry date that has not passed
+    where: ci-tools ru-handbook-check (tools/handbook_check), on drivers, libraries, HALs, firmware and templates
 
   # -- Documentation --------------------------------------------------------------------------------------------
   - id: markdownlint
@@ -111,8 +118,9 @@ checks:
     summary: lychee finds no broken link on the built site
     where: ci-tools ru-mkdocs-publish (link check)
   - id: doxygen-warnings
-    status: planned
+    status: implemented
     summary: Doxygen with WARN_AS_ERROR = FAIL_ON_WARNINGS and WARN_IF_UNDOCUMENTED reports nothing
+    where: ci-tools ru-mkdocs-publish, with the repository's Doxyfile (driver-template sets both)
   - id: prose-style
     status: planned
     parametric: true
@@ -160,10 +168,12 @@ checks:
 
   # -- C and C++ (rule loading) ---------------------------------------------------------------------------------
   - id: include-allowlist
-    status: planned
+    status: implemented
     parametric: true
+    implemented_params: [driver, target]
     summary: a script over the include graph that fails on a header outside the allowed set for the
       directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)
+    where: ci-tools ru-handbook-check (tools/handbook_check), on drivers, libraries, HALs, firmware and templates
   - id: ast-rules
     status: planned
     parametric: true
@@ -497,11 +507,13 @@ checks:
     status: planned
     summary: host test jobs upload a JUnit report and a line and branch coverage report as artifacts
   - id: tracked-files
-    status: planned
+    status: implemented
     parametric: true
+    implemented_params: [sdkconfig, datasheets]
     summary: >-
       git tracks no file of a banned kind; the parameter names it (tracked-files/symlinks,
       tracked-files/sdkconfig, tracked-files/idf-component)
+    where: ci-tools ru-handbook-check (tools/handbook_check), on drivers, libraries, HALs, firmware and templates
   - id: file-names
     status: planned
     summary: source and test file names match the pattern for the repository's kind
@@ -510,9 +522,10 @@ checks:
     summary: _config/.clang-format and _config/.clang-tidy equal the handbook's config/ files apart
       from the header
   - id: driver-manifest
-    status: planned
+    status: implemented
     summary: driver.yml exists, validates against its schema, and its version, MCUs and examples match
       the build settings and the examples folder
+    where: ci-tools ru-handbook-check (tools/handbook_check), on drivers, libraries, HALs, firmware and templates
   - id: third-party-licences
     status: planned
     summary: every third_party/<name>/ has a licence file, and REUSE or scancode finds only MIT-compatible

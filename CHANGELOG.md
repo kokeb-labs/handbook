@@ -32,6 +32,14 @@ loosened rule is a major release.
   KB-CPP-115 (complexity), KB-TST-003 (sanitizers), KB-TST-004 (coverage floors) and KB-TST-027 (MC/DC at safety
   level) are active.
 
+- Phase A checks are implemented: the handbook declaration and waivers, the driver root layout, `driver.yml`,
+  banned code patterns (heap, exceptions and RTTI, virtual functions in drivers, `file(GLOB)`, C++20), the target
+  library subset of headers and committed `sdkconfig` or PDFs (ci-tools `ru-handbook-check`); Doxygen failing on
+  warnings (`ru-mkdocs-publish` with the repository's Doxyfile); and Cortex-M builds (`ru-cross-build`). Ten rules
+  become active: KB-REPO-002, 003, 005, 016 and 018, KB-BLD-002, KB-CPP-012, KB-DOC-004 and 035, KB-TST-005.
+  Must rules checked by a tool: 98 of 274.
+- A parametric check can list `implemented_params`: only those parameters count as checked.
+
 ### Fixed
 
 - The five conflicts found while loading the rules are settled, and the affected rules and pages agree. The
