@@ -9,6 +9,12 @@ loosened rule is a major release.
 
 ### Added
 
+- Migration checklist: "Drivers that are already proven on hardware". Hardware evidence belongs to the old code at
+  a commit, on a board, by a procedure; a rewrite records it in `docs/limitations.md`, turns each hardware quirk
+  into a model fault and a test, checks the firmware's real calls, and claims "verified on hardware" only after the
+  same bench procedure. Also a fuzz-target step, and the pilots' new findings (a lost-frame OTP burn found by
+  fuzzing, the output-latch read-back, the plain-text `Log()` hook, Pages on private repositories).
+
 - The handbook as data: rules in `rules/*.yml` with IDs, levels, scope and verification; the check registry; the
   repository kinds and assurance levels; `checks/handbook.py` to validate the rules and generate their pages and
   the coverage report.

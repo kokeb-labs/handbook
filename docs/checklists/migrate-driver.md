@@ -9,8 +9,37 @@ updated with each one.
 and the procedures the datasheet asks for. Its API, error model and structure are not carried over; the new driver
 is written on the template's architecture, and the old repository stays untouched until every driver has moved.
 
+## Drivers that are already proven on hardware
+
+Some old drivers run in shipped or bench-tested firmware: the bench HIL evidence (`verification/evidence/` in
+the bench firmware) covers the MAX22200, the TLE92466ED, the TMC9660, the ADS7952 and the PCAL9555A, partly the
+AT25040, and leaves others (the AS5047U among them) with none. That evidence belongs to **the old code at a given
+commit, on a given board, by a given procedure**. A rewritten driver is new code: it inherits the knowledge, never
+the verification. So for a proven driver the migration adds four things:
+
+1. **Record the evidence as it is.** `docs/limitations.md` of the new repository lists, per chip, what was verified
+   on hardware, with which old repository and commit, which board, which procedure and which evidence folder, and
+   says plainly that it applies to the old driver until the new one is verified the same way.
+2. **Keep every quirk the hardware taught.** Comments such as "workaround", "errata", "second write", the
+   firmware's retries and its call sites are chip knowledge (step 2). Each one becomes a fault in the chip model and
+   a test, or a documented reason it no longer applies. Example: the the bench bench lost acknowledged writes to
+   the PCAL9555A, so the model can drop writes and the driver reads each write back (`WriteMismatch`).
+3. **Fit the firmware's real use.** Before the API is final, list how the firmware's handler calls the old driver
+   (which calls, how often, from which thread, what it does on error) and check the new API covers each one, or
+   name the replacement. A call the firmware depends on and the new driver lacks blocks the merge
+   (the PCAL9555A migration found four: output-latch read-back, a verified write, variant choice, retry guidance).
+4. **Verify on the same bench before claiming it.** The status stays "not yet verified on hardware" until the new
+   driver runs behind the same handler on the same board, through the same procedure, and its evidence folder is
+   linked from `docs/limitations.md` with the driver's commit. Only then does the README's status say
+   "verified on hardware: <board>, <date>".
+
+Order the migrations so that a proven driver is moved when its firmware user can take the new version to the bench
+soon after; a driver with no hardware user can move at any time.
+
 ```markdown
 ### 0. Before starting
+- [ ] Hardware evidence found and recorded (section above): old commit, board, procedure, evidence folder; and the
+      firmware's handler and call sites read
 - [ ] Licence and authorship of the old code checked (`LICENSE`, `git log --format='%an <%ae>' | sort | uniq -c`).
       Relicensing (for example GPL-3.0 to MIT) needs every copyright holder's agreement; commits made with an
       employer address may belong to the employer. Record the decision in the tracking issue before the repository
@@ -78,6 +107,10 @@ is written on the template's architecture, and the old repository stays untouche
 - [ ] `test_kconfig.cpp` and `_config/Kconfig`: only options that map to `Config` fields
 - [ ] Compile-fail tests for every compile-time contract that remains (missing hook, wrong signature)
 - [ ] `tests/docs/*.cpp`: every snippet the pages show, rewritten for the new API
+- [ ] `tests/fuzz/fuzz_<chip>.cpp`: the bus under the fuzzer's control (failed, corrupted, replaced and, where the
+      bus allows it, lost transfers), the driver's promises checked after every call, the corpus replayed as a CTest;
+      every crash it finds is fixed with a unit test and kept as a `regress-*` input
+- [ ] Every quirk found on hardware is a fault in the model and a test (section above)
 
 ### 5. Local gates (the same tools and versions as CI)
 - [ ] A few GB free on the disk: the coverage, clang-tidy and docs builds each create their own build directory
@@ -127,3 +160,8 @@ is written on the template's architecture, and the old repository stays untouche
 | clang-format merged the rows of the hook tables in the Doxygen comments (the template has the same) | Step 5 note; template fix |
 | A burned part's settings were overwritten by the first setter after `write_settings = false` | Step 3: read the settings back |
 | The OTP compare reads ran without CRC in 16-bit mode | Step 3: protected frames for the whole procedure |
+| The fuzzer found that a lost data frame of a two-frame write turned the next command into data: losing "PROG = PROGOTP" let the next read burn the AS5047U's OTP | Driver: a NOP read after any failed transfer; step 4: fuzz every driver |
+| `SetZeroHere()` left the zero at 0 when its angle read failed (fuzzer) | Driver: restore the old zero; a failed call has no side effect |
+| The firmware checks the PCAL9555A's output latch after every write because the bench lost acknowledged writes | Driver: read-back calls and `verify_writes`; section above |
+| The port's `Log()` hook was a C variadic function, and the examples passed driver text as a format string | Plain-text hook; clang-tidy `cert-*` |
+| README docs and API links pointed at GitHub Pages, which a private repository on the free plan does not serve | README links to `docs/`; the site link waits for the repository to be public |
