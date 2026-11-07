@@ -828,17 +828,18 @@ rules:
     origin: ["hf:agents/driver-authoring.md:277"]
 
   - id: KB-CPP-043
-    title: Run-time configuration is one Config struct passed to Initialize
+    title: Run-time configuration is one Config struct passed to the constructor
     statement: >-
       A driver's run-time settings are one `Config` struct with unit-suffixed fields and datasheet defaults, passed
-      to `Initialize()`. Capacity limits are `constexpr` constants a board can size, and buffers are members sized
-      by those limits or a caller's `std::span`.
+      to the constructor (its last parameter, defaulted) and changed with `ApplyConfig()`. Capacity limits are
+      `constexpr` constants a board can size, and buffers are members sized by those limits or a caller's
+      `std::span`.
     level: must
     status: active
     since: "1.0"
     applies: {profiles: [driver, library, template]}
     verify: [{review: Settings are fields of one Config; buffers are fixed members or caller spans.}]
-    refs: [{adr: 4}]
+    refs: [{adr: 4}, {adr: 21}]
     page: standards/driver.md
     origin:
       - "kb:standards/driver.md:285,305"
@@ -1111,19 +1112,20 @@ rules:
       - "hf:process/architecture.md:322-361"
 
   - id: KB-CPP-058
-    title: Initialize runs the fixed sequence and leaves nothing half-initialised
+    title: The start-up runs the fixed sequence and leaves nothing half-initialised
     statement: >-
-      A driver's `Initialize()` brings the port up with `EnsureInitialized`, resets the chip (hardware reset if
-      wired, else software), checks the chip ID (or the closest equivalent, documented, if the chip has none),
-      applies the config and only then marks itself initialised. On any failure it stays uninitialised.
+      The first `EnsureInitialized()` of a driver validates the stored config, brings the port up with the port's
+      `EnsureInitialized`, resets the chip (hardware reset if wired, else software), checks the chip ID (or the
+      closest equivalent, documented, if the chip has none), applies the config and only then marks itself
+      initialised. On any failure it stays uninitialised and the next call starts again.
     level: must
     status: active
     since: "1.0"
     applies: {profiles: [driver, template]}
     verify:
       - check: host-tests
-      - review: Initialize follows the sequence on the driver page and each failure leaves the driver uninitialised.
-    refs: [{adr: 2}]
+      - review: The start-up follows the sequence on the driver page and each failure leaves the driver uninitialised.
+    refs: [{adr: 2}, {adr: 21}]
     page: standards/driver.md
     origin:
       - "kb:standards/driver.md:262-264,271"
@@ -1132,16 +1134,17 @@ rules:
       - "hf:standards/review-checklist.md:171"
 
   - id: KB-CPP-059
-    title: No call initialises as a side effect
+    title: EnsureInitialized is the one start-up entry point, and no call starts as a side effect
     statement: >-
-      Before `Initialize`, every call that needs the chip returns `NotInitialized`. `EnsureInitialized()` returns
-      `Ok` when initialised and otherwise runs `Initialize` with the last config; nothing else initialises.
+      `EnsureInitialized()` is the only public way to start a driver or handler; there is no public `Initialize()`.
+      Once started it returns `Ok` with no I/O. Before it has succeeded, every call that needs the chip returns
+      `NotInitialized` and sends nothing; no read or write calls `EnsureInitialized()` or starts the chip.
     level: must
     status: active
     since: "1.0"
     applies: {profiles: [driver, library, template]}
     verify: [{check: host-tests}]
-    refs: [{adr: 2}]
+    refs: [{adr: 2}, {adr: 21}]
     page: standards/driver.md
     origin:
       - "kb:standards/driver.md:265,269"

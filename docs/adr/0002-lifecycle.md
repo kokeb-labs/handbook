@@ -1,6 +1,6 @@
 # ADR-0002: One lifecycle for drivers and handlers
 
-- Status: Accepted
+- Status: Accepted; the driver and handler parts amended by [ADR-0021](0021-one-start-up-entry-point.md)
 - Date: 2026-11-03
 
 ## Context

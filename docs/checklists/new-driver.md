@@ -20,8 +20,11 @@ checks; [driver.md](../standards/driver.md) is the contract.
 - [ ] `enum class Error : uint8_t` with the base set at values 0 to 9, chip-specific values from 16, each one returned somewhere; `ToString()`
 - [ ] `Result<T>` / `Result<void>` with `ok()` and `[[nodiscard]]` on every fallible call
 - [ ] Every port failure propagates; no getter returns a stale or zero value after a failed read
-- [ ] `noexcept` constructor with no I/O; `Initialize(const Config& = {})` resets, checks the chip ID, applies config
-- [ ] `EnsureInitialized()`, `IsInitialized()`, `Deinitialize()`; every I/O call returns `NotInitialized` before init
+- [ ] `noexcept` constructor with no I/O that stores the port and the `Config` (last parameter, defaulted)
+- [ ] `EnsureInitialized()` is the only public start: validates, resets, checks the chip ID, applies config; idempotent
+      with no I/O once started; retried from scratch after a failure; no public `Initialize()`
+- [ ] `IsInitialized()`, `Deinitialize()`, `ApplyConfig()` (stores before the start); every I/O call returns
+      `NotInitialized` and sends nothing before the start; no read or write starts the chip
 - [ ] `Config` struct with unit-suffixed fields and datasheet defaults; Kconfig only through `inc/<chip>_kconfig.hpp`
 - [ ] Product choices (channels, features, profiles) are `Config` fields, not compile-time switches
 - [ ] No heap, exceptions, RTTI, `std::function`, `std::string`, `printf`, static mutable state; no locking, no RTOS

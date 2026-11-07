@@ -191,7 +191,7 @@ namespace zp100 {
 enum class Error : uint8_t {
   // Base set: every driver declares these, with these values, in this order.
   Ok = 0,
-  NotInitialized = 1,   // an I/O call before Initialize() succeeded
+  NotInitialized = 1,   // an I/O call before EnsureInitialized() succeeded
   InvalidArgument = 2,  // a parameter outside the documented range; nothing was sent
   Bus = 3,              // a port hook returned false
   Timeout = 4,          // the chip did not become ready in time
@@ -240,34 +240,40 @@ Rules:
 
 ## Lifecycle
 
-([ADR-0002](../adr/0002-lifecycle.md))
+([ADR-0002](../adr/0002-lifecycle.md), [ADR-0021](../adr/0021-one-start-up-entry-point.md))
 
 ```cpp
 template <I2cPort Port>
 class ZP100 {
 public:
-  explicit ZP100(Port& port, uint8_t address = kDefaultAddress) noexcept;  // stores, no I/O
+  explicit ZP100(Port& port, uint8_t address = kDefaultAddress,
+                 const Config& config = {}) noexcept;  // stores, no I/O
 
-  Result<void> Initialize(const Config& config = {}) noexcept;  // reset, check chip ID, apply config
-  Result<void> EnsureInitialized() noexcept;                     // Initialize(last config) once
+  Result<void> EnsureInitialized() noexcept;            // the one start: once, then Ok with no I/O
   [[nodiscard]] bool IsInitialized() const noexcept;
-  Result<void> Deinitialize() noexcept;                          // chip to its safe low-power state
+  Result<void> Deinitialize() noexcept;                 // chip to its safe low-power state
+  Result<void> ApplyConfig(const Config& config) noexcept;  // write when running, store before
 
   Result<float> ReadPressurePa() noexcept;
   Result<void> SetOversampling(Oversampling osr) noexcept;
 };
 ```
 
-- The constructor MUST be `noexcept`, MUST NOT perform I/O and MUST NOT fail. It stores references and defaults.
-- `Initialize(config)` MUST, in order: call the port's `EnsureInitialized()` (`Bus` on failure), reset the chip
-  (hardware reset if the pin hook exists, else software reset), read and check the chip ID (`DeviceIdMismatch`),
-  apply `config`, and only then mark the driver initialised. On any failure the driver stays uninitialised.
-- `EnsureInitialized()` returns `Ok` at once when initialised; otherwise it runs `Initialize()` with the last
-  config passed (or the default). It is the call handlers use.
+- The constructor MUST be `noexcept`, MUST NOT perform I/O and MUST NOT fail. It stores the port, any bus
+  argument and the configuration (its last parameter, defaulted).
+- `EnsureInitialized()` MUST be the only public way to start. Its first call MUST, in order: check the stored
+  configuration with `Validate()` (`InvalidArgument`, no I/O), call the port's `EnsureInitialized()` (`Bus` on
+  failure), reset the chip (hardware reset if the pin hook exists, else software reset), read and check the chip ID
+  (`DeviceIdMismatch`), apply the configuration, and only then mark the driver initialised. On any failure the
+  driver stays uninitialised and the next call starts again. Once initialised it returns `Ok` at once with no I/O.
+- The sequence is a private member (`initialize()`); a driver has no public `Initialize()`.
+- `ApplyConfig(config)` validates first; on a running driver it writes the configuration, before the start it only
+  stores it for the first `EnsureInitialized()`, with no I/O.
 - `Deinitialize()` puts the chip in its documented safe state (outputs off, low-power mode) and clears the
   initialised flag. Calling it on an uninitialised driver returns `Ok`.
-- Every call that touches the bus MUST return `NotInitialized` before `Initialize()` succeeded. No call resets or
-  initialises the chip as a side effect.
+- Every call that touches the bus MUST return `NotInitialized`, and send nothing, before `EnsureInitialized()`
+  succeeded. No read or write resets or starts the chip as a side effect. Recovery after a fault is
+  `Deinitialize()` then `EnsureInitialized()`.
 - A chip without an ID register checks the closest equivalent (a reset value, a known status bit) and documents it.
 - Destructive operations (firmware update, OTP write, factory reset) MUST take their data or confirmation
   explicitly. No default argument may trigger them.
@@ -283,8 +289,8 @@ struct Config {
 ```
 
 - Run-time configuration MUST be one `Config` struct with unit-suffixed fields and defaults taken from the
-  datasheet. The struct is passed to `Initialize()`; individual setters MAY exist for values that change at run
-  time.
+  datasheet. The struct is passed to the constructor and changed with `ApplyConfig()`; individual setters MAY exist
+  for values that change at run time.
 - What differs between products (which channels are used, which features are on, a profile table) is a field of
   `Config` (a mask, a `std::span` passed in), never a compile-time switch for one product
   ([layers.md](layers.md#product-specific-code)).
@@ -360,7 +366,7 @@ kb_core_min: 0.1.0         # the oldest kb-core whose handler and adapters work 
 
 - `tests/mock_<chip>.hpp`: a register-level model of the chip implementing the port, used by every host test.
 - A host suite built on gcc and clang with `-Wall -Wextra -Werror -fno-exceptions -fno-rtti`, run by the shared
-  host-test workflow. It covers: every public call before `Initialize()` (`NotInitialized`), the chip-ID
+  host-test workflow. It covers: every public call before `EnsureInitialized()` (`NotInitialized`), the chip-ID
   mismatch, a failing port hook on every call path (`Bus`), argument validation, and the register traffic of each
   feature.
 - `tests/docs/`: every code block on the documentation site compiles here (`<!-- generated: ... -->` regions).
@@ -401,4 +407,4 @@ NOT include the vendor SDK in `inc/` or `src/`.
 A driver for a device reached over a protocol rather than a chip (a fictional motor-controller node over CANopen)
 skips the chip-specific rules: chip-ID check, register model, datasheet defaults and the register mock. It follows
 everything else: namespace, port, `Result<T>` and `Error`, lifecycle, no heap, build, `driver.yml`, tests and docs.
-Its `Initialize()` checks the remote identity (device type, vendor ID) instead of a chip ID.
+Its `EnsureInitialized()` checks the remote identity (device type, vendor ID) instead of a chip ID.

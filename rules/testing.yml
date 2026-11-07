@@ -114,7 +114,8 @@ rules:
   - id: KB-TST-008
     title: Host tests cover the failure paths, not only the happy path
     statement: >-
-      Host tests show that a call before `Initialize()` returns NotInitialized, a wrong chip ID is refused, a failing
+      Host tests show that a call before `EnsureInitialized()` returns NotInitialized and sends nothing, a second
+      `EnsureInitialized()` does no I/O, a failed start is retried, a wrong chip ID is refused, a failing
       bus hook is reported on every path that uses it, invalid arguments are rejected, and the expected register
       traffic is sent. New behaviour arrives with tests of its failure paths.
     level: must
@@ -122,7 +123,7 @@ rules:
     since: "1.0"
     applies: {profiles: [driver, library, hal, template]}
     verify:
-      - review: Every new error path, including a failing hook and a call before Initialize, has a test.
+      - review: Every new error path, including a failing hook and a call before EnsureInitialized, has a test.
       - check: error-paths-tested
     refs: [{std: IEC-62304, id: "5.5.4", note: "additional unit acceptance criteria: fault handling"}]
     page: standards/driver.md

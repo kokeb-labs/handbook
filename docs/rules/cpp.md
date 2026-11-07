@@ -49,7 +49,7 @@ review hold each change to.
 | [KB-CPP-040](#kb-cpp-040) Drivers and kb-core utilities hold no mutable global or static state | must | driver, library, template | checked |
 | [KB-CPP-041](#kb-cpp-041) A driver waits only through the port's delay hooks | must | driver, template | planned |
 | [KB-CPP-042](#kb-cpp-042) Drivers declare no friends | should | driver, template | review |
-| [KB-CPP-043](#kb-cpp-043) Run-time configuration is one Config struct passed to Initialize | must | driver, library, template | review |
+| [KB-CPP-043](#kb-cpp-043) Run-time configuration is one Config struct passed to the constructor | must | driver, library, template | review |
 | [KB-CPP-044](#kb-cpp-044) Kconfig values are read in one header | must | driver, template | checked |
 | [KB-CPP-045](#kb-cpp-045) Destructive chip operations need explicit input | must | driver, library, template | review |
 | [KB-CPP-046](#kb-cpp-046) Each driver has its own Error enum and a trivially copyable Result type | must | driver, template | planned |
@@ -64,8 +64,8 @@ review hold each change to.
 | [KB-CPP-055](#kb-cpp-055) Never log an error and return Ok | must | library, hal, firmware | review |
 | [KB-CPP-056](#kb-cpp-056) Error handling separates recoverable from fatal failures and keeps context | guide | library, hal, firmware | none |
 | [KB-CPP-057](#kb-cpp-057) Constructors are noexcept, do no I/O and cannot fail | must | driver, library, template | checked |
-| [KB-CPP-058](#kb-cpp-058) Initialize runs the fixed sequence and leaves nothing half-initialised | must | driver, template | checked |
-| [KB-CPP-059](#kb-cpp-059) No call initialises as a side effect | must | driver, library, template | checked |
+| [KB-CPP-058](#kb-cpp-058) The start-up runs the fixed sequence and leaves nothing half-initialised | must | driver, template | checked |
+| [KB-CPP-059](#kb-cpp-059) EnsureInitialized is the one start-up entry point, and no call starts as a side effect | must | driver, library, template | checked |
 | [KB-CPP-060](#kb-cpp-060) Deinitialize leaves the chip in its documented safe state | must | driver, template | checked |
 | [KB-CPP-061](#kb-cpp-061) Handler files and classes follow the handler naming | must | library | planned |
 | [KB-CPP-062](#kb-cpp-062) A handler keeps its driver in place and rebuilds it cleanly on a failed start | must | library | checked |
@@ -922,19 +922,19 @@ A driver class declares no `friend`; if a handler needs access, the driver widen
 - review: The driver adds no friend declaration.
 
 
-## KB-CPP-043: Run-time configuration is one Config struct passed to Initialize { #kb-cpp-043 }
+## KB-CPP-043: Run-time configuration is one Config struct passed to the constructor { #kb-cpp-043 }
 
 **MUST** · driver, library, template · since 1.0
 
-A driver's run-time settings are one `Config` struct with unit-suffixed fields and datasheet defaults, passed to
-`Initialize()`. Capacity limits are `constexpr` constants a board can size, and buffers are members sized by those
-limits or a caller's `std::span`.
+A driver's run-time settings are one `Config` struct with unit-suffixed fields and datasheet defaults, passed to the
+constructor (its last parameter, defaulted) and changed with `ApplyConfig()`. Capacity limits are `constexpr` constants
+a board can size, and buffers are members sized by those limits or a caller's `std::span`.
 
 *Verified by:*
 
 - review: Settings are fields of one Config; buffers are fixed members or caller spans.
 
-*See also:* [ADR-0004](../adr/0004-no-heap.md)
+*See also:* [ADR-0004](../adr/0004-no-heap.md); [ADR-0021](../adr/0021-one-start-up-entry-point.md)
 
 *Explained in:* [standards/driver.md](../standards/driver.md)
 
@@ -1172,35 +1172,37 @@ references and defaults. A handler's constructor does not create its driver.
 
 *Explained in:* [standards/driver.md](../standards/driver.md)
 
-## KB-CPP-058: Initialize runs the fixed sequence and leaves nothing half-initialised { #kb-cpp-058 }
+## KB-CPP-058: The start-up runs the fixed sequence and leaves nothing half-initialised { #kb-cpp-058 }
 
 **MUST** · driver, template · since 1.0
 
-A driver's `Initialize()` brings the port up with `EnsureInitialized`, resets the chip (hardware reset if wired, else
-software), checks the chip ID (or the closest equivalent, documented, if the chip has none), applies the config and only
-then marks itself initialised. On any failure it stays uninitialised.
+The first `EnsureInitialized()` of a driver validates the stored config, brings the port up with the port's
+`EnsureInitialized`, resets the chip (hardware reset if wired, else software), checks the chip ID (or the closest
+equivalent, documented, if the chip has none), applies the config and only then marks itself initialised. On any failure
+it stays uninitialised and the next call starts again.
 
 *Verified by:*
 
 - `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
-- review: Initialize follows the sequence on the driver page and each failure leaves the driver uninitialised.
+- review: The start-up follows the sequence on the driver page and each failure leaves the driver uninitialised.
 
-*See also:* [ADR-0002](../adr/0002-lifecycle.md)
+*See also:* [ADR-0002](../adr/0002-lifecycle.md); [ADR-0021](../adr/0021-one-start-up-entry-point.md)
 
 *Explained in:* [standards/driver.md](../standards/driver.md)
 
-## KB-CPP-059: No call initialises as a side effect { #kb-cpp-059 }
+## KB-CPP-059: EnsureInitialized is the one start-up entry point, and no call starts as a side effect { #kb-cpp-059 }
 
 **MUST** · driver, library, template · since 1.0
 
-Before `Initialize`, every call that needs the chip returns `NotInitialized`. `EnsureInitialized()` returns `Ok` when
-initialised and otherwise runs `Initialize` with the last config; nothing else initialises.
+`EnsureInitialized()` is the only public way to start a driver or handler; there is no public `Initialize()`. Once
+started it returns `Ok` with no I/O. Before it has succeeded, every call that needs the chip returns `NotInitialized`
+and sends nothing; no read or write calls `EnsureInitialized()` or starts the chip.
 
 *Verified by:*
 
 - `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
 
-*See also:* [ADR-0002](../adr/0002-lifecycle.md)
+*See also:* [ADR-0002](../adr/0002-lifecycle.md); [ADR-0021](../adr/0021-one-start-up-entry-point.md)
 
 *Explained in:* [standards/driver.md](../standards/driver.md)
 

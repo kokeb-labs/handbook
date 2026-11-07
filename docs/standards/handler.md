@@ -42,7 +42,7 @@ public:
   Zp100Handler(const Zp100Handler&) = delete;
   Zp100Handler& operator=(const Zp100Handler&) = delete;
 
-  Result<void> EnsureInitialized() noexcept;   // builds the driver in place, runs its Initialize()
+  Result<void> EnsureInitialized() noexcept;   // builds the driver in place, runs its EnsureInitialized()
   Result<void> Deinitialize() noexcept;
   [[nodiscard]] bool IsInitialized() const noexcept;
 
@@ -79,8 +79,10 @@ private:
 - `EnsureInitialized()` returns `Result<void>`. On first call it emplaces the driver over the adapter and runs the
   driver's `EnsureInitialized()`; on failure it destroys the driver again, so the next call retries from scratch.
   It returns at once when already initialised.
-- Every public method that needs the chip calls `EnsureInitialized()` itself or returns `NotInitialized`; the
-  handler page says which.
+- `EnsureInitialized()` is the handler's one start-up entry point
+  ([ADR-0021](../adr/0021-one-start-up-entry-point.md)). Reads and writes do not call it: every public method
+  that needs the chip returns `NotInitialized` until the handler has been started, which the HAL does once, in its
+  fixed start-up order.
 - `Deinitialize()` runs the driver's `Deinitialize()` and destroys it.
 
 ### Locking

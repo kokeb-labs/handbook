@@ -150,13 +150,14 @@ host test drives the driver through it. Drivers are not tested through virtual m
 
 **MUST** · driver, library, hal, template · since 1.0
 
-Host tests show that a call before `Initialize()` returns NotInitialized, a wrong chip ID is refused, a failing bus hook
-is reported on every path that uses it, invalid arguments are rejected, and the expected register traffic is sent. New
-behaviour arrives with tests of its failure paths.
+Host tests show that a call before `EnsureInitialized()` returns NotInitialized and sends nothing, a second
+`EnsureInitialized()` does no I/O, a failed start is retried, a wrong chip ID is refused, a failing bus hook is reported
+on every path that uses it, invalid arguments are rejected, and the expected register traffic is sent. New behaviour
+arrives with tests of its failure paths.
 
 *Verified by:*
 
-- review: Every new error path, including a failing hook and a call before Initialize, has a test.
+- review: Every new error path, including a failing hook and a call before EnsureInitialized, has a test.
 - `error-paths-tested` (planned): every error value the public API can return is asserted by at least one host test
 
 *See also:* IEC 62304:2006+A1:2015 5.5.4 (additional unit acceptance criteria: fault handling)

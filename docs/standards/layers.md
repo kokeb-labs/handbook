@@ -45,7 +45,7 @@ They meet in the handler, where an adapter implements a driver's port with `Base
 
 | Layer | Promises to the layer above | Depends on | Page |
 | --- | --- | --- | --- |
-| Chip driver | The chip's full feature set as typed calls returning `Result<T>`; no I/O before `Initialize()`; no heap, no platform code | The target library subset of the C++ standard library ([ADR-0017](../adr/0017-target-library-subset.md)) and its own port | [driver.md](driver.md) |
+| Chip driver | The chip's full feature set as typed calls returning `Result<T>`; no I/O before `EnsureInitialized()`; no heap, no platform code | The target library subset of the C++ standard library ([ADR-0017](../adr/0017-target-library-subset.md)) and its own port | [driver.md](driver.md) |
 | utils | Platform-free helpers, `kb::Status`, and CANopen frame builders | The C++ standard library | [library.md](library.md) |
 | rtos | The only mutex, delay, thread, queue and timer types; the same API on FreeRTOS, ThreadX and none | utils; the selected RTOS, only inside its backend folder | [library.md](library.md) |
 | interfaces | `Base*` peripheral classes with the same behaviour on every MCU family; `ToStatus()` for every error type; the monotonic clock | utils, rtos; the vendor SDK, only inside `mcu/<family>/` | [library.md](library.md) |

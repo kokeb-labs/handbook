@@ -7,7 +7,7 @@ supersedes it, and the old one gets a `Superseded by ADR-NNNN` status.
 | ADR | Decision | Status |
 | --- | --- | --- |
 | [0001](0001-error-model.md) | Drivers keep `<chip>::Error` and `Result<T>`; handlers map to `kb::Status` | Accepted |
-| [0002](0002-lifecycle.md) | One lifecycle: I/O-free constructor, `Initialize()`, `EnsureInitialized()` | Accepted |
+| [0002](0002-lifecycle.md) | One lifecycle: I/O-free constructor, `Initialize()`, `EnsureInitialized()` | Accepted, amended by 0021 |
 | [0003](0003-crtp-ports.md) | Drivers are templates on a CRTP port constrained by a concept | Accepted |
 | [0004](0004-no-heap.md) | No heap in drivers; none after start-up anywhere | Accepted |
 | [0005](0005-kb-hal-common.md) | A shared `kb-hal-common` repository; board HALs live with their products | Accepted |
@@ -26,6 +26,7 @@ supersedes it, and the old one gets a `Superseded by ADR-NNNN` status.
 | [0018](0018-sdkconfig.md) | Commit `sdkconfig.defaults`, never the generated `sdkconfig` | Accepted |
 | [0019](0019-datasheets.md) | Datasheets are referenced by exact revision, never committed | Accepted |
 | [0020](0020-complexity-and-coverage.md) | Complexity limits and coverage floors per assurance level | Accepted |
+| [0021](0021-one-start-up-entry-point.md) | EnsureInitialized() is the one start-up entry point | Accepted |
 
 ## Format
 
