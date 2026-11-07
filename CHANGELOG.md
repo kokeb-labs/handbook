@@ -9,6 +9,8 @@ loosened rule is a major release.
 
 ### Changed
 
+- Migration checklist: four findings from the AT25040B migration (an active identity check, a confirmed idle
+  status, WP parked after every call, the scaffold's full stop).
 - The handbook is public: CI publishes the site from `main` to <https://kokeb-labs.github.io/handbook/>.
 
 ### Added

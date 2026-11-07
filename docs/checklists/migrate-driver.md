@@ -2,8 +2,8 @@
 
 Use this to move a driver from an older repository (for example a HardFOC `hf-<chip>-driver`) to a new
 `driver-<chip>` built from the template. It adds the migration steps to the [new driver](new-driver.md) checklist,
-which still applies in full. It was written during the first migrations (AS5047U over SPI, PCAL9555A over I2C) and is
-updated with each one.
+which still applies in full. It was written during the first migrations (AS5047U over SPI, PCAL9555A over I2C,
+then the AT25040B EEPROM) and is updated with each one.
 
 **The principle:** the old repository is a source of *chip knowledge*: the register map, the protocol, the timing
 and the procedures the datasheet asks for. Its API, error model and structure are not carried over; the new driver
@@ -164,4 +164,8 @@ soon after; a driver with no hardware user can move at any time.
 | `SetZeroHere()` left the zero at 0 when its angle read failed (fuzzer) | Driver: restore the old zero; a failed call has no side effect |
 | The firmware checks the PCAL9555A's output latch after every write because the bench lost acknowledged writes | Driver: read-back calls and `verify_writes`; section above |
 | The port's `Log()` hook was a C variadic function, and the examples passed driver text as a format string | Plain-text hook; clang-tidy `cert-*` |
+| A dead bus passed the old EEPROM probe: a MISO floating low reads 0x00, the same as an idle AT25040B, twice | Driver: an active identity check (toggle the write enable latch, which a stuck line cannot follow); step 3: prefer a check the chip must answer over one a line can fake |
+| One status byte lost to noise read "idle" during a write cycle, so a read went ahead and returned the busy chip's 0xFF as data (fuzzer) | Driver: an idle status counts only when a second read confirms it |
+| The old handler released WP for every probe and read and parked it only after a successful write | Driver: WP raised only for a write, parked after on success and failure; the fuzzer checks "WP parked after every call" |
+| The scaffold wrote "EEPROMs It follows" when the description had no full stop | driver-template: the description gets a full stop in `AGENTS.md` |
 | README docs and API links pointed at GitHub Pages, which a private repository on the free plan does not serve | README links to `docs/`; the site link waits for the repository to be public |
