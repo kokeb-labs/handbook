@@ -7,6 +7,10 @@ loosened rule is a major release.
 
 ## [Unreleased]
 
+### Changed
+
+- The handbook is public: CI publishes the site from `main` to <https://kokeb-labs.github.io/handbook/>.
+
 ### Added
 
 - Migration checklist: "Drivers that are already proven on hardware". Hardware evidence belongs to the old code at

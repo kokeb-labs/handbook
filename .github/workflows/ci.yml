@@ -51,10 +51,10 @@ jobs:
   docs:
     uses: kokeb-labs/ci-tools/.github/workflows/ru-mkdocs-publish.yml@v1
     permissions:
-      contents: write  # the publish job pushes gh-pages; it is off until the repository is public
+      contents: write  # the publish job pushes gh-pages, on main only
     with:
       versioning: false
-      deploy: false
+      deploy: ${{ github.ref == 'refs/heads/main' }}
 
   markdown:
     uses: kokeb-labs/ci-tools/.github/workflows/ru-markdown-lint.yml@v1

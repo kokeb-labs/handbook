@@ -4,7 +4,7 @@ How every Kokeb Labs repository is designed, written, tested, documented and rel
 tests, documentation, Git and releases, CI and coding agents. Every rule has an ID, a level and the check that
 verifies it, so what the handbook says is what CI enforces.
 
-- Read it: <https://kokeb-labs.github.io/handbook/> (published once the repository is public)
+- Read it: <https://kokeb-labs.github.io/handbook/>
 - Rules as data: [`rules/`](rules/), one file per area; the pages under `docs/rules/` are generated from them
 - Checks: [`checks/registry.yml`](checks/registry.yml) lists every check a rule may name, implemented or planned
 - Tool configuration: [`config/`](config/), the `.clang-format` and `.clang-tidy` every repository uses
