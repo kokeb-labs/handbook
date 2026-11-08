@@ -301,6 +301,27 @@ struct Config {
 - A driver that reads `CONFIG_*` without shipping the `Kconfig` that defines it is a defect.
 - ESP-IDF projects set values through `sdkconfig.defaults`; a full `sdkconfig` is not committed.
 
+### Verification is opt-in
+
+([KB-ARCH-041](../rules/architecture.md#kb-arch-041))
+
+A call does what the datasheet needs and nothing more, so a control loop pays only for the transfer it asked for.
+
+```cpp
+enum class Verify : uint8_t { None, ReadBack };
+
+Result<void> Write(uint16_t address, std::span<const uint8_t> data, Verify verify = Verify::None) noexcept;
+```
+
+- A read-back after a write, a second read to compare, or any check the datasheet does not require is asked for
+  **per call**, with a trailing `Verify` argument that defaults to `Verify::None`. One driver object then serves a
+  control loop (no extra traffic) and a factory write (`Verify::ReadBack`) without reconfiguring. The doc comment
+  says what `ReadBack` costs on that call (for example "one more I2C read per write") and what it catches.
+- Not extra, so not optional: the start-up identity check in `EnsureInitialized()`, a busy poll the datasheet
+  requires before a command, and verification steps in an irreversible procedure (an OTP or fuse burn).
+- A host test shows that the default call sends no extra transfer, and another passes `Verify::ReadBack` and shows
+  it catching the fault.
+
 ## Memory and threads
 
 ([ADR-0004](../adr/0004-no-heap.md))

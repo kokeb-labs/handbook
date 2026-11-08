@@ -683,3 +683,28 @@ rules:
     applies: {profiles: [driver, library, hal, firmware]}
     page: standards/layers.md
     origin: ["inventory: A-ARC-28 (hf:process/architecture.md:617-646)"]
+
+  - id: KB-ARCH-041
+    title: Extra read-back and verification are chosen per call, off by default
+    statement: >-
+      A driver call sends only the bus traffic the datasheet needs for that operation. A read-back of what was just
+      written, a second read to compare, or any other check the datasheet does not require is requested per call
+      with a trailing `Verify` argument that defaults to `Verify::None`, documented with its cost in transfers and
+      what it catches. Start-up checks inside `EnsureInitialized()` and steps the datasheet requires (an OTP or fuse
+      guard-band read, a busy poll before a command) are not extra and stay unconditional.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2026-12-01"
+    applies: {profiles: [driver, template]}
+    verify:
+      - review: >-
+          Every read-back or compare outside EnsureInitialized() runs only when the call passes a Verify value other
+          than None, or is cited to the datasheet step that requires it; a host test shows the default call sends no
+          extra transfer.
+    page: standards/driver.md#verification-is-opt-in
+    notes: >-
+      The caller decides at the call site where the extra traffic is worth it, for example a factory write, while a
+      control loop calling the same driver pays nothing. A per-call argument, not a Config field, so one driver
+      object can serve both.
+    origin: ["owner decision 2026-11-07: keep timing-critical paths lean; verification is opt-in"]

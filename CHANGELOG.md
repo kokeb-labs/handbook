@@ -9,6 +9,10 @@ loosened rule is a major release.
 
 ### Changed
 
+- New rule KB-ARCH-041 (proposed, enforced from 2026-12-01): extra read-back and verification in a driver are
+  chosen per call with a `Verify` argument that defaults to `Verify::None`; the driver contract gains
+  "Verification is opt-in".
+
 - Migration checklist: four findings from the AT25040B migration (an active identity check, a confirmed idle
   status, WP parked after every call, the scaffold's full stop).
 - The handbook is public: CI publishes the site from `main` to <https://kokeb-labs.github.io/handbook/>.

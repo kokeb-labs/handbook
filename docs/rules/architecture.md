@@ -47,6 +47,7 @@ pages under Standards hold the detail. Rules marked guide are design advice for 
 | [KB-ARCH-038](#kb-arch-038) Design for bounded memory and cheap bus traffic | guide | driver, library, hal, firmware | none |
 | [KB-ARCH-039](#kb-arch-039) Real-time paths have bounded latency and named priorities | guide | hal, firmware | none |
 | [KB-ARCH-040](#kb-arch-040) Review architecture before details | guide | driver, library, hal, firmware | none |
+| [KB-ARCH-041](#kb-arch-041) Extra read-back and verification are chosen per call, off by default | must | driver, template | review |
 
 ## KB-ARCH-001: Dependencies point down the stack only { #kb-arch-001 }
 
@@ -691,3 +692,26 @@ A reviewer checks layering, ownership, locking, error mapping, fault reaction an
 a design problem is raised first.
 
 *Explained in:* [standards/layers.md](../standards/layers.md)
+
+## KB-ARCH-041: Extra read-back and verification are chosen per call, off by default { #kb-arch-041 }
+
+!!! note "Proposed"
+
+    The caller decides at the call site where the extra traffic is worth it, for example a factory write, while a control
+    loop calling the same driver pays nothing. A per-call argument, not a Config field, so one driver object can serve both.
+
+**MUST** · driver, template · since 1.0 · enforced from 2026-12-01
+
+A driver call sends only the bus traffic the datasheet needs for that operation. A read-back of what was just written, a
+second read to compare, or any other check the datasheet does not require is requested per call with a trailing `Verify`
+argument that defaults to `Verify::None`, documented with its cost in transfers and what it catches. Start-up checks
+inside `EnsureInitialized()` and steps the datasheet requires (an OTP or fuse guard-band read, a busy poll before a
+command) are not extra and stay unconditional.
+
+*Verified by:*
+
+- review: Every read-back or compare outside EnsureInitialized() runs only when the call passes a Verify value other
+  than None, or is cited to the datasheet step that requires it; a host test shows the default call sends no extra
+  transfer.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#verification-is-opt-in)

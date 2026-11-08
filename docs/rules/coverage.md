@@ -7,7 +7,7 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 | Area | Must rules | Checked | Planned | Review | Checked share |
 | --- | --- | --- | --- | --- | --- |
 | [Coding agents](agents.md) | 17 | 5 | 10 | 2 | 29% |
-| [Architecture](architecture.md) | 27 | 3 | 17 | 7 | 11% |
+| [Architecture](architecture.md) | 28 | 3 | 17 | 8 | 10% |
 | [Build and CMake](build.md) | 21 | 5 | 15 | 1 | 23% |
 | [C code](c.md) | 7 | 1 | 4 | 2 | 14% |
 | [CI and supply chain](ci.md) | 12 | 2 | 10 | 0 | 16% |
@@ -17,7 +17,7 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 | [Hardware and porting](hardware.md) | 7 | 0 | 6 | 1 | 0% |
 | [Repository](repo.md) | 16 | 12 | 4 | 0 | 75% |
 | [Testing](testing.md) | 20 | 8 | 10 | 2 | 40% |
-| **All** | 275 | 98 | 142 | 35 | 35% |
+| **All** | 276 | 98 | 142 | 36 | 35% |
 
 ## Checks still to build
 
