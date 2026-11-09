@@ -4716,7 +4716,7 @@ review hold each change to.</p>
 <td><a href="#kb-cpp-110">KB-CPP-110</a> At the safety level, code follows the MISRA subset in the compliance matrix</td>
 <td>must</td>
 <td>driver, library, hal, firmware (safety level and above)</td>
-<td>planned</td>
+<td>checked</td>
 </tr>
 <tr>
 <td><a href="#kb-cpp-111">KB-CPP-111</a> Comments explain why, and datasheet references are exact</td>
@@ -6113,6 +6113,9 @@ by a MISRA-capable analyser, and every departure is a recorded deviation.</p>
 <ul>
 <li><code>misra-checker</code> (planned): a commercial MISRA C++:2023 / C:2025 checker run, mapped to the compliance matrix (safety
   level)</li>
+<li><code>misra-matrix</code> (implemented): the MISRA C++:2023 compliance matrix lists all 179 guidelines once, never weakens a
+  category, names a verification for each, and its deviations cite existing non-mandatory guidelines
+  (checks/misra_matrix.py)</li>
 </ul>
 <p><em>See also:</em> MISRA C++:2023; MISRA C:2025</p>
 <p><em>Explained in:</em> <a href="../../deviations/">deviations.md</a></p>

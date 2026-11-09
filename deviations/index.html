@@ -792,6 +792,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-project-wide-misra-deviation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A project-wide MISRA deviation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#a-waiver-a-whole-rule-for-a-while" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1196,6 +1207,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#a-project-wide-misra-deviation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A project-wide MISRA deviation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#a-waiver-a-whole-rule-for-a-while" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1268,13 +1290,33 @@ named and the reason stated:</p>
 </span></code></pre></div>
 <p>This follows the deviation-record model of MISRA Compliance:2020: the guideline, the location, the justification,
 the consequence, and who accepted it.</p>
+<h2 id="a-project-wide-misra-deviation">A project-wide MISRA deviation<a class="headerlink" href="#a-project-wide-misra-deviation" title="Permanent link">&para;</a></h2>
+<p>Some MISRA C++:2023 guidelines conflict with a decision the whole project has made, such as writing C++20 or
+reaching memory-mapped registers in the MCU port. Those are recorded once, in
+<a href="https://github.com/kokeb-labs/handbook/blob/main/compliance/misra-cpp-2023-deviations.yml"><code>compliance/misra-cpp-2023-deviations.yml</code></a>,
+and apply to every repository at the safety level:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">MD-CPP-003</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">guideline</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rule 8.2.5</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Memory-mapped register access in MCU port and board bind code, and nowhere else.</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nt">justification</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">A peripheral register is an object at a fixed address; reaching it needs a cast.</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">mitigation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">One named accessor per register block, volatile fixed-width types, a NOLINT citing MD-CPP-003.</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">approved_by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">maintainer</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">  </span><span class="nt">date</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2026-11-08</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">  </span><span class="nt">review_by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2027-11-08</span>
+</span></code></pre></div>
+<p>Each record names one guideline, the scope it covers (everything outside the scope complies), the justification,
+the mitigation that keeps the guideline's risk under control, who approved it and when it must be reviewed again.
+The guideline's entry in the <a href="../coding-standards/">compliance matrix</a> lists the record, and
+<code>checks/misra_matrix.py</code> fails CI if a record cites a guideline that does not exist or is mandatory, or if the matrix
+and the records disagree. A suppression in the code that a project-wide record covers cites the record's id
+instead of adding a per-repository entry.</p>
 <h2 id="a-waiver-a-whole-rule-for-a-while">A waiver: a whole rule, for a while<a class="headerlink" href="#a-waiver-a-whole-rule-for-a-while" title="Permanent link">&para;</a></h2>
 <p>When a repository cannot meet a rule yet, it records a waiver in <code>.kokeb/handbook.yml</code>:</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">waivers</span><span class="p">:</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">rule</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KB-DOC-004</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Doxygen comments for the v2 register API land with</span><span class="w"> </span><span class="c1">#41.</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nt">approved_by</span><span class="p">:</span><span class="w"> </span><span class="s">"@N3b3x"</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="nt">until</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2027-01-31</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">waivers</span><span class="p">:</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">rule</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KB-DOC-004</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">reason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Doxygen comments for the v2 register API land with</span><span class="w"> </span><span class="c1">#41.</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">    </span><span class="nt">approved_by</span><span class="p">:</span><span class="w"> </span><span class="s">"@N3b3x"</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">until</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2027-01-31</span>
 </span></code></pre></div>
 <p>The conformance check reports the waiver on every run, and fails once <code>until</code> has passed. A waiver is a dated
 promise, not a permanent exemption; a rule that a repository will never meet needs a decision record that changes

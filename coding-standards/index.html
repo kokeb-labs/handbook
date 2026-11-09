@@ -819,6 +819,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-edition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The edition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-the-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading the matrix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading the matrix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#counts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Counts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-open-tools-can-and-cannot-prove" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1196,6 +1235,45 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-edition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The edition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-the-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading the matrix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading the matrix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#counts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Counts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-open-tools-can-and-cannot-prove" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1255,14 +1333,14 @@ our claims against a reference they already know.</p>
 </thead>
 <tbody>
 <tr>
-<td><strong>MISRA C++:2023</strong></td>
+<td><strong>MISRA C++:2023</strong> (with TC1:2026)</td>
 <td>C++ code</td>
 <td>Reference standard. A compliance matrix classifies every guideline (below).</td>
 </tr>
 <tr>
 <td><strong>MISRA C:2025</strong></td>
 <td>C code</td>
-<td>Reference standard, with the same compliance matrix.</td>
+<td>Reference standard; its compliance matrix follows the same format (not written yet).</td>
 </tr>
 <tr>
 <td><strong>SEI CERT C++ and CERT C</strong></td>
@@ -1284,8 +1362,9 @@ our claims against a reference they already know.</p>
 <h2 id="what-follows-misra-means-here">What "follows MISRA" means here<a class="headerlink" href="#what-follows-misra-means-here" title="Permanent link">&para;</a></h2>
 <p>We use the approach MISRA itself defines in <em>MISRA Compliance:2020</em>:</p>
 <ol>
-<li><strong>Guideline enforcement plan.</strong> For every guideline of MISRA C++:2023 and MISRA C:2025, the compliance matrix
-   (<code>compliance/misra-cpp-2023.yml</code> and <code>compliance/misra-c-2025.yml</code>) records how it is verified:<ul>
+<li><strong>Guideline enforcement plan.</strong> For every guideline of MISRA C++:2023, the compliance matrix
+   (<a href="https://github.com/kokeb-labs/handbook/blob/main/compliance/misra-cpp-2023.yml"><code>compliance/misra-cpp-2023.yml</code></a>) records how it is verified (MISRA C:2025 gets
+   <code>compliance/misra-c-2025.yml</code> in the same format):<ul>
 <li><strong>tool:</strong> a named clang-tidy or cppcheck check, or a compiler flag, that decides it;</li>
 <li><strong>review:</strong> it is undecidable or no open tool decides it, so it is on the pull-request checklist;</li>
 <li><strong>commercial checker:</strong> decided by the MISRA checker that the safety level adds;</li>
@@ -1295,11 +1374,180 @@ our claims against a reference they already know.</p>
 </li>
 <li><strong>Guideline re-categorisation plan.</strong> Where our profile is stricter than MISRA (an advisory guideline we treat
    as required), the matrix says so. We never make a guideline weaker than MISRA classifies it.</li>
-<li><strong>Deviations.</strong> Every departure from a required guideline has a <a href="../deviations/">deviation record</a>. Mandatory
-   guidelines are never deviated.</li>
+<li><strong>Deviations.</strong> Every departure from a required guideline has a <a href="../deviations/">deviation record</a>: project-wide
+   ones in <a href="https://github.com/kokeb-labs/handbook/blob/main/compliance/misra-cpp-2023-deviations.yml"><code>compliance/misra-cpp-2023-deviations.yml</code></a>, single places in the repository's own
+   <code>docs/deviations.yml</code>. Mandatory guidelines are never deviated.</li>
 <li><strong>Compliance summary.</strong> Each release of a high or safety component states, per guideline, whether it is
    compliant, deviated or not applicable. It is generated from the matrix and the deviation records.</li>
 </ol>
+<h2 id="the-edition">The edition<a class="headerlink" href="#the-edition" title="Permanent link">&para;</a></h2>
+<p>The matrix is written against <strong>MISRA C++:2023 with Technical Corrigendum 1 (TC1:2026)</strong>. The corrigendum adds no
+guidelines and is equivalent to MISRA C++:2023, but clarifies many of them, so tool reports can differ from the
+2023 text. The licensed copy the matrix was written from is held privately by the maintainer; the matrix records its
+SHA-256 (<code>licensed_copy_sha256</code>), so any entry can be traced to the exact edition it was checked against. When MISRA
+publishes a new corrigendum or edition, the matrix is reviewed against it in one pull request that changes the hash.</p>
+<p>MISRA C++:2023 targets C++17; our code is C++20 (ADR-0010). Deviation MD-CPP-001 records that, lists the C++20
+features in use, and says how each guideline applies to C++20 constructs.</p>
+<h2 id="reading-the-matrix">Reading the matrix<a class="headerlink" href="#reading-the-matrix" title="Permanent link">&para;</a></h2>
+<p>Each guideline has one entry:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>The guideline number, <code>Rule a.b.c</code> or <code>Dir a.b.c</code>.</td>
+</tr>
+<tr>
+<td><code>kind</code></td>
+<td><code>rule</code> (checkable from the code alone) or <code>directive</code> (needs design or requirements information).</td>
+</tr>
+<tr>
+<td><code>category</code></td>
+<td>MISRA's category: <code>mandatory</code>, <code>required</code> or <code>advisory</code>.</td>
+</tr>
+<tr>
+<td><code>decidable</code></td>
+<td>Whether an analyser can always answer "compliant?" (<code>yes</code>/<code>no</code>); <code>n/a</code> for directives.</td>
+</tr>
+<tr>
+<td><code>scope</code></td>
+<td><code>tu</code> when one translation unit at a time is enough, <code>system</code> when the whole program is needed.</td>
+</tr>
+<tr>
+<td><code>summary</code></td>
+<td>Our own one-line paraphrase (at most 12 words); the standard's text is not reproduced.</td>
+</tr>
+<tr>
+<td><code>applies</code></td>
+<td><code>yes</code>, or <code>no</code> with a <code>reason</code> (for example, the exception guidelines: we build with <code>-fno-exceptions</code>).</td>
+</tr>
+<tr>
+<td><code>our_category</code></td>
+<td>The category we enforce: MISRA's or stricter, never weaker. A stricter one is our re-categorisation plan.</td>
+</tr>
+<tr>
+<td><code>verification</code></td>
+<td>How it is checked: each item names <code>by</code> (method) and <code>how</code> (the exact flag, check or review step).</td>
+</tr>
+<tr>
+<td><code>deviations</code></td>
+<td>The project-wide deviation records that cover part of the guideline, if any.</td>
+</tr>
+<tr>
+<td><code>note</code></td>
+<td>Anything a reader needs to apply the guideline to our code.</td>
+</tr>
+</tbody>
+</table>
+<p>The verification methods are:</p>
+<ul>
+<li><code>compiler</code>: a GCC or Clang flag (with <code>-Werror</code>) whose diagnostic decides the guideline;</li>
+<li><code>clang-tidy</code>: a clang-tidy 20 check, with its options where they matter;</li>
+<li><code>cppcheck</code>: a cppcheck message id (there is no free MISRA C++ addon; cppcheck's MISRA addon covers MISRA C only);</li>
+<li><code>handbook-check</code>: one of the handbook's own implemented checks;</li>
+<li><code>review</code>: the step a reviewer checks on the pull request, used where no free tool decides the guideline;</li>
+<li><code>commercial-checker</code>: the MISRA checker the safety level adds, for every guideline no free tool decides;</li>
+<li><code>not-applicable</code>: the construct cannot occur in our code, and why.</li>
+</ul>
+<p>A tool item marked <code>partial: true</code> finds some violations but cannot prove there are none (an undecidable guideline,
+or a check narrower than the guideline); such a guideline always also has a review step and the commercial checker.
+A tool is only listed for a guideline it actually checks. Several clang-tidy checks the matrix names are outside the
+org's default <code>config/.clang-tidy</code>; a repository at the safety level enables them, and <code>checks/misra_matrix.py</code>
+lists them on every run.</p>
+<p><a href="https://github.com/kokeb-labs/handbook/blob/main/checks/misra_matrix.py"><code>checks/misra_matrix.py</code></a> validates the
+matrix and the deviations on every pull request: every guideline present exactly once (179), valid categories,
+<code>our_category</code> never weaker, a verification for every applicable guideline, a reason for every guideline that does
+not apply, and no deviation of a mandatory guideline. It also keeps the counts below current.</p>
+<h3 id="counts">Counts<a class="headerlink" href="#counts" title="Permanent link">&para;</a></h3>
+<!-- misra-counts:begin (generated by checks/misra_matrix.py gen) -->
+
+<p>MISRA C++:2023 with TC1:2026 has <strong>179 guidelines</strong>: 4 directives and 175 rules.</p>
+<table>
+<thead>
+<tr>
+<th>MISRA category</th>
+<th>Directives</th>
+<th>Rules</th>
+<th>Total</th>
+<th>Our category</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mandatory</td>
+<td>0</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>required</td>
+<td>2</td>
+<td>122</td>
+<td>124</td>
+<td>131</td>
+</tr>
+<tr>
+<td>advisory</td>
+<td>2</td>
+<td>48</td>
+<td>50</td>
+<td>43</td>
+</tr>
+<tr>
+<td><strong>all</strong></td>
+<td>4</td>
+<td>175</td>
+<td>179</td>
+<td>179</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>How it is verified</th>
+<th>Guidelines</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Decided by an open tool (compiler, clang-tidy, cppcheck, handbook check)</td>
+<td>46</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp;of which by compiler</td>
+<td>11</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp;of which by clang-tidy</td>
+<td>35</td>
+</tr>
+<tr>
+<td>Review and commercial checker, helped by a partial tool</td>
+<td>80</td>
+</tr>
+<tr>
+<td>Review and commercial checker only</td>
+<td>46</td>
+</tr>
+<tr>
+<td>Not applicable to our code</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>A guideline can be decided by more than one tool. Raised above MISRA's category: 7 (Dir 5.7.2, Rule 6.0.3, Rule 9.6.1,
+Rule 10.2.2, Rule 12.2.1, Rule 13.1.1, Rule 21.6.1). Project-wide deviations: 8 (MD-CPP-001 Rule 4.1.1, MD-CPP-002 Rule
+16.6.1, MD-CPP-003 Rule 8.2.5, MD-CPP-004 Rule 8.2.6, MD-CPP-005 Rule 6.7.2, MD-CPP-006 Rule 19.0.2, MD-CPP-007 Rule
+21.2.4, MD-CPP-008 Rule 21.6.1).</p>
+<!-- misra-counts:end -->
+
 <h2 id="what-open-tools-can-and-cannot-prove">What open tools can and cannot prove<a class="headerlink" href="#what-open-tools-can-and-cannot-prove" title="Permanent link">&para;</a></h2>
 <p>clang-tidy, cppcheck and the compilers decide a large part of MISRA and CERT, but not all of it: some guidelines
 are undecidable in general, and some decidable ones are only implemented by commercial checkers (Cppcheck Premium,
@@ -1307,9 +1555,10 @@ Helix QAC, Parasoft C/C++test, Polyspace and others). The matrix never claims a 
 that does not check it. At the <strong>safety</strong> level a commercial checker runs on every release, under the licence of
 the organisation qualifying the component, and its report becomes part of the evidence package.</p>
 <h2 id="copyright">Copyright<a class="headerlink" href="#copyright" title="Permanent link">&para;</a></h2>
-<p>The MISRA and CERT documents are copyrighted. The handbook cites guideline numbers with our own one-line
-summaries; it does not reproduce their text. Contributors working at the safety level need their own copies of
-the standards.</p>
+<p>The MISRA and CERT documents are copyrighted. The handbook cites guideline numbers, categories and analysis
+attributes with our own one-line summaries; it does not reproduce headlines, rationale, examples or tables, and the
+standard itself is never committed to any repository. Contributors working at the safety level need their own
+licensed copies of the standards.</p>
 
 
 
