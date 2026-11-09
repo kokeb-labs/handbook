@@ -150,6 +150,47 @@ Rules:
 All of them plus `bool EnsureInitialized()`. A chip with a protocol that does not fit (a multi-phase frame, a
 DMA stream) MAY add hooks; they follow the same rules and are listed on the Porting page.
 
+### Bus requirements
+
+The bus interface header states what the chip needs from the bus as `constexpr` values, not only as prose
+([KB-CPP-123](../rules/cpp.md#kb-cpp-123)). The Porting page lists them, and each example port checks its own
+settings against them with `static_assert`, so a port that clocks too fast or in the wrong mode does not compile.
+
+| Bus | Constant | Meaning |
+| --- | --- | --- |
+| SPI | `kSpiMode` | The SPI mode (0 to 3) the chip samples in; a chip that accepts two names the one the driver is tested with |
+| SPI | `kMsbFirst` | `true` when each byte is sent most significant bit first |
+| SPI | `kMaxClockHz` | The highest SCK frequency the chip accepts |
+| SPI | `kMinCsHighNs` | The shortest time chip select stays high between frames |
+| SPI | `kCsSetupNs`, `kCsHoldNs` | Chip select low to the first SCK edge, last SCK edge to chip select high |
+| SPI | `kContinuousWord` | `true` when a frame must be clocked without idle time between its bytes |
+| I2C | `kI2cAddress` | The 7-bit address, or the base address when address pins add to it |
+| I2C | `kMaxClockHz` | The highest SCL frequency the chip accepts |
+| I2C | `kRepeatedStart` | `true` when a register read needs a combined write-read with a repeated START |
+| UART | `kMaxBaudRate`, `kTurnaroundUs` | The highest baud rate, and the time the line needs between the last byte sent and the reply |
+
+```cpp
+// inc/zp100_spi_interface.hpp
+inline constexpr uint8_t kSpiMode = 0;            // datasheet 6.2: CPOL 0, CPHA 0
+inline constexpr bool kMsbFirst = true;
+inline constexpr uint32_t kMaxClockHz = 10'000'000;
+inline constexpr uint32_t kMinCsHighNs = 50;
+inline constexpr uint32_t kCsSetupNs = 20;
+inline constexpr uint32_t kCsHoldNs = 20;
+inline constexpr bool kContinuousWord = false;
+
+// examples/host/host_zp100_port.hpp
+static_assert(kPortClockHz <= zp100::kMaxClockHz, "the port clocks the ZP100 too fast");
+```
+
+A chip with a turnaround or an inter-frame gap adds a constant for it the same way. An I2C driver also documents
+which transfers the chip NACKs by design (a reset command, a busy chip) and never probes with a zero-length transfer
+([KB-CPP-130](../rules/cpp.md#kb-cpp-130)).
+
+Control pins have a stated idle level. The Porting page lists each `CtrlPin` with its polarity and the level the
+port drives before the pin's output is enabled, and the port drives that inactive level before it enables the output
+and before the first frame ([KB-HW-018](../rules/hardware.md#kb-hw-018)).
+
 ### Optional hooks
 
 | Hook | When missing |
@@ -157,7 +198,7 @@ DMA stream) MAY add hooks; they follow the same rules and are listed on the Port
 | `void DelayUs(uint32_t us)`, `void DelayMs(uint32_t ms)` | Compile error at the first call that needs the wait. A driver whose chip has a timing requirement MUST NOT skip the wait. |
 | `bool GpioSet(CtrlPin pin, GpioSignal signal)` | The function that needs the pin returns `Error::Unsupported`, or the driver uses the documented software alternative (for example a soft reset instead of the reset pin). |
 | `bool GpioRead(CtrlPin pin, GpioSignal& signal)` | Same as `GpioSet`; interrupt-driven reads fall back to polling a status register when the chip has one. |
-| `void Log(LogLevel level, const char* fmt, ...)` | No output. The driver never formats text itself. |
+| `void Log(LogLevel level, const char* message)` | No output. The message is a fixed string; the driver never formats text, and the hook is not variadic. |
 
 Optional hooks MUST be detected with a C++20 `requires` expression in one place, never with `void_t` or by
 calling through the base:
@@ -237,6 +278,70 @@ Rules:
 - Sticky chip status (fault latches, error counters) is extra: a getter MAY expose it, but it never replaces the
   `Result` of the call that hit the error.
 - `ToString()` returns a static string for every value.
+- `NoDevice`, `Pin` and `NotReady`, when a driver needs them, mean what [errors.md](errors.md#common-chip-specific-codes)
+  says.
+
+## Replies, retries and resynchronisation
+
+These rules come from testing the migrated drivers on hardware; each failure they prevent was seen on a bench.
+
+- A reply is decoded only when the protocol proves it answers the request: CRC, plus the reply's type and width,
+  plus the echoed opcode, address or tag the protocol has ([KB-ARCH-042](../rules/architecture.md#kb-arch-042)).
+- A reply a stuck, floating or looped-back line can produce (all zeros, all ones, the command echoed, one word
+  repeated) is never data; it is `NoDevice` or another error, and an idle status a line could fake is confirmed
+  by a second read ([KB-CPP-116](../rules/cpp.md#kb-cpp-116)).
+- A chip that answers one or more frames later is served inside one public call, results matched on the reply's
+  content, never its position; the Porting page states that nothing may access the chip between those frames
+  ([KB-ARCH-043](../rules/architecture.md#kb-arch-043)).
+- After a failed transfer, or one with an unknown outcome, the next frame brings the chip's protocol back to a known
+  point ([KB-CPP-118](../rules/cpp.md#kb-cpp-118)).
+- A retry repeats only idempotent frames, never a reset, enable toggle or deinitialise the datasheet does not ask
+  for, and every retry loop has a bound and counts its attempts ([KB-ARCH-044](../rules/architecture.md#kb-arch-044)).
+
+## State, shadows and latches
+
+- A setter updates the driver's copy only after the chip accepted the change, and finishes a change the chip
+  applies later before it returns ([KB-CPP-120](../rules/cpp.md#kb-cpp-120)).
+- A setter changes only what it names; a change the chip accepts only in some state is refused outside it, and
+  nothing is sent ([KB-CPP-121](../rules/cpp.md#kb-cpp-121)).
+- Control and output registers are written whole from the copy; a read-modify-write uses only a validated read
+  ([KB-CPP-122](../rules/cpp.md#kb-cpp-122)).
+- Clear-on-read and write-1-to-clear flags collect in one latch the driver owns, from every read it makes,
+  internal ones included: `GetLatched*()` returns it with no I/O and `ClearLatched*()` empties it
+  ([KB-CPP-119](../rules/cpp.md#kb-cpp-119)).
+
+```cpp
+// Every STATUS read the driver makes, including the busy polls inside other calls:
+latched_status_ = static_cast<uint8_t>(latched_status_ | (byte & reg::kStatusClearOnRead));
+[[nodiscard]] Status GetLatchedStatus() const noexcept;   // no I/O
+void ClearLatchedStatus() noexcept;                         // no I/O
+```
+
+## Start-up
+
+On top of the sequence under [Lifecycle](#lifecycle):
+
+- The identity check is one the chip must answer actively (select-and-echo, a bit it must toggle, a write and a
+  read-back), so a dead or looped bus cannot pass it ([KB-CPP-117](../rules/cpp.md#kb-cpp-117)).
+- Start-up waits for the chip's own ready indication: the datasheet minimum, then a bounded poll with a deadline
+  from `Config` ([KB-CPP-124](../rules/cpp.md#kb-cpp-124)).
+- Nothing from before the host reset is trusted: the chip is reset or fully rewritten, and faults latched before
+  the start are cleared or reported ([KB-CPP-058](../rules/cpp.md#kb-cpp-058)).
+- The variant is confirmed before any variant-specific write ([KB-CPP-125](../rules/cpp.md#kb-cpp-125)).
+- Load-dependent diagnostics are enabled only for channels `Config` declares as loaded, and fault routing is set
+  from the same declaration before the chip is armed ([KB-CPP-131](../rules/cpp.md#kb-cpp-131)).
+
+## Values and diagnostics
+
+- Arguments and `Config` are checked against the datasheet's operating range and never silently clamped; a
+  quantised setting reports what was programmed ([KB-CPP-126](../rules/cpp.md#kb-cpp-126)).
+- A state that is not a measurement is an error, never a number; a multi-item read reports validity per item
+  ([KB-CPP-127](../rules/cpp.md#kb-cpp-127)).
+- A conversion that depends on another setting uses the chip's actual setting
+  ([KB-CPP-128](../rules/cpp.md#kb-cpp-128)).
+- Status bits are named by meaning, not raw polarity ([KB-CPP-038](../rules/cpp.md#kb-cpp-038)).
+- Every driver has a single-shot raw access with no retries (`ReadRegister()` or a frame trace) and a `GetLast*()`
+  accessor for the last raw reply, with no I/O ([KB-CPP-129](../rules/cpp.md#kb-cpp-129)).
 
 ## Lifecycle
 
@@ -385,7 +490,12 @@ kb_core_min: 0.1.0         # the oldest kb-core whose handler and adapters work 
 
 ## Tests
 
-- `tests/mock_<chip>.hpp`: a register-level model of the chip implementing the port, used by every host test.
+- `tests/mock_<chip>.hpp`: a register-level model of the chip implementing the port, used by every host test. It
+  is written from the datasheet on its own: it does not include `<chip>_registers.hpp`, it carries its own register
+  map with datasheet page references, and a test (`tests/test_model.cpp`) `static_assert`s the model's map against
+  the driver's, so a wrong constant in the driver cannot hide behind the same constant in the model
+  ([KB-TST-030](../rules/testing.md#kb-tst-030)). Every behaviour found on hardware becomes a fault mode of the model
+  and a regression test, and a chip with timing has a virtual clock in its model.
 - A host suite built on gcc and clang with `-Wall -Wextra -Werror -fno-exceptions -fno-rtti`, run by the shared
   host-test workflow. It covers: every public call before `EnsureInitialized()` (`NotInitialized`), the chip-ID
   mismatch, a failing port hook on every call path (`Bus`), argument validation, and the register traffic of each

@@ -30,6 +30,11 @@ checks; [driver.md](../standards/driver.md) is the contract.
 - [ ] No heap, exceptions, RTTI, `std::function`, `std::string`, `printf`, static mutable state; no locking, no RTOS
 - [ ] Destructive operations take explicit data or confirmation; no default triggers them
 - [ ] Names and units per the naming standard; `clang-tidy` clean on `inc/` and `src/`
+- [ ] Every header has its `#ifndef` include guard named per [KB-CPP-019](../rules/cpp.md#kb-cpp-019); no `#pragma`
+- [ ] Bus requirements as `constexpr` in `inc/<chip>_<bus>_interface.hpp`, listed on Porting, static_asserted by each example port ([KB-CPP-123](../rules/cpp.md#kb-cpp-123))
+- [ ] Control pins listed on Porting with their idle level; ports drive the inactive level before enabling the output ([KB-HW-018](../rules/hardware.md#kb-hw-018))
+- [ ] Single-shot raw access and a `GetLast*()` accessor; clear-on-read flags in a driver-owned latch ([KB-CPP-129](../rules/cpp.md#kb-cpp-129), [KB-CPP-119](../rules/cpp.md#kb-cpp-119))
+- [ ] The [hardware-proven driver rules](../standards/driver.md#replies-retries-and-resynchronisation) hold: proven replies, refused line patterns, resync, bounded idempotent retries, start-up waits for ready
 
 ### Build
 - [ ] C++20; version only in `cmake/<chip>_build_settings.cmake` (`<CHIP>_VERSION_*`); generated `<chip>_version.h`
@@ -42,7 +47,8 @@ checks; [driver.md](../standards/driver.md) is the contract.
 - [ ] CI from `kokeb-labs/ci-tools` at `@v1`, ending in the `CI gate` job with the DCO check in its `needs`; `CI gate / gate` required once it has run
 
 ### Tests
-- [ ] `tests/mock_<chip>.hpp` register model
+- [ ] `tests/mock_<chip>.hpp` register model with its own register map (no driver register header) and a `static_assert` cross-check against the driver's map ([KB-TST-030](../rules/testing.md#kb-tst-030))
+- [ ] The model has StuckLow, FloatHigh, Echo and Deaf line modes, and a virtual clock when the chip has timing
 - [ ] Host suite on gcc and clang with `-Werror -fno-exceptions -fno-rtti`: not-initialised, ID mismatch, bus failure on every path, argument checks, register traffic
 - [ ] `tests/docs/` compiles every snippet on the site
 - [ ] `tests/install_consumer/` builds against `find_package(<chip>)` and `<chip>::<chip>`

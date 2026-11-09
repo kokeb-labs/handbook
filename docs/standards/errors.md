@@ -122,6 +122,22 @@ template <typename T>
 The switch MUST list every enumerator and have no `default:`, so `-Wswitch` flags a new driver value that the
 handler does not map yet.
 
+### Common chip-specific codes
+
+Chip-specific values are the driver's own, but three meanings come up in most drivers. When a driver needs one, it
+uses this name, so a reader and a handler know what it means without opening the driver
+([KB-CPP-047](../rules/cpp.md#kb-cpp-047)):
+
+| `<chip>::Error` | Meaning | Usual `kb::Status` |
+| --- | --- | --- |
+| `NoDevice` | Nothing answers: the reply is one a stuck, floating or looped-back line produces ([KB-CPP-116](../rules/cpp.md#kb-cpp-116)) | `NotFound` |
+| `Pin` | A `GpioSet` or `GpioRead` hook failed | `Bus` |
+| `NotReady` | The chip answered but is not ready, or the value is not a measurement yet ([KB-CPP-124](../rules/cpp.md#kb-cpp-124), [KB-CPP-127](../rules/cpp.md#kb-cpp-127)) | `Busy` |
+
+The base codes keep their meaning: `Bus` is a transfer the port reported as failed (a failed probe is `Bus`, not
+`NoDevice`), `Timeout` a wait that expired, `Crc` a checksum or reply-tag mismatch, `Busy` a command the chip
+refused while busy.
+
 ## Interfaces codes to `kb::Status`
 
 The interfaces keep their per-peripheral codes (they carry more detail than a handler needs) and add one

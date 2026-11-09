@@ -6,8 +6,11 @@ verifies it, so what the handbook says is what CI enforces.
 
 - Read it: <https://kokeb-labs.github.io/handbook/>
 - Rules as data: [`rules/`](rules/), one file per area; the pages under `docs/rules/` are generated from them
-- Checks: [`checks/registry.yml`](checks/registry.yml) lists every check a rule may name, implemented or planned
-- Tool configuration: [`config/`](config/), the `.clang-format` and `.clang-tidy` every repository uses
+- Checks: [`checks/registry.yml`](checks/registry.yml) lists every check a rule may name, implemented or planned;
+  [`checks/source_checks.py`](checks/source_checks.py) runs the source checks (include guards, bus requirements,
+  raw access) on a repository: `python3 checks/source_checks.py scan --repo <path>`
+- Tool configuration: [`config/`](config/), the `.clang-format` and `.clang-tidy` every repository uses, and
+  `.clang-tidy-safety`, the safety-level profile generated from the MISRA C++:2023 matrix
 - HardFOC supplement: [`hf-supplement/`](hf-supplement/), the HF-* rules for HardFOC products only; they move
   to `hardfoc/hf-development-handbook` once its own CI validates them
 - Open configuration work: [`checks/backlog.yml`](checks/backlog.yml)
