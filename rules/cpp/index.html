@@ -1392,7 +1392,7 @@
   <a href="#kb-cpp-053" class="md-nav__link">
     <span class="md-ellipsis">
       
-        KB-CPP-053: A mapping switch lists every enumerator and has no default
+        KB-CPP-053: A mapping switch lists every enumerator and ends with default
       
     </span>
   </a>
@@ -3549,7 +3549,7 @@
   <a href="#kb-cpp-053" class="md-nav__link">
     <span class="md-ellipsis">
       
-        KB-CPP-053: A mapping switch lists every enumerator and has no default
+        KB-CPP-053: A mapping switch lists every enumerator and ends with default
       
     </span>
   </a>
@@ -4767,7 +4767,7 @@ review hold each change to.</p>
 <td>checked</td>
 </tr>
 <tr>
-<td><a href="#kb-cpp-053">KB-CPP-053</a> A mapping switch lists every enumerator and has no default</td>
+<td><a href="#kb-cpp-053">KB-CPP-053</a> A mapping switch lists every enumerator and ends with default</td>
 <td>must</td>
 <td>driver, library, hal, template</td>
 <td>checked</td>
@@ -5969,14 +5969,16 @@ pattern. <code>ALREADY_INITIALIZED</code> from an idempotent <code>Initialize</c
 </ul>
 <p><em>See also:</em> <a href="../../adr/0001-error-model/">ADR-0001</a></p>
 <p><em>Explained in:</em> <a href="../../standards/errors/">standards/errors.md</a></p>
-<h2 id="kb-cpp-053">KB-CPP-053: A mapping switch lists every enumerator and has no default<a class="headerlink" href="#kb-cpp-053" title="Permanent link">&para;</a></h2>
+<h2 id="kb-cpp-053">KB-CPP-053: A mapping switch lists every enumerator and ends with default<a class="headerlink" href="#kb-cpp-053" title="Permanent link">&para;</a></h2>
 <p><strong>MUST</strong> · driver, library, hal, template · since 1.0</p>
-<p>A <code>switch</code> that maps one error enum to another (<code>ToStatus</code>, <code>ToString</code>) names every enumerator and has no <code>default:</code>, so
-a new enumerator is a compiler warning. <code>ToString()</code> returns a static string for every value.</p>
+<p>A <code>switch</code> that maps one error enum to another (<code>ToStatus</code>, <code>ToString</code>) names every enumerator and ends with <code>default:
+break;</code> followed by the fallback the function returns for a value that is no enumerator (MISRA C++ Rule 9.4.2 requires
+the default for a scoped enumeration). The code builds with <code>-Wswitch-enum</code>, so a new enumerator is still a compiler
+warning although a default is present. <code>ToString()</code> returns a static string for every value.</p>
 <p><em>Verified by:</em></p>
 <ul>
-<li><code>compiler-warnings/-Wswitch</code> (implemented): the build is warning-free with the named flag and -Werror</li>
-<li>review: Mapping switches over enums have no default and cover every enumerator.</li>
+<li><code>compiler-warnings/-Wswitch-enum</code> (implemented): the build is warning-free with the named flag and -Werror</li>
+<li>review: Mapping switches over enums cover every enumerator and end with default.</li>
 </ul>
 <p><em>Explained in:</em> <a href="../../standards/errors/">standards/errors.md</a></p>
 <h2 id="kb-cpp-054">KB-CPP-054: Code branches on the status, never on its detail<a class="headerlink" href="#kb-cpp-054" title="Permanent link">&para;</a></h2>

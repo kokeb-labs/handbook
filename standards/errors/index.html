@@ -1975,8 +1975,9 @@ table:</p>
 </span><span id="__span-1-25"><a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>
 </span><span id="__span-1-26"><a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="p">}</span><span class="w"> </span><span class="c1">// namespace kb</span>
 </span></code></pre></div>
-<p>The switch MUST list every enumerator and have no <code>default:</code>, so <code>-Wswitch</code> flags a new driver value that the
-handler does not map yet.</p>
+<p>The switch MUST list every enumerator and end with <code>default: break;</code> before the fallback return (MISRA C++
+Rule 9.4.2). The build enables <code>-Wswitch-enum</code>, so a new driver value that the handler does not map yet is still a
+warning (KB-CPP-053).</p>
 <h3 id="common-chip-specific-codes">Common chip-specific codes<a class="headerlink" href="#common-chip-specific-codes" title="Permanent link">&para;</a></h3>
 <p>Chip-specific values are the driver's own, but three meanings come up in most drivers. When a driver needs one, it
 uses this name, so a reader and a handler know what it means without opening the driver
