@@ -1,0 +1,2240 @@
+# MISRA C++:2023 compliance matrix: the guideline enforcement plan and re-categorisation plan of
+# MISRA Compliance:2020 for Kokeb Labs C++ code. One entry per guideline of the edition (directives and rules).
+#
+# The standard is copyrighted. Entries carry guideline numbers, MISRA's category, decidability and analysis scope,
+# and our own one-line summary; never text from the standard. docs/coding-standards.md explains every field, and
+# checks/misra_matrix.py validates this file and compliance/misra-cpp-2023-deviations.yml on every pull request.
+#
+# Fields: id; kind (directive|rule); category (MISRA's); decidable (yes|no; n/a for directives); scope (tu|system;
+# directives are system); summary (ours, at most 12 words); applies (yes, or no with a reason); our_category (same
+# or stricter, never weaker; stricter is the re-categorisation plan); verification: a list of {by, how}, where by is
+# compiler | clang-tidy | cppcheck | handbook-check | review | commercial-checker | not-applicable, and
+# partial: true marks a tool that finds some violations but cannot prove their absence; optional note and
+# deviations (the project-wide deviation records that cover the guideline).
+---
+edition: "MISRA C++:2023"
+corrigendum: "TC1:2026"
+language_of_edition: C++17
+our_language: C++20
+licensed_copy_sha256: 5a5bb47a6d735d9647a44db7acc6e1f4093cd351fd38634460e0014065a89ac1
+reviewed: 2026-11-08
+guidelines:
+  - id: Rule 0.0.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No code that control flow can never reach."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wunreachable-code (Clang only; heuristic, misses some paths)", partial: true}
+      - {by: cppcheck, how: "unreachableCode", partial: true}
+      - {by: review, how: "Every statement can execute; dead branches left by refactoring are removed."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 0.0.2
+    kind: rule
+    category: advisory
+    decidable: no
+    scope: system
+    summary: "Conditions must be able to evaluate both ways."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: cppcheck, how: "knownConditionTrueFalse, duplicateCondition, unsignedLessThanZero", partial: true}
+      - {by: compiler, how: "-Wtype-limits (GCC), -Wtautological-compare (GCC and Clang)", partial: true}
+      - {by: review, how: "No condition is always true or always false, except a deliberate infinite loop."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 0.1.1
+    kind: rule
+    category: advisory
+    decidable: no
+    scope: system
+    summary: "Do not store values into locals that nobody reads."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "clang-analyzer-deadcode.DeadStores", partial: true}
+      - {by: cppcheck, how: "unreadVariable, redundantAssignment", partial: true}
+      - {by: compiler, how: "-Wunused-but-set-variable", partial: true}
+      - {by: review, how: "Every write to a local is read later on some path."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 0.1.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Use or explicitly discard every non-void call result."
+    applies: yes
+    our_category: required
+    verification:
+      - by: compiler
+        how: "[[nodiscard]] on every Result type (KB-CPP-046); the warning is on by default, -Werror"
+        partial: true
+      - {by: clang-tidy, how: "bugprone-unused-return-value", partial: true}
+      - {by: review, how: "Each ignored return value is cast to void with a comment saying why."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 0.2.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Remove locals and internal-linkage variables that are never referenced."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: compiler, how: "-Wunused-variable -Wunused-const-variable", partial: true}
+      - {by: cppcheck, how: "unusedVariable", partial: true}
+      - {by: review, how: "No block-scope or internal-linkage variable is left unused."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 0.2.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Every named parameter is read; unnamed it otherwise."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wunused-parameter (in -Wextra), -Werror"}
+      - {by: cppcheck, how: "unusedVariable", partial: true}
+    note: "Parameters of a requires-expression are not function parameters; see MD-CPP-001."
+  - id: Rule 0.2.3
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: system
+    summary: "Remove private or file-local types that nothing uses."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: compiler, how: "-Wunused-local-typedefs", partial: true}
+      - {by: review, how: "No local or internal type, alias or enum is left unused."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 0.2.4
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: system
+    summary: "Remove file-local or private functions that nothing calls."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: compiler, how: "-Wunused-function, -Wunused-member-function (Clang)", partial: true}
+      - {by: cppcheck, how: "unusedPrivateFunction", partial: true}
+      - {by: review, how: "No internal-linkage or private function is left uncalled."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Dir 0.3.1
+    kind: directive
+    category: advisory
+    decidable: n/a
+    scope: system
+    summary: "Floating-point code accounts for rounding, range and NaN."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: compiler, how: "-Wfloat-equal -Wdouble-promotion -Wfloat-conversion", partial: true}
+      - {by: clang-tidy, how: "cert-flp30-c (float loop counters)", partial: true}
+      - {by: review, how: "Floating-point use is justified, compares with a tolerance, and handles NaN and infinity."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Dir 0.3.2
+    kind: directive
+    category: required
+    decidable: n/a
+    scope: system
+    summary: "Callers meet every documented precondition of a callee."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-fsanitize=address,undefined in the host tests (dynamic, partial)", partial: true}
+      - by: review
+        how: >-
+          Each call satisfies the callee's documented preconditions (ranges, non-null, state); public functions check
+          theirs and return an error.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 4.1.1
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Stay within ISO C++ and avoid compiler language extensions."
+    applies: yes
+    our_category: required
+    verification:
+      - by: compiler
+        how: "-std=c++20 -Wpedantic -pedantic-errors with CMAKE_CXX_EXTENSIONS OFF (KB-CPP-001)"
+        partial: true
+      - by: review
+        how: "No extension, attribute or builtin outside ISO C++20; any C++20 feature is on the MD-CPP-001 list."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    deviations: [MD-CPP-001]
+    note: "Deviated project-wide: we target C++20 instead of the C++17 the edition is written for."
+  - id: Rule 4.1.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Avoid language and library features the standard has deprecated."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: compiler
+        how: "-Wdeprecated -Wdeprecated-declarations -Wdeprecated-copy-dtor -Wvolatile (GCC)"
+        partial: true
+      - {by: review, how: "No feature listed as deprecated in C++17 or C++20 is used."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 4.1.3
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "No undefined behaviour, nor unspecified behaviour that changes results."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-fsanitize=address,undefined in the host tests (dynamic, partial)", partial: true}
+      - {by: clang-tidy, how: "clang-analyzer-core.*, clang-analyzer-cplusplus.*", partial: true}
+      - {by: cppcheck, how: "the default warning and portability checks", partial: true}
+      - {by: review, how: "The change relies on no undefined or result-changing unspecified behaviour."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 4.6.1
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Never modify and use one object without ordering between them."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wsequence-point (GCC), -Wunsequenced (Clang)", partial: true}
+      - {by: cppcheck, how: "unknownEvaluationOrder", partial: true}
+      - by: review
+        how: >-
+          No expression both modifies an object and reads or modifies it again unordered; volatile reads are one per
+          expression.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 5.0.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Avoid character pairs that once formed trigraphs."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: compiler, how: "-Wtrigraphs (in -Wall; outside comments only)", partial: true}
+      - {by: review, how: "No double question mark followed by a trigraph character, in comments or strings."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 5.7.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Never open a block comment inside another block comment."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wcomment (in -Wall), -Werror"}
+  - id: Dir 5.7.2
+    kind: directive
+    category: advisory
+    decidable: n/a
+    scope: system
+    summary: "Do not keep disabled code in comments or #if 0."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: "No commented-out code or #if 0 block (KB-CPP-112); code samples in comments are fenced documentation."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    note: "Raised to required: KB-CPP-112 already forbids commented-out code."
+  - id: Rule 5.7.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No backslash line continuation at the end of a // comment."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wcomment (in -Wall; reports a multi-line // comment), -Werror"}
+  - id: Rule 5.10.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Identifiers avoid reserved forms and keep a safe spelling."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "bugprone-reserved-identifier, readability-identifier-naming", partial: true}
+      - {by: compiler, how: "-Wreserved-identifier (Clang)", partial: true}
+      - by: review
+        how: >-
+          No name starts with an underscore and capital, contains a double underscore, or reuses a standard macro or
+          library name.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 5.13.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Backslashes in literals only start valid escape sequences."
+    applies: yes
+    our_category: required
+    verification:
+      - by: compiler
+        how: "unknown escape sequences warn by default (GCC), -Wunknown-escape-sequence (Clang), -Werror"
+  - id: Rule 5.13.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Mark where every octal or hex escape ends."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: "Each octal or hexadecimal escape is the last thing in its literal or is followed by a split literal."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 5.13.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No octal integer literals; a leading zero misleads."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "No integer literal other than 0 starts with 0; use hexadecimal or binary for bit patterns."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 5.13.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Literals meant as unsigned carry the U suffix."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "A literal that has or is meant to have an unsigned type is written with U (0xFFU, 1U)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 5.13.5
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Write the long suffix as capital L, never lowercase."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "readability-uppercase-literal-suffix (NewSuffixes: L;LL;UL;ULL)"}
+  - id: Rule 5.13.6
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Long long literals use LL, not a single L."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "A literal whose type is long long spells LL or ULL."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 5.13.7
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not join string literals that have different prefixes."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "mixing two different encoding prefixes is ill-formed and rejected", partial: true}
+      - {by: review, how: "Adjacent string literals carry the same encoding prefix, or none."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.0.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No function declarations inside blocks; avoid vexing parses."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wvexing-parse (GCC and Clang)", partial: true}
+      - {by: review, how: "No function is declared at block scope; objects use brace initialisation."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.0.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Give external arrays an explicit size."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: review, how: "Every array with external linkage states its size in each declaration."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.0.3
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Keep the global namespace free of our own declarations."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "google-global-names-in-headers (headers only)", partial: true}
+      - {by: review, how: "Everything except main and extern \"C\" interfaces is inside a namespace (KB-CPP-024)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    note: "Raised to required: KB-CPP-024 already keeps every driver declaration in its namespace."
+  - id: Rule 6.0.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Reserve the name main for the program entry point."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wmain (GCC; questionable main declarations)", partial: true}
+      - {by: review, how: "No function, variable or namespace other than the global main is named main."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.2.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: system
+    summary: "Every entity has a single consistent definition program-wide."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wodr with -flto (GCC); duplicate strong symbols fail the link", partial: true}
+      - {by: review, how: "No inline function, class or template is defined differently in two places."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.2.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: system
+    summary: "Repeated declarations agree on type exactly."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wlto-type-mismatch with -flto (GCC)", partial: true}
+      - {by: review, how: "Each function or object is declared once in a header that every user includes."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.2.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: system
+    summary: "Do not duplicate the source of one entity across files."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: "No class, template or inline function body is copied into a second file; it is shared from one header."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.2.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Headers define only inline or internal functions and objects."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "misc-definitions-in-headers (header extensions include .ipp)"}
+  - id: Rule 6.4.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Inner variables never reuse an outer variable's name."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wshadow (GCC), -Werror"}
+      - {by: cppcheck, how: "shadowVariable, shadowArgument", partial: true}
+  - id: Rule 6.4.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "A derived class must not hide inherited member functions."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Woverloaded-virtual (virtual functions only)", partial: true}
+      - by: review
+        how: "A derived class reusing a base member name adds a using-declaration or overrides; CRTP is excepted."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.4.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Qualify names from dependent bases with this-> or Base::."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: "In a template with a dependent base, members of that base are named through this-> or a qualified name."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.5.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Declare externally visible functions and objects in a header."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: compiler
+        how: "-Wmissing-declarations (GCC), -Wmissing-prototypes -Wmissing-variable-declarations (Clang)"
+        partial: true
+      - by: review
+        how: "Every external-linkage function or object is declared in a header included where it is defined."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.5.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Give file-local entities internal linkage, the right way."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "misc-use-internal-linkage, misc-use-anonymous-namespace", partial: true}
+      - by: review
+        how: "Entities used by one source file are in an unnamed namespace there, not in a header (KB-CPP-026)."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.7.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No function-local static or thread_local mutable variables."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: >-
+          No mutable static or thread_local local variable (KB-CPP-040); constexpr and constant-initialised const locals
+          are fine.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.7.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No mutable namespace-scope or static member variables."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "cppcoreguidelines-avoid-non-const-global-variables (namespace scope only)"
+        partial: true
+      - {by: review, how: "No mutable namespace-scope or static data member outside the MD-CPP-005 scope (KB-CPP-040)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    deviations: [MD-CPP-005]
+  - id: Rule 6.8.1
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Touch objects only while they are alive."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-fsanitize=address,undefined in the host tests (dynamic, partial)", partial: true}
+      - by: clang-tidy
+        how: "clang-analyzer-cplusplus.Move, clang-analyzer-core.StackAddressEscape, bugprone-dangling-handle"
+        partial: true
+      - {by: cppcheck, how: "danglingLifetime, invalidLifetime, danglingTemporaryLifetime", partial: true}
+      - {by: review, how: "No reference, pointer or span outlives what it refers to (KB-CPP-096)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.8.2
+    kind: rule
+    category: mandatory
+    decidable: yes
+    scope: tu
+    summary: "Never hand back a pointer or reference to a local."
+    applies: yes
+    our_category: mandatory
+    verification:
+      - {by: compiler, how: "-Wreturn-local-addr (GCC), -Wreturn-stack-address -Wdangling (Clang)", partial: true}
+      - {by: clang-tidy, how: "clang-analyzer-core.StackAddressEscape", partial: true}
+      - {by: cppcheck, how: "returnReference, returnDanglingLifetime, returnTempReference", partial: true}
+      - by: review
+        how: >-
+          No function returns the address of, a reference to, or a lambda capturing by reference, a local or by-value
+          parameter.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.8.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not store a local's address where it outlives the local."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "clang-analyzer-core.StackAddressEscape", partial: true}
+      - {by: cppcheck, how: "autoVariables", partial: true}
+      - {by: compiler, how: "-Wdangling-pointer (GCC)", partial: true}
+      - {by: review, how: "No assignment stores the address of a local into an object that lives longer."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.8.4
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Ref-qualify members that return references into *this."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: review
+        how: >-
+          A member function returning a reference or pointer into the object is &-qualified, with a deleted or
+          value-returning && overload.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.9.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Use the same type alias in every declaration of an entity."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "Redeclarations spell the parameter and return types with the same alias."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 6.9.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Use fixed-width integer aliases, not int, long or unsigned."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "google-runtime-int (short, long and long long)", partial: true}
+      - by: review
+        how: >-
+          Variables, members, parameters and casts use <cstdint> aliases instead of int, unsigned, short or long
+          (KB-CPP-103).
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 7.0.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Treat bool as a truth value, never as a number."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "readability-implicit-bool-conversion (implicit conversions only)", partial: true}
+      - {by: cppcheck, how: "bitwiseOnBoolean, compareBoolExpressionWithInt, incrementboolean", partial: true}
+      - by: review
+        how: "No bool takes part in arithmetic, bitwise operations, relational comparisons or casts to integers."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 7.0.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Conditions are genuinely bool, not numbers or enums."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "readability-implicit-bool-conversion (AllowPointerConditions: true; implicit conversions only)"
+        partial: true
+      - {by: review, how: "Conditions compare explicitly (x != 0U); no static_cast<bool> of a number."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 7.0.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not compute with character codes."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "bugprone-signed-char-misuse", partial: true}
+      - {by: review, how: "char values are only copied and compared with chars; numeric work uses uint8_t."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 7.0.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Bitwise and shift operands are unsigned; shift counts in range."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "hicpp-signed-bitwise", partial: true}
+      - {by: cppcheck, how: "shiftTooManyBits, shiftNegative", partial: true}
+      - {by: compiler, how: "-Wshift-count-overflow -Wshift-count-negative", partial: true}
+      - by: review
+        how: >-
+          Masks and shifts use unsigned operands, and a constant shift count is below the width of the unpromoted left
+          operand (KB-CPP-105).
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 7.0.5
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Promotions must not silently turn unsigned operands signed."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: cppcheck, how: "signConversion", partial: true}
+      - by: review
+        how: "uint8_t and uint16_t operands are cast to a wide unsigned type before arithmetic, ~ or shifts."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 7.0.6
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Implicit numeric conversions in assignments keep type and sign."
+    applies: yes
+    our_category: required
+    verification:
+      - by: compiler
+        how: "-Wconversion -Wsign-conversion -Wfloat-conversion (warn only when the value may change)"
+        partial: true
+      - {by: clang-tidy, how: "bugprone-narrowing-conversions", partial: true}
+      - by: review
+        how: "An implicit numeric conversion only widens an id-expression of the same signedness; otherwise cast."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 7.11.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Spell null pointers as nullptr, never 0 or NULL."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "modernize-use-nullptr"}
+      - {by: compiler, how: "-Wzero-as-null-pointer-constant", partial: true}
+  - id: Rule 7.11.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Pass arrays as std::array, std::span or references."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-bounds-array-to-pointer-decay (reports every decay, a superset)"}
+  - id: Rule 7.11.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Convert lambdas and functions to function pointers only deliberately."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: "A function or captureless lambda becomes a function pointer only where a callback is passed or stored."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.0.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Parenthesise mixed operators so precedence is never guessed."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "readability-math-missing-parentheses", partial: true}
+      - {by: compiler, how: "-Wparentheses (in -Wall)", partial: true}
+      - {by: review, how: "Expressions mixing operator kinds use parentheses, except plain + - * / chains."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.1.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Stored lambdas capture this explicitly, never by default."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wdeprecated-this-capture (Clang), -Wdeprecated (GCC, C++20)", partial: true}
+      - {by: clang-tidy, how: "cppcoreguidelines-misleading-capture-default-by-value", partial: true}
+      - {by: review, how: "A lambda that outlives its expression names this (or *this) in its capture list."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.1.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Stored lambdas list each captured variable by name."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: review, how: "A lambda that is stored or returned has no capture-default."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.2.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Downcast from a virtual base only through dynamic_cast."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "fuchsia-virtual-inheritance (no virtual bases exist, so the cast cannot occur)"}
+  - id: Rule 8.2.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No C-style casts and no functional-notation casts."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wold-style-cast (C-style casts)", partial: true}
+      - {by: clang-tidy, how: "google-readability-casting, cppcoreguidelines-pro-type-cstyle-cast", partial: true}
+      - {by: review, how: "No T(x) functional cast of a value; conversions use static_cast or brace initialisation."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.2.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Casts never drop const or volatile from what they point to."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-const-cast (reports every const_cast, a superset)"}
+      - {by: compiler, how: "-Wcast-qual", partial: true}
+  - id: Rule 8.2.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Never cast between function pointers and other types."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wcast-function-type", partial: true}
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-reinterpret-cast", partial: true}
+      - {by: review, how: "No cast involves a function pointer type, including in the port layer."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.2.5
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Keep reinterpret_cast out; reinterpreting bytes hides type errors."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-reinterpret-cast"}
+      - by: review
+        how: "Each reinterpret_cast is inside the MD-CPP-003 scope, with its NOLINT and deviation reference."
+    deviations: [MD-CPP-003]
+  - id: Rule 8.2.6
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not make pointers from integers, enums or void pointers."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "cppcoreguidelines-pro-type-reinterpret-cast, bugprone-casting-through-void"
+        partial: true
+      - {by: review, how: "No static_cast from void* or reinterpret_cast from an integer outside the MD-CPP-004 scope."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    deviations: [MD-CPP-004]
+  - id: Rule 8.2.7
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Avoid turning pointers into integers."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-reinterpret-cast", partial: true}
+      - {by: review, how: "No pointer is converted to an integer, except an address handed to DMA in the port layer."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.2.8
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "If a pointer must become an integer, use uintptr_t."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-reinterpret-cast", partial: true}
+      - {by: review, how: "A pointer converted to an integer goes to std::uintptr_t or std::intptr_t only."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.2.9
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Type queries on polymorphic objects need RTTI; avoid them."
+    applies: no
+    reason: "RTTI is disabled: every target builds with -fno-rtti (KB-CPP-002)"
+    our_category: required
+    verification:
+      - {by: not-applicable, how: "RTTI is disabled: typeid cannot be applied to a polymorphic object"}
+      - {by: compiler, how: "-fno-rtti makes typeid of a polymorphic object a compile error (GCC and Clang)"}
+  - id: Rule 8.2.10
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Call graphs stay acyclic so stack depth is bounded."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "misc-no-recursion (cycles within one translation unit, no calls through pointers)"
+        partial: true
+      - by: review
+        how: >-
+          No call chain, including through function pointers or virtual calls, leads back to its caller (KB-CPP-088).
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.2.11
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Pass only trivially copyable, sensible types through ellipsis."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-vararg (reports every C-style variadic call, a superset)"}
+  - id: Rule 8.3.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Do not negate unsigned values with unary minus."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: review
+        how: "Unary minus is applied only to signed or floating operands; use 0U - x where wrap is intended."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.3.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Unary plus only hides a promotion; leave it out."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: review, how: "No unary + operator, including to force promotion or decay."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.7.1
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Pointer arithmetic stays inside its array or one past."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "cppcoreguidelines-pro-bounds-pointer-arithmetic (reports all pointer arithmetic)"
+        partial: true
+      - {by: cppcheck, how: "pointerOutOfBounds, arrayIndexOutOfBounds", partial: true}
+      - {by: compiler, how: "-fsanitize=address in the host tests (dynamic, partial)", partial: true}
+      - by: review
+        how: >-
+          Buffers are std::array or std::span indexed with checked bounds; raw pointer arithmetic is in the port layer
+          only.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.7.2
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Subtract pointers only within one array."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "Pointer differences are only taken between pointers into the same array."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.9.1
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Order-compare pointers only within one array."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: cppcheck, how: "comparePointers", partial: true}
+      - {by: review, how: "< <= > >= on pointers only between pointers into the same array."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.14.1
+    kind: rule
+    category: advisory
+    decidable: no
+    scope: system
+    summary: "Keep side effects out of the right side of && and ||."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: review
+        how: "The right operand of && or || writes nothing, calls nothing with side effects and reads no volatile."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.18.1
+    kind: rule
+    category: mandatory
+    decidable: no
+    scope: system
+    summary: "Never copy an object onto storage it overlaps."
+    applies: yes
+    our_category: mandatory
+    verification:
+      - {by: cppcheck, how: "overlappingWriteUnion, overlappingWriteFunction", partial: true}
+      - {by: compiler, how: "-Wrestrict (GCC)", partial: true}
+      - {by: review, how: "No assignment or copy has overlapping source and destination (unions, aliasing spans)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.18.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Do not use an assignment's value inside a larger expression."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "bugprone-assignment-in-if-condition", partial: true}
+      - {by: compiler, how: "-Wparentheses (assignment used as a condition)", partial: true}
+      - {by: review, how: "Assignments are statements of their own; no chained or embedded assignment."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.19.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Write one action per expression; avoid comma sequencing."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: compiler, how: "-Wcomma (Clang; not every use)", partial: true}
+      - {by: review, how: "No comma operator, including in for-loop headers."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 8.20.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Constant unsigned arithmetic must not wrap around."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: review
+        how: "Constant expressions with unsigned operands stay in range; static_assert where the range is not obvious."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 9.2.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "A bare cast to an object type is not a statement."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "bugprone-unused-raii", partial: true}
+      - {by: cppcheck, how: "unusedScopedObject", partial: true}
+      - {by: compiler, how: "-Wunused-value", partial: true}
+      - {by: review, how: "No statement consists only of a type conversion, such as an unnamed lock guard."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 9.3.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Loop and branch bodies are always braced blocks."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "readability-braces-around-statements"}
+  - id: Rule 9.4.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "An if / else-if chain ends with a plain else."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "hicpp-multiway-paths-covered (WarnOnMissingElse: true)"}
+  - id: Rule 9.4.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Switches follow one well-formed, fully covered layout."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wimplicit-fallthrough -Wswitch (in -Wall)", partial: true}
+      - {by: clang-tidy, how: "bugprone-switch-missing-default-case, hicpp-multiway-paths-covered", partial: true}
+      - by: review
+        how: >-
+          Each switch has at least two cases, ends every clause with break or return, and has default unless every
+          enumerator is listed (KB-CPP-053).
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 9.5.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Counted for loops keep one counter and a plain bound."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: review
+        how: >-
+          A classic for loop has one integer counter, compares it with a bound, steps it once per iteration and never
+          changes it in the body; extra conditions use while.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 9.5.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "A range-for initializer makes at most one call."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: "The range expression of a range-for calls at most one function; build the range first otherwise."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 9.6.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Structure control flow with loops and returns, not jumps."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-avoid-goto"}
+    note: "Raised to required: our NASA/JPL Power of Ten baseline already forbids goto."
+  - id: Rule 9.6.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "A goto may only target a label in an enclosing block."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-avoid-goto (no goto at all, Rule 9.6.1 raised to required)"}
+  - id: Rule 9.6.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "A goto may only jump forward."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-avoid-goto (no goto at all, Rule 9.6.1 raised to required)"}
+  - id: Rule 9.6.4
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "A [[noreturn]] function really never returns."
+    applies: yes
+    our_category: required
+    verification:
+      - by: compiler
+        how: "'noreturn' function does return warns by default (GCC), -Winvalid-noreturn (Clang)"
+        partial: true
+      - {by: review, how: "Every path of a [[noreturn]] function ends in another [[noreturn]] call or an endless loop."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 9.6.5
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Every path through a value-returning function returns a value."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wreturn-type (in -Wall), -Werror"}
+      - {by: cppcheck, how: "missingReturn", partial: true}
+  - id: Rule 10.0.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Declare one variable or member per declaration."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "readability-isolate-declaration (local variables)", partial: true}
+      - {by: review, how: "Members and namespace-scope objects are declared one per line too."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 10.1.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Make pointer and reference parameters const when not written."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "readability-non-const-parameter (pointer parameters)", partial: true}
+      - {by: cppcheck, how: "constParameterPointer, constParameterReference", partial: true}
+      - by: review
+        how: "A pointer or lvalue-reference parameter the function does not modify points or refers to const."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 10.1.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Use volatile only for hardware registers and similar."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: >-
+          volatile appears only on memory-mapped register access in the MCU port, never for thread or interrupt sharing
+          (KB-CPP-010, KB-CPP-086).
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 10.2.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Give every enumeration a fixed underlying type."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "Every enum names its underlying type (enum class E : uint8_t)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 10.2.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Prefer scoped enums over plain enums."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "Every enumeration is an enum class."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    note: "Raised to required: every Kokeb enum is already scoped with a fixed type."
+  - id: Rule 10.2.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not use plain enums without fixed type as numbers."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wenum-conversion (Clang), -Wenum-compare", partial: true}
+      - {by: review, how: "An unscoped enum without fixed type is never used in arithmetic or converted to an integer."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 10.3.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Anonymous namespaces belong in source files, never in headers."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "google-build-namespaces (header extensions include .ipp)"}
+  - id: Rule 10.4.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Keep assembly out of C++ sources; it escapes all checking."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "hicpp-no-assembler"}
+  - id: Rule 11.3.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Prefer std::array or std::span to built-in array objects."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-avoid-c-arrays"}
+  - id: Rule 11.3.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "No more than two levels of pointer in a declaration."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: review, how: "No declaration has three or more levels of pointer indirection."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 11.6.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Initialise every variable where it is declared."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-init-variables, cppcoreguidelines-pro-type-member-init", partial: true}
+      - {by: review, how: "Every variable and member has an initialiser or a default member initialiser."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 11.6.2
+    kind: rule
+    category: mandatory
+    decidable: no
+    scope: system
+    summary: "Never read a value before something has written it."
+    applies: yes
+    our_category: mandatory
+    verification:
+      - by: compiler
+        how: "-Wuninitialized -Wmaybe-uninitialized (GCC), -Wuninitialized -Wsometimes-uninitialized (Clang)"
+        partial: true
+      - {by: clang-tidy, how: "clang-analyzer-core.uninitialized.*", partial: true}
+      - {by: cppcheck, how: "uninitvar, uninitMemberVar", partial: true}
+      - {by: review, how: "Every object is initialised before any read on every path (Rule 11.6.1 makes this local)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 11.6.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Implicit enumerator values must not collide."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "No two enumerators of one enum end up with the same value through implicit numbering."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 12.2.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Avoid bit-fields; use masks and shifts."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "No bit-field members; register fields use masks and shifts (KB-CPP-106)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    note: "Raised to required: KB-CPP-106 already packs register fields with masks and shifts."
+  - id: Rule 12.2.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Bit-fields, if any, use unsigned integer or bool types."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "Any bit-field (allowed only by deviation) has an unsigned fixed-width or bool type."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 12.2.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No named one-bit signed bit-fields."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wsingle-bit-bitfield-constant-conversion (Clang)", partial: true}
+      - {by: review, how: "No named bit-field of width 1 has a signed type."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 12.3.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No unions; use std::variant or explicit byte handling."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-union-access (member access only)", partial: true}
+      - {by: review, how: "No union is declared; register frames are packed with masks, shifts and std::bit_cast."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 13.1.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Use plain inheritance only; virtual bases complicate layout and casts."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "fuchsia-virtual-inheritance"}
+    note: "Raised to required: no Kokeb design uses virtual bases (ADR-0016)."
+  - id: Rule 13.1.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "A base is never inherited both virtually and not."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "fuchsia-virtual-inheritance (no virtual bases at all)"}
+  - id: Rule 13.3.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Mark overrides override or final; no stray virtual."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "modernize-use-override", partial: true}
+      - {by: compiler, how: "-Wsuggest-override -Winconsistent-missing-override (Clang)", partial: true}
+      - by: review
+        how: >-
+          virtual only on new virtual functions, override or final on overriders, no virtual in a final class
+          (KB-CPP-072).
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 13.3.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Overriders keep the base's default arguments."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "google-default-arguments (no default arguments on virtual functions at all)"}
+  - id: Rule 13.3.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: system
+    summary: "Parameter names match across declarations and overriders."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "readability-inconsistent-declaration-parameter-name (declarations in one translation unit)"
+        partial: true
+      - {by: cppcheck, how: "funcArgNamesDifferent", partial: true}
+      - {by: review, how: "Overriders and every declaration name parameters identically or leave them unnamed."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 13.3.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Compare pointers to virtual members only with nullptr."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "A pointer to a member function that may be virtual is only compared with nullptr."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 14.1.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Data members are all private or all public."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "misc-non-private-member-variables-in-classes", partial: true}
+      - by: review
+        how: "A class with private data has no public or protected data; plain structs have only public data."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 15.0.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Declare special members as one coherent, deliberate set."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-special-member-functions", partial: true}
+      - {by: compiler, how: "-Wnon-virtual-dtor -Wdeprecated-copy-dtor", partial: true}
+      - {by: cppcheck, how: "virtualDestructor, copyCtorAndEqOperator, noCopyConstructor, noOperatorEq", partial: true}
+      - by: review
+        how: >-
+          Each class is unmovable, move-only or copyable by design; public bases have a public virtual or protected
+          non-virtual destructor.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 15.0.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Copy and move members use the conventional signatures."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: clang-tidy
+        how: "misc-unconventional-assign-operator, performance-noexcept-move-constructor"
+        partial: true
+      - by: review
+        how: "Copy and move constructors and assignments take const T& or T&&, return T&, and moves are noexcept."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 15.1.1
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Constructors and destructors do not rely on dynamic type."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "clang-analyzer-optin.cplusplus.VirtualCall", partial: true}
+      - {by: cppcheck, how: "virtualCallInConstructor", partial: true}
+      - {by: review, how: "No virtual call, typeid or dynamic_cast on the object under construction or destruction."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 15.1.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Constructors explicitly initialise every direct base."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: review, how: "Each constructor's initialiser list names every immediate and virtual base class."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 15.1.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Single-argument constructors and conversions are explicit."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "google-explicit-constructor"}
+      - {by: cppcheck, how: "noExplicitConstructor", partial: true}
+  - id: Rule 15.1.4
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Initialise all members before the object can be used."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-member-init", partial: true}
+      - by: review
+        how: "Every non-static data member has a default member initialiser or is set in every constructor's list."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 15.1.5
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "An initializer_list constructor must stand alone."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: "A class with an std::initializer_list constructor has no other constructor (copy and move aside)."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Dir 15.8.1
+    kind: directive
+    category: required
+    decidable: n/a
+    scope: system
+    summary: "Custom copy and move assignment survive self-assignment."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "bugprone-unhandled-self-assignment (copy assignment)", partial: true}
+      - {by: cppcheck, how: "operatorEqToSelf", partial: true}
+      - by: review
+        how: "A user-written copy or move assignment is correct when source and target are the same object."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 16.5.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Overloaded logical operators lose short-circuit evaluation; do not."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "No class or namespace declares operator&& or operator||."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 16.5.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Taking an address must always mean the real address."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "google-runtime-operator"}
+  - id: Rule 16.6.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Implement symmetric binary operators as non-members."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: review
+        how: >-
+          Binary arithmetic and comparison operators are non-member (hidden friends allowed), except defaulted C++20
+          comparisons under MD-CPP-002.
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    deviations: [MD-CPP-002]
+  - id: Rule 17.8.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Overload function templates instead of explicitly specialising them."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: "No explicit specialisation of a function template; use an overload, if constexpr or a class template."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 18.1.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Throw objects, never pointers."
+    applies: no
+    reason: "exceptions are disabled: every target builds with -fno-exceptions (KB-CPP-002)"
+    our_category: required
+    verification:
+      - {by: not-applicable, how: "throw, try and catch cannot occur in our code"}
+      - {by: compiler, how: "-fno-exceptions makes any throw, try or catch a compile error (GCC and Clang)"}
+      - {by: handbook-check, how: "forbidden-patterns/exceptions-rtti (KB-CPP-002)"}
+  - id: Rule 18.1.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Rethrow only from inside a catch handler."
+    applies: no
+    reason: "exceptions are disabled: every target builds with -fno-exceptions (KB-CPP-002)"
+    our_category: required
+    verification:
+      - {by: not-applicable, how: "throw, try and catch cannot occur in our code"}
+      - {by: compiler, how: "-fno-exceptions makes any throw, try or catch a compile error (GCC and Clang)"}
+      - {by: handbook-check, how: "forbidden-patterns/exceptions-rtti (KB-CPP-002)"}
+  - id: Rule 18.3.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Catch everything somewhere so nothing escapes main."
+    applies: no
+    reason: "exceptions are disabled: every target builds with -fno-exceptions (KB-CPP-002)"
+    our_category: advisory
+    verification:
+      - {by: not-applicable, how: "throw, try and catch cannot occur in our code"}
+      - {by: compiler, how: "-fno-exceptions makes any throw, try or catch a compile error (GCC and Clang)"}
+      - {by: handbook-check, how: "forbidden-patterns/exceptions-rtti (KB-CPP-002)"}
+  - id: Rule 18.3.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Catch class-type exceptions by reference."
+    applies: no
+    reason: "exceptions are disabled: every target builds with -fno-exceptions (KB-CPP-002)"
+    our_category: required
+    verification:
+      - {by: not-applicable, how: "throw, try and catch cannot occur in our code"}
+      - {by: compiler, how: "-fno-exceptions makes any throw, try or catch a compile error (GCC and Clang)"}
+      - {by: handbook-check, how: "forbidden-patterns/exceptions-rtti (KB-CPP-002)"}
+  - id: Rule 18.3.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Constructor try-block handlers avoid the object's members."
+    applies: no
+    reason: "exceptions are disabled: every target builds with -fno-exceptions (KB-CPP-002)"
+    our_category: required
+    verification:
+      - {by: not-applicable, how: "throw, try and catch cannot occur in our code"}
+      - {by: compiler, how: "-fno-exceptions makes any throw, try or catch a compile error (GCC and Clang)"}
+      - {by: handbook-check, how: "forbidden-patterns/exceptions-rtti (KB-CPP-002)"}
+  - id: Rule 18.4.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Destructors, moves and swaps that must not fail are noexcept."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "performance-noexcept-move-constructor, performance-noexcept-swap, performance-noexcept-destructor"
+        partial: true
+      - by: review
+        how: >-
+          Destructors, move operations, swap and hash functions are noexcept (KB-CPP-035 makes everything noexcept).
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    note: "Applies even without exceptions: noexcept still selects moves in the standard library."
+  - id: Rule 18.5.1
+    kind: rule
+    category: advisory
+    decidable: no
+    scope: system
+    summary: "Do not let exceptions escape a noexcept function."
+    applies: no
+    reason: "exceptions are disabled: every target builds with -fno-exceptions (KB-CPP-002)"
+    our_category: advisory
+    verification:
+      - {by: not-applicable, how: "throw, try and catch cannot occur in our code"}
+      - {by: compiler, how: "-fno-exceptions makes any throw, try or catch a compile error (GCC and Clang)"}
+      - {by: handbook-check, how: "forbidden-patterns/exceptions-rtti (KB-CPP-002)"}
+  - id: Rule 18.5.2
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Avoid abort, exit, terminate and similar shutdowns."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: review
+        how: >-
+          No call to abort, exit, quick_exit, _Exit or terminate; fatal paths go through the documented fatal handler
+          (KB-CPP-056).
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.0.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Lines starting with # are valid directives, even skipped."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "invalid directives in active code are compile errors", partial: true}
+      - {by: review, how: "Directives inside excluded #if blocks are well formed."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.0.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No function-like macros; use constexpr functions or templates."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-macro-usage (reports every function-like macro, a superset)"}
+    deviations: [MD-CPP-006]
+  - id: Rule 19.0.3
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Put all #include lines at the top of the file."
+    applies: yes
+    our_category: advisory
+    verification:
+      - by: review
+        how: "Only comments and directives precede an #include; no #include inside a namespace or function."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.0.4
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Only #undef macros this file itself defined."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: review, how: "Every #undef names a macro defined earlier in the same file."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.1.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Use the defined operator only in its two standard forms."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wexpansion-to-defined; a malformed defined is a compile error"}
+  - id: Rule 19.1.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Close every #if group in the file that opened it."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "an #if left open at the end of a file is a compile error (GCC and Clang)"}
+  - id: Rule 19.1.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Identifiers tested by #if must be defined first."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wundef, -Werror"}
+  - id: Rule 19.2.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Guard every header with an #ifndef include guard."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "llvm-header-guard (with a project guard-name convention)", partial: true}
+      - {by: review, how: "Each header is wrapped in an #ifndef/#define/#endif guard with a unique name."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    note: "Our headers use #pragma once (KB-CPP-019), which does not satisfy this rule; open finding."
+  - id: Rule 19.2.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "#include names a file in quotes or angle brackets."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "any other #include form is a compile error"}
+  - id: Rule 19.2.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Header names avoid quotes, backslashes and comment markers."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "Include paths use forward slashes and only letters, digits, _ - . and / (KB-CPP-018)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.3.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Avoid the # and ## preprocessor operators."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: review, how: "No # or ## in macros, outside the MD-CPP-006 X-macro lists."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.3.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not paste onto a stringised macro parameter."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "No macro applies ## directly after #param."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.3.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Mixed-use macro parameters receive no macro arguments."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "A parameter used both with and without # or ## is never passed something that expands."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.3.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Parenthesise macro parameters so arguments expand safely."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "bugprone-macro-parentheses", partial: true}
+      - {by: review, how: "Each macro parameter used in an expression is parenthesised."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.3.5
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No directive-like lines inside macro arguments."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wpedantic (GCC), -Wembedded-directive (Clang)", partial: true}
+      - {by: review, how: "No line starting with # appears inside a macro invocation's arguments."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 19.6.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Do not use #pragma or _Pragma."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: review, how: "No #pragma or _Pragma; compiler settings live in the build."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    note: "Our headers use #pragma once (KB-CPP-019); open finding with Rule 19.2.1."
+  - id: Rule 21.2.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not convert text to numbers with the ato* family."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cert-err34-c"}
+  - id: Rule 21.2.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Avoid C string functions; use string_view and span instead."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "bugprone-unsafe-functions with CustomFunctions listing the str*, wcs*, strto* and wcsto* functions"
+  - id: Rule 21.2.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Never start a shell command from the program."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cert-env33-c"}
+  - id: Rule 21.2.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Member offsets are not computed with the offsetof macro."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "No offsetof outside the MD-CPP-007 scope (static_assert on register frame layout)."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    deviations: [MD-CPP-007]
+  - id: Rule 21.6.1
+    kind: rule
+    category: advisory
+    decidable: no
+    scope: tu
+    summary: "Avoid dynamic memory entirely."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-no-malloc, cppcoreguidelines-owning-memory", partial: true}
+      - {by: handbook-check, how: "forbidden-patterns/heap (KB-CPP-003)", partial: true}
+      - by: review
+        how: "No allocation, direct or through a standard container, outside the MD-CPP-008 start-up scope."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    deviations: [MD-CPP-008]
+    note: "Raised to required: KB-CPP-003 forbids the heap in drivers and after start-up everywhere."
+  - id: Rule 21.6.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Any dynamic memory is owned by RAII types, never raw."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-no-malloc, cppcoreguidelines-owning-memory", partial: true}
+      - {by: handbook-check, how: "forbidden-patterns/heap (KB-CPP-003)", partial: true}
+      - {by: review, how: "No new, delete, malloc family, allocate or deallocate call, or unique_ptr::release."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 21.6.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No placement new, manual destructor calls or similar tricks."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "No placement new, explicit destructor call, std::launder or uninitialized-memory algorithm."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 21.6.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Replace sized and unsized global delete together."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wsized-deallocation (GCC)", partial: true}
+      - {by: review, how: "A replacement global operator delete comes with its sized counterpart in the same file."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 21.6.5
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Never delete through a pointer to an incomplete type."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: compiler, how: "-Wdelete-incomplete (on by default), -Werror"}
+  - id: Rule 21.10.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not use <cstdarg> variadic argument access."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-vararg (reports every variadic definition, call and va_arg)"}
+  - id: Rule 21.10.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "No non-local jumps; they skip destructors and cleanup."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "cert-err52-cpp"}
+  - id: Rule 21.10.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not use the <csignal> facilities."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "bugprone-unsafe-functions with CustomFunctions listing signal and raise"}
+  - id: Rule 22.3.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Use static_assert, not assert, for compile-time facts."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "misc-static-assert"}
+  - id: Rule 22.4.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Only ever reset errno to zero."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: review, how: "errno is never written except to clear it with 0."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 23.11.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Create smart pointers with make_unique or make_shared."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: clang-tidy, how: "modernize-make-unique, modernize-make-shared", partial: true}
+      - {by: review, how: "No std::unique_ptr or std::shared_ptr is constructed from a raw pointer."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 24.5.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not use <cctype> or <cwctype> classification functions."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "bugprone-unsafe-functions with CustomFunctions listing the <cctype> and <cwctype> functions"
+  - id: Rule 24.5.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not use memcpy, memmove, memcmp or memchr."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "bugprone-unsafe-functions with CustomFunctions listing memcpy, memmove, memcmp and memchr"
+    note: "Use std::copy, std::equal, std::bit_cast or element-wise access instead."
+  - id: Rule 25.5.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Never change the global locale."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "bugprone-unsafe-functions with CustomFunctions listing setlocale and std::locale::global"
+  - id: Rule 25.5.2
+    kind: rule
+    category: mandatory
+    decidable: yes
+    scope: tu
+    summary: "Treat pointers from locale, getenv and strerror as read-only."
+    applies: yes
+    our_category: mandatory
+    verification:
+      - by: clang-tidy
+        how: >-
+          bugprone-unsafe-functions with CustomFunctions listing localeconv, getenv, setlocale and strerror: our code
+          calls none of them
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    note: "We meet this by never calling these functions."
+  - id: Rule 25.5.3
+    kind: rule
+    category: mandatory
+    decidable: no
+    scope: system
+    summary: "Do not reuse static-buffer results after calling again."
+    applies: yes
+    our_category: mandatory
+    verification:
+      - by: clang-tidy
+        how: >-
+          bugprone-unsafe-functions with CustomFunctions listing asctime, ctime, gmtime, localtime, localeconv, getenv,
+          setlocale and strerror: our code calls none of them
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    note: "We meet this by never calling these functions."
+  - id: Rule 26.3.1
+    kind: rule
+    category: advisory
+    decidable: yes
+    scope: tu
+    summary: "Skip the packed bool vector; it is not a real container."
+    applies: yes
+    our_category: advisory
+    verification:
+      - {by: review, how: "No std::vector<bool>; use std::bitset or std::array<bool, N>."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 28.3.1
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Algorithm predicates must not change program state."
+    applies: yes
+    our_category: required
+    verification:
+      - by: review
+        how: "Predicates and comparators passed to algorithms are pure: no writes, no volatile access, no I/O."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 28.6.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Only std::move non-const named objects."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "performance-move-const-arg", partial: true}
+      - {by: review, how: "std::move is applied only to a non-const lvalue."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 28.6.2
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Forwarding references are always passed on with std::forward."
+    applies: yes
+    our_category: required
+    verification:
+      - by: clang-tidy
+        how: "cppcoreguidelines-missing-std-forward, bugprone-move-forwarding-reference"
+        partial: true
+      - {by: review, how: "Every forwarding reference is used through std::forward, and std::forward only on one."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 28.6.3
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Do not use an object after it may have been moved."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "bugprone-use-after-move", partial: true}
+      - {by: cppcheck, how: "accessMoved", partial: true}
+      - {by: review, how: "A moved-from object is only assigned or destroyed."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 28.6.4
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Use the results of remove, unique, release and empty."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "bugprone-unused-return-value (its default list covers these)", partial: true}
+      - {by: compiler, how: "[[nodiscard]] on empty() in the standard library, -Werror", partial: true}
+      - by: review
+        how: "The results of std::remove, std::remove_if, std::unique, unique_ptr::release and empty() are used."
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+  - id: Rule 30.0.1
+    kind: rule
+    category: required
+    decidable: yes
+    scope: tu
+    summary: "Keep printf, FILE and other C stdio out of our code."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: clang-tidy, how: "bugprone-unsafe-functions with CustomFunctions listing the <cstdio> functions"}
+  - id: Rule 30.0.2
+    kind: rule
+    category: required
+    decidable: no
+    scope: system
+    summary: "Reposition a file stream between reading and writing."
+    applies: yes
+    our_category: required
+    verification:
+      - {by: cppcheck, how: "IOWithoutPositioning", partial: true}
+      - {by: review, how: "A stream used for both reading and writing is repositioned between the two."}
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}

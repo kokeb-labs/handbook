@@ -68,6 +68,12 @@ checks:
   - id: misra-checker
     status: planned
     summary: a commercial MISRA C++:2023 / C:2025 checker run, mapped to the compliance matrix (safety level)
+  - id: misra-matrix
+    status: implemented
+    summary: >-
+      the MISRA C++:2023 compliance matrix lists all 179 guidelines once, never weakens a category, names a
+      verification for each, and its deviations cite existing non-mandatory guidelines (checks/misra_matrix.py)
+    where: handbook CI (rules job)
   - id: forbidden-patterns
     status: implemented
     parametric: true

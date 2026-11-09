@@ -7,6 +7,14 @@ loosened rule is a major release.
 
 ## [Unreleased]
 
+### Added
+
+- The MISRA C++:2023 (TC1:2026) compliance matrix, `compliance/misra-cpp-2023.yml`: all 179 guidelines with
+  MISRA's category, decidability and scope, our own summary, whether it applies, the category we enforce (seven
+  raised above MISRA's) and how each is verified. Eight project-wide deviations in
+  `compliance/misra-cpp-2023-deviations.yml`, starting with C++20 itself (MD-CPP-001). `checks/misra_matrix.py`
+  validates both on every pull request and keeps the counts on the Coding standards page current.
+
 ### Changed
 
 - New rule KB-ARCH-041 (proposed, enforced from 2026-12-01): extra read-back and verification in a driver are

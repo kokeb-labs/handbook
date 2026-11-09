@@ -114,7 +114,7 @@ review hold each change to.
 | [KB-CPP-106](#kb-cpp-106) Register fields and wire bytes are packed with masks, shifts and explicit byte order | must | driver, library, hal, template | planned |
 | [KB-CPP-107](#kb-cpp-107) Register maps are written as tables | guide | driver, template | none |
 | [KB-CPP-108](#kb-cpp-108) Parsers of external input check length and type before use | must | driver, library, hal, firmware, template | checked |
-| [KB-CPP-110](#kb-cpp-110) At the safety level, code follows the MISRA subset in the compliance matrix | must | driver, library, hal, firmware (safety level and above) | planned |
+| [KB-CPP-110](#kb-cpp-110) At the safety level, code follows the MISRA subset in the compliance matrix | must | driver, library, hal, firmware (safety level and above) | checked |
 | [KB-CPP-111](#kb-cpp-111) Comments explain why, and datasheet references are exact | should | all | review |
 | [KB-CPP-112](#kb-cpp-112) No commented-out code, untracked TODOs, author banners or tool attribution | must | all | planned |
 | [KB-CPP-113](#kb-cpp-113) Class members are grouped by access | guide | driver, library, hal, firmware, template | none |
@@ -2032,6 +2032,9 @@ by a MISRA-capable analyser, and every departure is a recorded deviation.
 
 - `misra-checker` (planned): a commercial MISRA C++:2023 / C:2025 checker run, mapped to the compliance matrix (safety
   level)
+- `misra-matrix` (implemented): the MISRA C++:2023 compliance matrix lists all 179 guidelines once, never weakens a
+  category, names a verification for each, and its deviations cite existing non-mandatory guidelines
+  (checks/misra\_matrix.py)
 
 *See also:* MISRA C++:2023; MISRA C:2025
 
