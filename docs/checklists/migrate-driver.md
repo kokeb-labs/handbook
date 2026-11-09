@@ -11,19 +11,19 @@ is written on the template's architecture, and the old repository stays untouche
 
 ## Drivers that are already proven on hardware
 
-Some old drivers run in shipped or bench-tested firmware: the bench HIL evidence (`verification/evidence/` in
-the bench firmware) covers the MAX22200, the TLE92466ED, the TMC9660, the ADS7952 and the PCAL9555A, partly the
-AT25040, and leaves others (the AS5047U among them) with none. That evidence belongs to **the old code at a given
-commit, on a given board, by a given procedure**. A rewritten driver is new code: it inherits the knowledge, never
-the verification. So for a proven driver the migration adds four things:
+Some old drivers run in shipped or bench-tested firmware that used them: its hardware records cover the MAX22200,
+the TLE92466ED, the TMC9660, the ADS7952 and the PCAL9555A, partly the AT25040, and leave others (the AS5047U among
+them) with none. That evidence belongs to **the old code at a given commit, on a given board, by a given
+procedure**. A rewritten driver is new code: it inherits the knowledge, never the verification. So for a proven
+driver the migration adds four things:
 
 1. **Record the evidence as it is.** `docs/limitations.md` of the new repository lists, per chip, what was verified
    on hardware, with which old repository and commit, which board, which procedure and which evidence folder, and
    says plainly that it applies to the old driver until the new one is verified the same way.
 2. **Keep every quirk the hardware taught.** Comments such as "workaround", "errata", "second write", the
    firmware's retries and its call sites are chip knowledge (step 2). Each one becomes a fault in the chip model and
-   a test, or a documented reason it no longer applies. Example: the the bench bench lost acknowledged writes to
-   the PCAL9555A, so the model can drop writes and the driver reads each write back (`WriteMismatch`).
+   a test, or a documented reason it no longer applies. Example: acknowledged writes to the PCAL9555A were lost on
+   hardware with the old driver, so the model can drop writes and the driver reads each write back (`WriteMismatch`).
 3. **Fit the firmware's real use.** Before the API is final, list how the firmware's handler calls the old driver
    (which calls, how often, from which thread, what it does on error) and check the new API covers each one, or
    name the replacement. A call the firmware depends on and the new driver lacks blocks the merge
