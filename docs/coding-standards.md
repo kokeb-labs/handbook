@@ -68,6 +68,12 @@ The verification methods are:
 - `compiler`: a GCC or Clang flag (with `-Werror`) whose diagnostic decides the guideline;
 - `clang-tidy`: a clang-tidy 20 check, with its options where they matter;
 - `cppcheck`: a cppcheck message id (there is no free MISRA C++ addon; cppcheck's MISRA addon covers MISRA C only);
+- `codeql`: a query of the pinned CodeQL MISRA C++:2023 pack (`codeql/misra-cpp-coding-standards` 2.62.0) or the
+  Kokeb C++20 profile pack, run by ci-tools `ru-misra` on traced host and Cortex-M builds; the `how` names the
+  query and its tool-validation requirement (ci-tools `docs/tool-validation/traceability.md`). An entry without
+  `partial` is a query the validation proved on every seeded form with no recorded anomaly; `known anomalies`
+  lists the anomaly-log ids that make it partial, and `ru-misra` lists the findings of a rule with a known false
+  positive for review instead of failing on them;
 - `handbook-check`: one of the handbook's own implemented checks (`checks/source_checks.py` for include guards,
   pragmas and the C++20 profile checks `cpp20-profile/...`, ci-tools' handbook check for the forbidden patterns);
 - `review`: the step a reviewer checks on the pull request, used where no free tool decides the guideline;
@@ -99,12 +105,13 @@ MISRA C++:2023 with TC1:2026 has **179 guidelines**: 4 directives and 175 rules.
 
 | How it is verified | Guidelines |
 | --- | --- |
-| Decided by an open tool (compiler, clang-tidy, cppcheck, handbook check) | 48 |
+| Decided by an open tool (compiler, clang-tidy, cppcheck, handbook check) | 93 |
 | &nbsp;&nbsp;of which by compiler | 11 |
-| &nbsp;&nbsp;of which by clang-tidy | 35 |
+| &nbsp;&nbsp;of which by clang-tidy | 34 |
+| &nbsp;&nbsp;of which by codeql | 73 |
 | &nbsp;&nbsp;of which by handbook-check | 2 |
 | Review and commercial checker, helped by a partial tool | 79 |
-| Review and commercial checker only | 45 |
+| Review and commercial checker only | 0 |
 | Not applicable to our code | 7 |
 
 A guideline can be decided by more than one tool. Raised above MISRA's category: 7 (Dir 5.7.2, Rule 6.0.3, Rule 9.6.1,
