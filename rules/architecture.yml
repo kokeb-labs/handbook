@@ -708,3 +708,76 @@ rules:
       control loop calling the same driver pays nothing. A per-call argument, not a Config field, so one driver
       object can serve both.
     origin: ["owner decision 2026-11-07: keep timing-critical paths lean; verification is opt-in"]
+
+  # -- Bus integrity (from hardware testing of the migrated drivers) ----------------------------------------------
+  - id: KB-ARCH-042
+    title: A reply is accepted only when the protocol proves it answers the request
+    statement: >-
+      A driver decodes a reply only when every check the protocol offers passes: the CRC or checksum, the reply's
+      type and width, and the echoed opcode, address or tag where the protocol has one. A reply that fails any of
+      them is not decoded: the call returns `Crc` or a chip-specific mismatch code, or retries per KB-ARCH-044.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: fuzzing
+      - review: >-
+          Every read path checks CRC, reply type or width, and the echoed tag the protocol provides before it
+          decodes; a model test that replays the previous reply, or answers with the wrong tag, fails each read.
+    rationale: >-
+      Observed on hardware: on a shared or long bus a frame can arrive intact but late, so a reply with a valid CRC
+      still decoded as the wrong register. A CRC proves the bits arrived; only the tag proves which request they
+      answer.
+    page: standards/driver.md#replies-retries-and-resynchronisation
+    notes: Warns until 2027-03-01, then fails CI. The fuzz target gains a stale-reply mutator (KB-TST-020).
+    origin: ["gap: found by hardware testing of migrated drivers"]
+
+  - id: KB-ARCH-043
+    title: A pipelined exchange completes inside one public call, keyed on reply content
+    statement: >-
+      When a chip answers one or more frames later, the driver sends the request and collects its reply inside
+      the same public call, and matches each result to its request by the reply's content (tag, address, opcode),
+      never by frame position. The Porting page states that no other access to the chip may come between those
+      frames, and a handler holds the bus for the whole call.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, template]}
+    verify:
+      - review: >-
+          No public call leaves a request whose reply a later call reads; results are matched on reply content; the
+          Porting page states the no-interleave requirement and the handler holds its lock across the call.
+    rationale: >-
+      Observed on hardware: a reply that arrives in a later frame is lost or attributed to the wrong request when
+      another access comes in between. A model test that interleaves a foreign frame shows a mismatch error, not
+      wrong data.
+    page: standards/driver.md#replies-retries-and-resynchronisation
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["gap: found by hardware testing of migrated drivers"]
+
+  - id: KB-ARCH-044
+    title: Retries repeat only idempotent frames, are bounded and are counted
+    statement: >-
+      A retry, in a driver or a handler, repeats only frames that are safe to send twice. When the outcome of a
+      write is unknown, only the reply request is sent again. A retry never repeats a reset pulse, an enable toggle
+      or a deinitialise unless the datasheet requires it. Every retry loop has a fixed upper bound and counts its
+      attempts, and the count is visible to the caller or in the diagnostics.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, template]}
+    verify:
+      - review: >-
+          Each retry loop names its bound and repeats only idempotent frames; a handler test counts reset and enable
+          toggles per retried call and expects none beyond the datasheet sequence.
+    rationale: >-
+      Observed on hardware: repeating a side effect restarted the very wait being retried, doubled a write and
+      made outputs flicker.
+    refs: [{std: NASA-P10, id: "Rule 2", note: "fixed upper bound on loops"}]
+    page: standards/driver.md#replies-retries-and-resynchronisation
+    notes: Warns until 2027-03-01, then fails CI.
+    origin: ["gap: found by hardware testing of migrated drivers"]

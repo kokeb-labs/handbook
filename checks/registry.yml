@@ -80,6 +80,32 @@ checks:
     implemented_params: [heap, exceptions-rtti, virtual-outside-interfaces, cmake-glob, cmake-cxx-standard]
     summary: a source scan for a construct the handbook bans; the parameter names the pattern set
     where: ci-tools ru-handbook-check (tools/handbook_check), on drivers, libraries, HALs, firmware and templates
+  - id: include-guards
+    status: implemented
+    summary: >-
+      every header in inc/, src/, tests/ and examples/ has an #ifndef/#define/#endif guard that wraps the whole
+      file and is not a reserved name; in inc/ and src/ it is the KB-CPP-019 name; no #pragma or _Pragma anywhere
+      in that code; guard names are unique
+    where: >-
+      handbook checks/source_checks.py scan (selftest in handbook CI); run by driver-template's repository checks
+      and by every repository made from the template
+  - id: bus-requirements
+    status: implemented
+    summary: >-
+      for every SPI, I2C or UART bus in driver.yml, inc/<chip>_<bus>_interface.hpp declares the KB-CPP-123
+      constants as constexpr
+    where: handbook checks/source_checks.py scan, run by driver-template's repository checks and its scaffolds
+  - id: raw-access
+    status: implemented
+    summary: >-
+      the driver header declares a single-shot raw access (ReadRegister..., ReadRaw... or Trace...) and a no-I/O
+      GetLast... accessor
+    where: handbook checks/source_checks.py scan, run by driver-template's repository checks and its scaffolds
+  - id: model-virtual-clock
+    status: planned
+    summary: >-
+      a chip model for a driver whose port has DelayUs or DelayMs advances a virtual clock in those hooks, and a
+      test runs a delayed-ready mode against it
   - id: register-layout-asserts
     status: planned
     summary: every register or wire frame struct has static_assert on its size and field offsets

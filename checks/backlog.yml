@@ -8,8 +8,10 @@ config_changes:
   - config/.markdownlint.json must enable MD041 (first line is the top-level heading), allowing front matter, for
     KB-DOC-037.
   - 'Keep MD046 off: MkDocs admonitions and tabs indent their content, which MD046 reads as indented code blocks.'
-  - A safety-level clang-tidy profile (config/.clang-tidy-safety) that enables the checks the MISRA C++:2023 matrix
-    names beyond the org default; `python checks/misra_matrix.py check` lists them.
+  - kokeb-labs/.github standards/config/.clang-tidy takes the checks config/.clang-tidy now enables from the MISRA
+    matrix (the template and the handbook already have them).
+  - ci-tools ru-handbook-check runs checks/source_checks.py (include-guards, bus-requirements, raw-access) itself, so
+    a repository need not call it from its own workflow.
 vale_rules:
   - id: passive-voice
     summary: flags passive constructions ("is called", "should be set"); warning level

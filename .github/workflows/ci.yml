@@ -43,6 +43,8 @@ jobs:
         run: python checks/misra_matrix.py check
       - name: Confirm the matrix check reports seeded errors
         run: python checks/misra_matrix.py selftest
+      - name: Confirm the source checks report seeded breaks (include guards, bus requirements, raw access)
+        run: python checks/source_checks.py selftest
       # ci-tools' handbook checker carries a snapshot of these rules; a warning here means it needs a refresh.
       - name: Compare with ci-tools' checker snapshot
         run: |

@@ -81,7 +81,26 @@ Allowed exceptions, also allowed by the tidy config:
 - One include root per kb-core part: `#include "kb/interfaces/BaseSpi.h"`, `#include "kb/rtos/RtosMutex.h"`,
   `#include "kb/utils/Status.h"`. Drivers use their flat `inc/`: `#include "pca9685.hpp"`. Relative paths that
   climb out of a repository or part (`"../../drivers/..."`) are not allowed.
-- Every header starts with `#pragma once`.
+- Every header has an `#ifndef` include guard, never `#pragma once` (MISRA C++:2023 Rule 19.2.1). Only comments
+  come before `#ifndef GUARD` / `#define GUARD`, and `#endif` is the last line. The guard is
+  `<NAME>_<FILE_STEM>_<EXT>` in upper case: the repository's name (the chip, or the library's CMake package), the
+  file name without its extension in snake case, and the extension, with the name not repeated when the stem
+  already starts with it:
+
+  | File | Guard |
+  | --- | --- |
+  | `inc/ads7952.hpp` | `ADS7952_HPP` |
+  | `inc/ads7952_types.hpp` | `ADS7952_TYPES_HPP` |
+  | `inc/max22200_spi_interface.hpp` | `MAX22200_SPI_INTERFACE_HPP` |
+  | `src/ads7952.ipp` | `ADS7952_IPP` |
+  | `inc/ads7952_version.h.in` (configured) | `ADS7952_VERSION_H` |
+  | `tests/mock_ads7952.hpp` | `ADS7952_MOCK_ADS7952_HPP` |
+  | `inc/ring/MovingAverage.h` in `ring_buffer` | `RING_BUFFER_MOVING_AVERAGE_H` |
+
+  No leading underscore and no double underscore: those names are reserved. No `#pragma` of any kind and no
+  `_Pragma`; compiler options live in the build. `python checks/source_checks.py guard --repo . <path>` prints the
+  guard a file needs, and `python checks/source_checks.py scan --repo .` runs the check CI runs
+  ([KB-CPP-019](../rules/cpp.md#kb-cpp-019)).
 - Include order: the file's own header, then standard headers, then other repositories, then this repository;
   one blank line between groups. `clang-format` sorts within a group.
 - A header includes what it uses and compiles on its own.

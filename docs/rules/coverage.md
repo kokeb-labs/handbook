@@ -7,17 +7,17 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 | Area | Must rules | Checked | Planned | Review | Checked share |
 | --- | --- | --- | --- | --- | --- |
 | [Coding agents](agents.md) | 17 | 5 | 10 | 2 | 29% |
-| [Architecture](architecture.md) | 28 | 3 | 17 | 8 | 10% |
+| [Architecture](architecture.md) | 31 | 3 | 18 | 10 | 9% |
 | [Build and CMake](build.md) | 21 | 5 | 15 | 1 | 23% |
 | [C code](c.md) | 7 | 1 | 4 | 2 | 14% |
 | [CI and supply chain](ci.md) | 12 | 2 | 10 | 0 | 16% |
-| [C++ code](cpp.md) | 92 | 42 | 38 | 12 | 45% |
+| [C++ code](cpp.md) | 108 | 47 | 42 | 19 | 43% |
 | [Documentation](docs.md) | 35 | 15 | 13 | 7 | 42% |
 | [Git, review and release](git.md) | 21 | 6 | 14 | 1 | 28% |
-| [Hardware and porting](hardware.md) | 7 | 0 | 6 | 1 | 0% |
+| [Hardware and porting](hardware.md) | 9 | 0 | 8 | 1 | 0% |
 | [Repository](repo.md) | 16 | 12 | 4 | 0 | 75% |
-| [Testing](testing.md) | 20 | 8 | 10 | 2 | 40% |
-| **All** | 276 | 99 | 141 | 36 | 35% |
+| [Testing](testing.md) | 21 | 8 | 11 | 2 | 38% |
+| **All** | 298 | 104 | 149 | 45 | 34% |
 
 ## Checks still to build
 
@@ -121,6 +121,8 @@ is not built yet. *Review*: verified in review against the pull-request checklis
   KB\_MCU\_&lt;FAMILY&gt;
 - `mcu-matrix`: kb-core CI builds every target for each MCU family (STM32 with stub headers), KB\_MCU=HOST and NONE
 - `misra-checker`: a commercial MISRA C++:2023 / C:2025 checker run, mapped to the compliance matrix (safety level)
+- `model-virtual-clock`: a chip model for a driver whose port has DelayUs or DelayMs advances a virtual clock in those
+  hooks, and a test runs a delayed-ready mode against it
 - `no-attribution`: no commit message, pull-request body or review comment carries a Co-Authored-By trailer naming a
   tool or model, a "Generated with" footer, an AI-disclosure line or a tool banner (runs beside dco)
 - `no-heap-link`: a test binary that links the library with operator new, malloc and free removed builds and runs

@@ -72,10 +72,13 @@ Code is specific to a chip, to an MCU, or to a product. Each kind has one place,
 
   ```cpp
   // interfaces/mcu/esp32/include/kb/interfaces/esp32/EspI2c.h
-  #pragma once
+  #ifndef KB_ESP_I2C_H
+  #define KB_ESP_I2C_H
   #if !defined(KB_MCU_ESP32)
   #error "EspI2c.h is ESP32 code; this build selects another KB_MCU"
   #endif
+  // ...
+  #endif // KB_ESP_I2C_H
   ```
 
 - A driver that needs one MCU's peripheral (WS2812 timing on the ESP32 RMT) is listed in the MCU gate table in

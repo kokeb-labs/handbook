@@ -34,6 +34,7 @@ sanitizers, coverage and cross-compilation.
 | [KB-TST-027](#kb-tst-027) At safety level, every decision has full MC/DC coverage | must | driver, library, hal (safety level and above) | checked |
 | [KB-TST-028](#kb-tst-028) At safety level, every uncovered item is justified | must | driver, library, hal (safety level and above) | planned |
 | [KB-TST-029](#kb-tst-029) At safety level, mutation testing checks that the tests check something | guide | driver, library, hal (safety level and above) | none |
+| [KB-TST-030](#kb-tst-030) Hardware findings become model faults and tests; the model stands alone | must | driver, template | planned |
 
 ## KB-TST-001: Host tests build and pass with gcc and clang { #kb-tst-001 }
 
@@ -499,3 +500,29 @@ mutants; each survivor gets a test or a note on why it is equivalent.
 
 *See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md)
 
+
+## KB-TST-030: Hardware findings become model faults and tests; the model stands alone { #kb-tst-030 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. Extends KB-TST-007.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Each behaviour found on hardware becomes a fault mode of `tests/mock_<chip>.hpp` and a regression test that fails on the
+code before the fix; the test cites the datasheet, and private evidence stays outside the repository. The model is
+written from the datasheet on its own: it does not include the driver's register header but carries its own register map
+with datasheet page references, and a test cross-checks the two maps with `static_assert`. A chip with timing (busy
+windows, settling, wake-up, pipeline latency) has a virtual clock in its model.
+
+*Why:* A model that includes the driver's register header shares its mistakes: a wrong constant hides behind the same
+wrong constant. Without a model fault, a fix found on the bench cannot be proven or kept.
+
+*Verified by:*
+
+- `model-virtual-clock` (planned): a chip model for a driver whose port has DelayUs or DelayMs advances a virtual clock
+  in those hooks, and a test runs a delayed-ready mode against it
+- review: The pull request answers "hardware finding: model fault and test?"; tests/mock\_&lt;chip&gt;.hpp includes no
+  driver register header, and a test static\_asserts the model's map against the driver's.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#tests)

@@ -95,7 +95,19 @@ soon after; a driver with no hardware user can move at any time.
       none is silently cleared by a write
 - [ ] Multi-step procedures with a compare step use the protected frame format for every frame, reads included
 - [ ] `tests/mock_<chip>.hpp`: a model at the protocol level (frames, latency, CRC, clear-on-read registers,
-      timed procedures) with fault injection, not a register array
+      timed procedures) with fault injection, not a register array. It has its own register map with datasheet
+      page references and does not include `<chip>_registers.hpp`; `tests/test_model.cpp` static_asserts the two
+      maps against each other (KB-TST-030)
+- [ ] Every header has the KB-CPP-019 include guard (`python checks/source_checks.py guard --repo . <path>` from the
+      handbook prints it); no `#pragma once` is left
+- [ ] `inc/<chip>_<bus>_interface.hpp` declares the bus requirements as `constexpr` (KB-CPP-123), the Porting page
+      lists them, and each example port static_asserts its settings against them
+- [ ] A single-shot raw access and a `GetLast*()` accessor (KB-CPP-129); clear-on-read flags ORed into one latch
+      with `GetLatched*()` / `ClearLatched*()` (KB-CPP-119)
+- [ ] The hardware-proven rules on the driver contract: replies proven before they are decoded, line patterns
+      refused, resync after a failed transfer, idempotent bounded retries, setters that change only what they name,
+      start-up that waits for ready and clears inherited faults
+      ([driver.md](../standards/driver.md#replies-retries-and-resynchronisation))
 
 ### 4. Tests
 - [ ] Behaviour of every public call, including each error it documents
@@ -125,6 +137,8 @@ soon after; a driver with no hardware user can move at any time.
 - [ ] gcovr 8.7 on GCC `-O0 --coverage -fcondition-coverage` over every CTest binary, with `--merge-lines` as CI
       uses (ci-tools 1.5.2): at or above the level's floors. Without it each template instance counts separately
 - [ ] `ru-handbook-check` locally: `python3 tools/handbook_check/handbook_check.py --repo .` from ci-tools, 0 errors
+- [ ] The handbook's source checks: `python3 checks/source_checks.py scan --repo <driver>` from the handbook, 0
+      findings (include guards, bus requirements, raw access)
 
 ### 6. Documentation
 - [ ] Every page rewritten for the chip; nothing about the template's example chip remains, in `.claude/skills/`

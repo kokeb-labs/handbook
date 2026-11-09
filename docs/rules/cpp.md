@@ -25,7 +25,7 @@ review hold each change to.
 | [KB-CPP-016](#kb-cpp-016) Shared code never tests platform, board or product macros | must | driver, library, template | planned |
 | [KB-CPP-017](#kb-cpp-017) An MCU family header fails to compile outside its family | must | library | planned |
 | [KB-CPP-018](#kb-cpp-018) Includes are quoted from the include root and never climb with ../ | must | driver, library, hal, firmware, template | planned |
-| [KB-CPP-019](#kb-cpp-019) Every header uses #pragma once | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-019](#kb-cpp-019) Every header has an #ifndef include guard named after its file; no #pragma | must | driver, library, hal, firmware, template | checked |
 | [KB-CPP-020](#kb-cpp-020) Includes are grouped own header, standard, other repositories, this repository | should | driver, library, hal, firmware, template | review |
 | [KB-CPP-021](#kb-cpp-021) Every header includes what it uses and compiles on its own | must | driver, library, hal, firmware, template | planned |
 | [KB-CPP-022](#kb-cpp-022) Drivers carry no organisation brand | must | driver, template | planned |
@@ -120,6 +120,22 @@ review hold each change to.
 | [KB-CPP-113](#kb-cpp-113) Class members are grouped by access | guide | driver, library, hal, firmware, template | none |
 | [KB-CPP-114](#kb-cpp-114) Slow start-up steps are opt-in or visible | guide | library, hal, firmware | none |
 | [KB-CPP-115](#kb-cpp-115) Functions stay within the complexity, length and parameter limits of their level | must | driver, library, hal, firmware, template | checked |
+| [KB-CPP-116](#kb-cpp-116) A reply a stuck or floating line can produce is never data | must | driver, template | planned |
+| [KB-CPP-117](#kb-cpp-117) The identity check is one a dead or looped bus cannot pass | must | driver, template | checked |
+| [KB-CPP-118](#kb-cpp-118) After a failed transfer the chip's protocol state is restored first | must | driver, template | planned |
+| [KB-CPP-119](#kb-cpp-119) Clear-on-read and write-1-to-clear flags collect in one driver-owned latch | must | driver, template | review |
+| [KB-CPP-120](#kb-cpp-120) A setter updates the driver's copy only after the chip accepted the change | must | driver, template | checked |
+| [KB-CPP-121](#kb-cpp-121) A setter changes only what it names; state-gated changes are refused outside their state | must | driver, template | review |
+| [KB-CPP-122](#kb-cpp-122) Control and output registers are written whole from the driver's copy | must | driver, template | review |
+| [KB-CPP-123](#kb-cpp-123) The bus requirements are constexpr in the bus interface header | must | driver, template | checked |
+| [KB-CPP-124](#kb-cpp-124) Start-up waits for the chip's own ready indication, bounded by a Config deadline | must | driver, template | planned |
+| [KB-CPP-125](#kb-cpp-125) The chip variant is confirmed before any variant-specific write | must | driver, template | review |
+| [KB-CPP-126](#kb-cpp-126) Values are checked against the operating range and never silently clamped | must | driver, template | planned |
+| [KB-CPP-127](#kb-cpp-127) A state that is not a measurement is an error, never a number | must | driver, template | review |
+| [KB-CPP-128](#kb-cpp-128) A conversion that depends on another setting uses the chip's actual setting | must | driver, template | review |
+| [KB-CPP-129](#kb-cpp-129) Every driver offers single-shot raw access and the last raw reply | must | driver, template | checked |
+| [KB-CPP-130](#kb-cpp-130) An I2C driver handles NACK-by-design, sends no empty probe, and uses repeated START | must | driver, template | planned |
+| [KB-CPP-131](#kb-cpp-131) Load-dependent diagnostics run only on channels Config declares as loaded | must | driver, template | review |
 
 ## KB-CPP-001: C++20, no compiler extensions { #kb-cpp-001 }
 
@@ -481,22 +497,37 @@ root; a driver has a flat `inc/`.
 
 *Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
 
-## KB-CPP-019: Every header uses #pragma once { #kb-cpp-019 }
+## KB-CPP-019: Every header has an #ifndef include guard named after its file; no #pragma { #kb-cpp-019 }
 
 !!! note "Proposed"
 
-    Warns until 2027-03-01, then fails CI.
+    Warns until 2027-03-01, then fails CI. Owner decision 2026-11-08: include guards replace `#pragma once` (which this rule
+    required until then). `python checks/source_checks.py guard --repo . <path>` prints the guard a header needs.
 
 **MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
 
-Every header starts with `#pragma once`. `#ifndef` include guards are not used.
+Every header is wrapped in `#ifndef GUARD` / `#define GUARD` at the top and `#endif` at the very end; only comments may
+come before the guard. The guard is `<NAME>_<FILE_STEM>_<EXT>` in upper case: `NAME` is the repository's name (the chip
+for a driver, the CMake package for a library), `FILE_STEM` the file name without its extension in snake case, `EXT` its
+extension, and `NAME` is not repeated when the stem already starts with it: `ADS7952_TYPES_HPP` for
+`inc/ads7952_types.hpp`, `MAX22200_SPI_INTERFACE_HPP`, `ADS7952_HPP` for `inc/ads7952.hpp`, `ADS7952_MOCK_ADS7952_HPP`
+for `tests/mock_ads7952.hpp`; a configured `<name>_version.h.in` guards as the `.h` it becomes. A guard never starts
+with an underscore and never holds a double underscore (reserved identifiers). No code uses `#pragma once`, any other
+`#pragma` or `_Pragma`: compiler options live in the build.
+
+*Why:* `#pragma once` is a compiler extension whose meaning depends on how the compiler identifies a file (links,
+copies, network mounts), and MISRA C++:2023 requires a standard include guard. A name derived from the file cannot
+collide with another repository's header, and a script can check it.
 
 *Verified by:*
 
-- `forbidden-patterns/pragma-once` (planned): a source scan for a construct the handbook bans; the parameter names the
-  pattern set
+- `include-guards` (implemented): every header in inc/, src/, tests/ and examples/ has an #ifndef/#define/#endif guard
+  that wraps the whole file and is not a reserved name; in inc/ and src/ it is the KB-CPP-019 name; no #pragma or
+  \_Pragma anywhere in that code; guard names are unique
 
-*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md)
+*See also:* MISRA C++:2023 Rule 19.2.1; MISRA C++:2023 Rule 19.6.1; MISRA C++:2023 Rule 5.10.1 (reserved identifiers)
+
+*Explained in:* [standards/naming-and-style.md](../standards/naming-and-style.md#include-roots-and-headers)
 
 ## KB-CPP-020: Includes are grouped own header, standard, other repositories, this repository { #kb-cpp-020 }
 
@@ -841,11 +872,14 @@ missing `Log` hook means no output, and the driver itself never formats text.
 **MUST** · driver, template · since 1.0
 
 A driver names pins by function (`CtrlPin`) and level by meaning (`GpioSignal::ACTIVE` is asserted); the port maps them
-to physical pins and polarity. The port's `EnsureInitialized()` brings the bus up on first use and is idempotent.
+to physical pins and polarity. The port's `EnsureInitialized()` brings the bus up on first use and is idempotent. Status
+bits follow the same rule: the API exposes them by meaning (healthy or fault, moved or stuck), never by raw polarity,
+and a bit whose meaning is inverted in the datasheet has a callout in the documentation.
 
 *Verified by:*
 
-- review: The driver uses logical pins and levels only; polarity is resolved in the port.
+- review: The driver uses logical pins and levels only; polarity is resolved in the port. Status accessors are named by
+  meaning, and an inverted bit is called out.
 
 *See also:* [ADR-0003](../adr/0003-crtp-ports.md)
 
@@ -995,9 +1029,15 @@ toolchains.
 **MUST** · driver, template · since 1.0 · enforced from 2027-03-01
 
 Every driver's `Error` starts with the base set `Ok` to `Unsupported` at the fixed values 0 to 9, in the order on the
-errors page. Chip-specific codes start at 16.
+errors page. Chip-specific codes start at 16. When a driver needs one of these chip-specific meanings it uses this name
+for it: `NoDevice` (nothing answers; a reply a stuck or floating line produces, KB-CPP-116), `Pin` (a `GpioSet` or
+`GpioRead` hook failed), `NotReady` (the chip answered but is not ready, or the value is not a measurement yet,
+KB-CPP-124 and KB-CPP-127). The base codes keep their meaning in every driver: `Bus` is a transfer the port reported as
+failed (a failed probe is `Bus`, not `NoDevice`), `Timeout` a wait that expired, `Crc` a checksum or tag mismatch,
+`Busy` a command the chip refused while busy.
 
-*Why:* The same value means the same failure in every driver, so a handler maps all of them with one table.
+*Why:* The same value means the same failure in every driver, so a handler maps all of them with one table. Observed on
+hardware: drivers that reported a pin failure or an absent chip as `Bus` sent the bench after the wrong fault.
 
 *Verified by:*
 
@@ -1179,12 +1219,17 @@ references and defaults. A handler's constructor does not create its driver.
 The first `EnsureInitialized()` of a driver validates the stored config, brings the port up with the port's
 `EnsureInitialized`, resets the chip (hardware reset if wired, else software), checks the chip ID (or the closest
 equivalent, documented, if the chip has none), applies the config and only then marks itself initialised. On any failure
-it stays uninitialised and the next call starts again.
+it stays uninitialised and the next call starts again. It never trusts state from before the host reset: when the chip
+can keep its configuration across a host reset or an enable cycle, it resets the chip or rewrites every register, and it
+reads and clears, or reports, every fault latched before the start, so the fault output reflects new faults only.
+
+*Why:* Observed on hardware, faults latched before a host reset held the fault output after a clean start.
 
 *Verified by:*
 
 - `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
-- review: The start-up follows the sequence on the driver page and each failure leaves the driver uninitialised.
+- review: The start-up follows the sequence on the driver page, each failure leaves the driver uninitialised, and faults
+  latched before the start are cleared or reported.
 
 *See also:* [ADR-0002](../adr/0002-lifecycle.md); [ADR-0021](../adr/0021-one-start-up-entry-point.md)
 
@@ -2105,3 +2150,359 @@ ADR-0020.
 *See also:* [ADR-0020](../adr/0020-complexity-and-coverage.md); NASA/JPL Power of Ten Rule 4; C++ Core Guidelines F.3
 
 *Explained in:* [deviations.md](../deviations.md)
+
+## KB-CPP-116: A reply a stuck or floating line can produce is never data { #kb-cpp-116 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A reply that a stuck, floating or looped-back line can produce (all zeros, all ones, the command echoed back, the same
+word repeated) is never returned as a value: the driver maps it to `NoDevice` or another error. A ready or idle status
+that a line could fake counts only when a second read confirms it.
+
+*Why:* Observed on hardware: a floating input reads as a plausible value and hides an absent or unpowered chip; an idle
+status read from a line held high let a driver go on to write into nothing.
+
+*Verified by:*
+
+- `error-paths-tested` (planned): every error value the public API can return is asserted by at least one host test
+- review: The chip model has StuckLow, FloatHigh, Echo and Deaf line modes, and a test runs each against the start-up
+  and every read path and expects an error, never a value.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#replies-retries-and-resynchronisation)
+
+## KB-CPP-117: The identity check is one a dead or looped bus cannot pass { #kb-cpp-117 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. Sharpens the identity step of KB-CPP-058.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+The start-up identity check needs an active answer from the chip: a select-and-echo, a bit the chip must toggle, or a
+write followed by a read-back. A stuck, looped-back or deaf line cannot pass it, and a partial, bit-shifted or phantom
+ID is refused. A chip that answers its ID but is not ready still fails (KB-CPP-124).
+
+*Why:* Observed on hardware: a passive ID read is satisfied by line states, so identity checks passed on dead buses and
+on a looped-back data line.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: The line modes of KB-CPP-116 applied to `EnsureInitialized()` each fail start-up; a shifted or partial ID is
+  refused with `DeviceIdMismatch`.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#start-up)
+
+## KB-CPP-118: After a failed transfer the chip's protocol state is restored first { #kb-cpp-118 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+After a transfer that failed, or whose outcome is unknown, the driver first brings the chip's protocol back to a known
+point before it sends a new command: a no-op that is harmless both as a command and as data, a frame that closes an open
+sequence, or the command byte sent again. A lost half of a multi-frame command never turns the next command into data.
+
+*Why:* Observed on hardware and in the fuzzer: a lost first half of a two-frame write made the next command data, which
+desynchronised the chip and in one model armed an irreversible write.
+
+*Verified by:*
+
+- `fuzzing` (planned): each parser's libFuzzer target runs on the host for a fixed time under ASan and UBSan without a
+  finding
+- review: The fuzz harness's lost-transfer mode runs against the driver's invariants and the resync is documented.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#replies-retries-and-resynchronisation)
+
+## KB-CPP-119: Clear-on-read and write-1-to-clear flags collect in one driver-owned latch { #kb-cpp-119 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Every read of a clear-on-read or write-1-to-clear flag that the driver makes, internal reads included (a ready poll, a
+verify read), ORs the flags into one latch the driver owns. The caller reads it with a `Get*` accessor that does no I/O
+and empties it with an explicit `Clear*` call. A write-1-to-clear write is never verified by reading it back.
+
+*Why:* Observed on hardware: internal reads consumed fault and warning flags the caller never saw, so a fault output
+fired with no recorded cause.
+
+*Verified by:*
+
+- review: Each clear-on-read flag is ORed into the latch on every read path; a model test raises a flag, triggers an
+  internal read, and still finds the flag in the latch.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#state-shadows-and-latches)
+
+## KB-CPP-120: A setter updates the driver's copy only after the chip accepted the change { #kb-cpp-120 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A setter changes the driver's copy of a setting only after the frame that changes the chip succeeded. When the chip
+applies a change later (a pipeline, the next chip-select edge, a separate program bit), the setter completes the change
+before it returns, or discards the replies taken before it.
+
+*Why:* Observed on hardware: a copy that disagreed with the chip produced conversions off by a factor of two and
+channels that silently stayed off.
+
+*Verified by:*
+
+- `host-tests` (implemented): the unit tests build and pass on the host with gcc and clang
+- review: A model test fails the change frame and expects the getter to return the old value.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#state-shadows-and-latches)
+
+## KB-CPP-121: A setter changes only what it names; state-gated changes are refused outside their state { #kb-cpp-121 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A setter never changes another setting as a side effect (a mode, another channel's enable, a shared field). When the
+chip accepts a change only in some state (all channels off, standby, sleep), a call outside that state returns a
+chip-specific error and sends nothing.
+
+*Why:* Observed on hardware: the chip ignored a change made in the wrong state, and a setter rewrote a shared mode
+field, so a duty-cycle setting became a current setting and another channel's enable was cleared.
+
+*Verified by:*
+
+- review: Each state-gated field has a model test that calls the setter in the wrong state and sees no frame.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#state-shadows-and-latches)
+
+## KB-CPP-122: Control and output registers are written whole from the driver's copy { #kb-cpp-122 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Control and output registers are written as a whole from the driver's validated copy. A read-modify-write uses only a
+read validated per KB-ARCH-042, so a corrupt read cannot flip other fields (enables, resets, restart bits).
+
+*Why:* Observed on hardware, a corrupt read inside a read-modify-write flipped unrelated control bits.
+
+*Verified by:*
+
+- review: Every control-register write comes from the copy, or from a read that passed its integrity checks.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#state-shadows-and-latches)
+
+## KB-CPP-123: The bus requirements are constexpr in the bus interface header { #kb-cpp-123 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+`inc/<chip>_<bus>_interface.hpp` declares what the chip needs from the bus as `constexpr` values. SPI: `kSpiMode`,
+`kMsbFirst`, `kMaxClockHz`, `kMinCsHighNs`, `kCsSetupNs`, `kCsHoldNs` and `kContinuousWord` (a word must be clocked with
+no idle between bytes). I2C: `kI2cAddress` (the 7-bit address, or the base address when pins select it), `kMaxClockHz`
+and `kRepeatedStart` (a read needs a combined write-read). UART: `kMaxBaudRate` and `kTurnaroundUs`. Turnaround and
+inter-frame gaps the chip needs are added the same way. The Porting page lists them, and the example ports check their
+settings against them with `static_assert`.
+
+*Why:* Observed on hardware: requirements kept as prose were violated: idle clocks inside a word, a clock above what the
+chip's firmware accepts, the wrong mode on a shared bus. Constants make the port prove its settings at compile time.
+
+*Verified by:*
+
+- `bus-requirements` (implemented): for every SPI, I2C or UART bus in driver.yml,
+  inc/&lt;chip&gt;\_&lt;bus&gt;\_interface.hpp declares the KB-CPP-123 constants as constexpr
+- review: Each example port and the board config static\_assert their bus settings against the constants.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#bus-requirements)
+
+## KB-CPP-124: Start-up waits for the chip's own ready indication, bounded by a Config deadline { #kb-cpp-124 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. Works with KB-CPP-080 and KB-CPP-114.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Start-up waits for the chip's own ready indication: first the datasheet minimum, then a bounded poll of the ready, busy
+or ID bit with a deadline from `Config`. A fixed delay alone is not enough, a correct ID is not readiness, and a delay
+never returns early. An expired deadline returns `Timeout` or `NotReady`.
+
+*Why:* Observed on hardware: chips answered their ID before they were ready, and the wake time varied with the supply
+ramp by more than ten times.
+
+*Verified by:*
+
+- `model-virtual-clock` (planned): a chip model for a driver whose port has DelayUs or DelayMs advances a virtual clock
+  in those hooks, and a test runs a delayed-ready mode against it
+- review: A model with a virtual clock and a delayed-ready mode shows the driver neither returns early nor waits past
+  its deadline.
+
+*See also:* NASA/JPL Power of Ten Rule 2 (fixed upper bound on loops)
+
+*Explained in:* [standards/driver.md](../standards/driver.md#start-up)
+
+## KB-CPP-125: The chip variant is confirmed before any variant-specific write { #kb-cpp-125 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Before its first variant-specific write the driver confirms the variant: detected from the chip, or configured and then
+checked. An inconclusive detection fails start-up; where detection is not guaranteed, the variant is a `Config` field.
+
+*Why:* Observed on hardware: a write to a register the variant lacks, or a formula taken from the other variant, gave
+errors up to 256 times the intended value.
+
+*Verified by:*
+
+- review: Every variant-specific path runs after the variant check; a model test covers each mismatch.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#start-up)
+
+## KB-CPP-126: Values are checked against the operating range and never silently clamped { #kb-cpp-126 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+Arguments and `Config` fields are checked against the datasheet's operating range, not the register's range, and a value
+outside it returns `InvalidArgument`; nothing is silently clamped. When a value is quantised, the call returns or
+exposes the value actually programmed. A conversion that lacks an input it needs returns an error, never 0 or a
+sentinel.
+
+*Why:* Observed on hardware: silent clamps and zero returns produced plausible but wrong outputs, a move to position
+zero and a reading 17 % off.
+
+*Verified by:*
+
+- `error-paths-tested` (planned): every error value the public API can return is asserted by at least one host test
+- review: Each range comes from the datasheet's operating conditions; quantised setters report what was set.
+
+*See also:* MISRA C++:2023 Dir 0.3.2 (preconditions are checked, not assumed)
+
+*Explained in:* [standards/driver.md](../standards/driver.md#values-and-diagnostics)
+
+## KB-CPP-127: A state that is not a measurement is an error, never a number { #kb-cpp-127 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A reading that is not a measurement (a settling sentinel, frozen feedback, the first conversion after a reset, a sensor
+not fitted, a magnet or gain warning) is returned as `NotReady` or a chip-specific error, never as a value. A multi-item
+read reports validity per item; it neither fails the whole group nor fills in zeros.
+
+*Why:* Observed on hardware, settling sentinels and frozen feedback decoded as confident wrong values.
+
+*Verified by:*
+
+- review: Each sentinel the datasheet names has a model test that expects an error or an invalid item.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#values-and-diagnostics)
+
+## KB-CPP-128: A conversion that depends on another setting uses the chip's actual setting { #kb-cpp-128 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A conversion that depends on another chip setting (a chopping frequency, a timebase, counts per revolution, a period
+register) takes it from the validated copy or reads it, never from a fixed default.
+
+*Why:* Observed on hardware, scale factors computed from a default setting were off by 3 to 460 times.
+
+*Verified by:*
+
+- review: Every conversion lists the settings it depends on and reads each from the copy or the chip.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#values-and-diagnostics)
+
+## KB-CPP-129: Every driver offers single-shot raw access and the last raw reply { #kb-cpp-129 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A driver offers a single-shot raw access with no retries (a raw register read or a frame trace) and a `GetLast*`
+accessor, with no I/O, for the last raw reply or status byte. Diagnostic reads have no side effects, or their
+documentation names them.
+
+*Why:* Observed on hardware: the raw single-shot access located a deaf input and a host bus fault that the retried paths
+hid.
+
+*Verified by:*
+
+- `raw-access` (implemented): the driver header declares a single-shot raw access (ReadRegister..., ReadRaw... or
+  Trace...) and a no-I/O GetLast... accessor
+- review: The raw access does not retry and the API guide names any side effect of a diagnostic read.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#values-and-diagnostics)
+
+## KB-CPP-130: An I2C driver handles NACK-by-design, sends no empty probe, and uses repeated START { #kb-cpp-130 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+An I2C driver documents which transfers the chip NACKs by design (a reset command, a busy chip) and does not report
+those as bus errors. It never probes with an empty or zero-length transfer, and it uses a combined write-read (repeated
+START) wherever the chip requires one (`kRepeatedStart`, KB-CPP-123).
+
+*Why:* Observed on hardware: empty probes locked up a device and corrupted later reads, and a write-STOP-read sequence
+was NACKed by a chip that needs a repeated START.
+
+*Verified by:*
+
+- `forbidden-patterns/zero-length-i2c` (planned): a source scan for a construct the handbook bans; the parameter names
+  the pattern set
+- review: The Porting page lists the NACK-by-design transfers and the driver's handling of each.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#bus-requirements)
+
+## KB-CPP-131: Load-dependent diagnostics run only on channels Config declares as loaded { #kb-cpp-131 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A driver turns on a load-dependent diagnostic (open load, plunger or motion detection) only for channels the `Config`
+declares as loaded, and sets the routing of faults to a shared fault pin from the same declaration before the chip is
+armed.
+
+*Why:* Observed on hardware: open-load warnings on unloaded channels held the shared fault line and looked like a
+failing chip.
+
+*Verified by:*
+
+- review: A model test arms the chip with an unloaded channel and sees no load diagnostic and no fault output.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#start-up)

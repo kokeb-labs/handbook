@@ -274,3 +274,50 @@ rules:
     verify:
       - review: The factory mode, how to enter it and what it tests are documented.
     origin: ["inventory: A-AG1-62 (hf:agents/application-engineering.md:289)"]
+
+  # -- Port behaviour proven on hardware ----------------------------------------------------------------------------
+  - id: KB-HW-018
+    title: Control outputs reach their inactive level before they are enabled
+    statement: >-
+      A port drives every control output (reset, enable, soft chip-select, command/data, write-protect) to its
+      inactive level before it enables the pin's output driver and before the first frame; a soft chip-select is
+      written high before its pin is configured as an output. Each pin's idle level and polarity are stated once in
+      the port contract (the driver's Porting page) as logical ACTIVE and INACTIVE.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, library, hal, firmware, template]}
+    verify:
+      - check: port-conformance
+      - review: >-
+          Each port sets the output level before the direction; the Porting page lists every control pin with its
+          idle level; on a real MCU the bench bring-up checks the pins at reset.
+    rationale: >-
+      Observed on hardware: GPIO defaults left an active-low reset asserted and two chip-selects low together until
+      the first driver call.
+    refs: [{adr: 3}]
+    page: standards/driver.md#the-port
+    notes: Warns until 2027-03-01, then fails CI. The polarity half is KB-CPP-038.
+    origin: ["gap: found by hardware testing of migrated drivers"]
+
+  - id: KB-HW-019
+    title: Port conformance covers the shared-bus faults found on hardware
+    statement: >-
+      Port conformance (KB-HW-002) also proves: the first frame after any mode or clock change is intact;
+      chip-select lines are at their idle level before any driver starts; UART input is flushed before a transmit
+      and never between transmit and receive, and the turnaround is observed; an I2C bus clear runs before a retried
+      start-up; every operation is bounded by a timeout; transfer buffers live in memory the bus and its DMA can
+      reach, owned by the driver object, never on a caller's stack or in a function-local static.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library, hal]}
+    verify:
+      - check: port-conformance
+      - review: The MCU-specific items (DMA-capable memory, first frame after a clock change) are run on the bench.
+    rationale: Observed on hardware, each of these host faults looked like a chip fault on the bench.
+    page: standards/hal.md#the-platform-bind
+    notes: Warns until 2027-03-01, then fails CI. The buffer ownership half is KB-CPP-040 and KB-CPP-043.
+    origin: ["gap: found by hardware testing of migrated drivers"]

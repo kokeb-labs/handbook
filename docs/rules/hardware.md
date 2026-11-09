@@ -24,6 +24,8 @@ HAL's bind.
 | [KB-HW-015](#kb-hw-015) Firmware logs why it booted and what it is | should | firmware | review |
 | [KB-HW-016](#kb-hw-016) Firmware reports its health and keeps a crash record | should | firmware | review |
 | [KB-HW-017](#kb-hw-017) A factory test mode exists and is documented | should | firmware | review |
+| [KB-HW-018](#kb-hw-018) Control outputs reach their inactive level before they are enabled | must | driver, library, hal, firmware, template | planned |
+| [KB-HW-019](#kb-hw-019) Port conformance covers the shared-bus faults found on hardware | must | library, hal | planned |
 
 ## KB-HW-001: Every MCU family implements the foundation interfaces { #kb-hw-001 }
 
@@ -275,3 +277,54 @@ the product's documentation describes what it tests.
 
 - review: The factory mode, how to enter it and what it tests are documented.
 
+
+## KB-HW-018: Control outputs reach their inactive level before they are enabled { #kb-hw-018 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. The polarity half is KB-CPP-038.
+
+**MUST** · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01
+
+A port drives every control output (reset, enable, soft chip-select, command/data, write-protect) to its inactive level
+before it enables the pin's output driver and before the first frame; a soft chip-select is written high before its pin
+is configured as an output. Each pin's idle level and polarity are stated once in the port contract (the driver's
+Porting page) as logical ACTIVE and INACTIVE.
+
+*Why:* Observed on hardware: GPIO defaults left an active-low reset asserted and two chip-selects low together until the
+first driver call.
+
+*Verified by:*
+
+- `port-conformance` (planned): the Base\* conformance suite passes for the named MCU family, on the host against a
+  mocked SDK and, on a scheduled job with a board, as loopback tests
+- review: Each port sets the output level before the direction; the Porting page lists every control pin with its idle
+  level; on a real MCU the bench bring-up checks the pins at reset.
+
+*See also:* [ADR-0003](../adr/0003-crtp-ports.md)
+
+*Explained in:* [standards/driver.md](../standards/driver.md#the-port)
+
+## KB-HW-019: Port conformance covers the shared-bus faults found on hardware { #kb-hw-019 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. The buffer ownership half is KB-CPP-040 and KB-CPP-043.
+
+**MUST** · library, hal · since 1.0 · enforced from 2027-03-01
+
+Port conformance (KB-HW-002) also proves: the first frame after any mode or clock change is intact; chip-select lines
+are at their idle level before any driver starts; UART input is flushed before a transmit and never between transmit and
+receive, and the turnaround is observed; an I2C bus clear runs before a retried start-up; every operation is bounded by
+a timeout; transfer buffers live in memory the bus and its DMA can reach, owned by the driver object, never on a
+caller's stack or in a function-local static.
+
+*Why:* Observed on hardware, each of these host faults looked like a chip fault on the bench.
+
+*Verified by:*
+
+- `port-conformance` (planned): the Base\* conformance suite passes for the named MCU family, on the host against a
+  mocked SDK and, on a scheduled job with a board, as loopback tests
+- review: The MCU-specific items (DMA-capable memory, first frame after a clock change) are run on the bench.
+
+*Explained in:* [standards/hal.md](../standards/hal.md#the-platform-bind)

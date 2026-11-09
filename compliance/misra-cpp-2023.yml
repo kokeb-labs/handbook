@@ -693,8 +693,11 @@ guidelines:
     our_category: required
     verification:
       - {by: cppcheck, how: "signConversion", partial: true}
+      - by: clang-tidy
+        how: "hicpp-signed-bitwise (IgnorePositiveIntegerLiterals): a narrow unsigned operand promoted to int"
+        partial: true
       - by: review
-        how: "uint8_t and uint16_t operands are cast to a wide unsigned type before arithmetic, ~ or shifts."
+        how: "uint8_t and uint16_t operands are cast to uint32_t before arithmetic, ~ or shifts."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
   - id: Rule 7.0.6
     kind: rule
@@ -1814,10 +1817,14 @@ guidelines:
     applies: yes
     our_category: required
     verification:
-      - {by: clang-tidy, how: "llvm-header-guard (with a project guard-name convention)", partial: true}
-      - {by: review, how: "Each header is wrapped in an #ifndef/#define/#endif guard with a unique name."}
+      - by: handbook-check
+        how: >-
+          include-guards (KB-CPP-019): every header in inc/, src/, tests/ and examples/ is wrapped whole in an
+          #ifndef/#define/#endif guard with a unique, unreserved name; in inc/ and src/ it is <NAME>_<FILE_STEM>_<EXT>
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
-    note: "Our headers use #pragma once (KB-CPP-019), which does not satisfy this rule; open finding."
+    note: >-
+      KB-CPP-019 fixes one guard name per file, so the check can decide it; llvm-header-guard is not used because its
+      path-based names differ from that convention.
   - id: Rule 19.2.2
     kind: rule
     category: required
@@ -1905,9 +1912,10 @@ guidelines:
     applies: yes
     our_category: advisory
     verification:
-      - {by: review, how: "No #pragma or _Pragma; compiler settings live in the build."}
+      - {by: handbook-check, how: "include-guards (KB-CPP-019): no #pragma or _Pragma in inc/, src/, tests/, examples/"}
+      - {by: clang-tidy, how: "portability-avoid-pragma-once", partial: true}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
-    note: "Our headers use #pragma once (KB-CPP-019); open finding with Rule 19.2.1."
+    note: "Compiler options live in the build; KB-CPP-019 bans #pragma once and every other pragma."
   - id: Rule 21.2.1
     kind: rule
     category: required

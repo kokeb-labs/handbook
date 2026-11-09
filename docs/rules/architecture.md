@@ -48,6 +48,9 @@ pages under Standards hold the detail. Rules marked guide are design advice for 
 | [KB-ARCH-039](#kb-arch-039) Real-time paths have bounded latency and named priorities | guide | hal, firmware | none |
 | [KB-ARCH-040](#kb-arch-040) Review architecture before details | guide | driver, library, hal, firmware | none |
 | [KB-ARCH-041](#kb-arch-041) Extra read-back and verification are chosen per call, off by default | must | driver, template | review |
+| [KB-ARCH-042](#kb-arch-042) A reply is accepted only when the protocol proves it answers the request | must | driver, template | planned |
+| [KB-ARCH-043](#kb-arch-043) A pipelined exchange completes inside one public call, keyed on reply content | must | driver, library, template | review |
+| [KB-ARCH-044](#kb-arch-044) Retries repeat only idempotent frames, are bounded and are counted | must | driver, library, template | review |
 
 ## KB-ARCH-001: Dependencies point down the stack only { #kb-arch-001 }
 
@@ -715,3 +718,75 @@ command) are not extra and stay unconditional.
   transfer.
 
 *Explained in:* [standards/driver.md](../standards/driver.md#verification-is-opt-in)
+
+## KB-ARCH-042: A reply is accepted only when the protocol proves it answers the request { #kb-arch-042 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI. The fuzz target gains a stale-reply mutator (KB-TST-020).
+
+**MUST** · driver, template · since 1.0 · enforced from 2027-03-01
+
+A driver decodes a reply only when every check the protocol offers passes: the CRC or checksum, the reply's type and
+width, and the echoed opcode, address or tag where the protocol has one. A reply that fails any of them is not decoded:
+the call returns `Crc` or a chip-specific mismatch code, or retries per KB-ARCH-044.
+
+*Why:* Observed on hardware: on a shared or long bus a frame can arrive intact but late, so a reply with a valid CRC
+still decoded as the wrong register. A CRC proves the bits arrived; only the tag proves which request they answer.
+
+*Verified by:*
+
+- `fuzzing` (planned): each parser's libFuzzer target runs on the host for a fixed time under ASan and UBSan without a
+  finding
+- review: Every read path checks CRC, reply type or width, and the echoed tag the protocol provides before it decodes; a
+  model test that replays the previous reply, or answers with the wrong tag, fails each read.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#replies-retries-and-resynchronisation)
+
+## KB-ARCH-043: A pipelined exchange completes inside one public call, keyed on reply content { #kb-arch-043 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, template · since 1.0 · enforced from 2027-03-01
+
+When a chip answers one or more frames later, the driver sends the request and collects its reply inside the same public
+call, and matches each result to its request by the reply's content (tag, address, opcode), never by frame position. The
+Porting page states that no other access to the chip may come between those frames, and a handler holds the bus for the
+whole call.
+
+*Why:* Observed on hardware: a reply that arrives in a later frame is lost or attributed to the wrong request when
+another access comes in between. A model test that interleaves a foreign frame shows a mismatch error, not wrong data.
+
+*Verified by:*
+
+- review: No public call leaves a request whose reply a later call reads; results are matched on reply content; the
+  Porting page states the no-interleave requirement and the handler holds its lock across the call.
+
+*Explained in:* [standards/driver.md](../standards/driver.md#replies-retries-and-resynchronisation)
+
+## KB-ARCH-044: Retries repeat only idempotent frames, are bounded and are counted { #kb-arch-044 }
+
+!!! note "Proposed"
+
+    Warns until 2027-03-01, then fails CI.
+
+**MUST** · driver, library, template · since 1.0 · enforced from 2027-03-01
+
+A retry, in a driver or a handler, repeats only frames that are safe to send twice. When the outcome of a write is
+unknown, only the reply request is sent again. A retry never repeats a reset pulse, an enable toggle or a deinitialise
+unless the datasheet requires it. Every retry loop has a fixed upper bound and counts its attempts, and the count is
+visible to the caller or in the diagnostics.
+
+*Why:* Observed on hardware: repeating a side effect restarted the very wait being retried, doubled a write and made
+outputs flicker.
+
+*Verified by:*
+
+- review: Each retry loop names its bound and repeats only idempotent frames; a handler test counts reset and enable
+  toggles per retried call and expects none beyond the datasheet sequence.
+
+*See also:* NASA/JPL Power of Ten Rule 2 (fixed upper bound on loops)
+
+*Explained in:* [standards/driver.md](../standards/driver.md#replies-retries-and-resynchronisation)
