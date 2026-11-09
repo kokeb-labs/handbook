@@ -108,9 +108,9 @@ MISRA C++:2023 with TC1:2026 has **179 guidelines**: 4 directives and 175 rules.
 | Not applicable to our code | 7 |
 
 A guideline can be decided by more than one tool. Raised above MISRA's category: 7 (Dir 5.7.2, Rule 6.0.3, Rule 9.6.1,
-Rule 10.2.2, Rule 12.2.1, Rule 13.1.1, Rule 21.6.1). Project-wide deviations: 8 (MD-CPP-001 Rule 4.1.1, MD-CPP-002 Rule
+Rule 10.2.2, Rule 12.2.1, Rule 13.1.1, Rule 21.6.1). Project-wide deviations: 9 (MD-CPP-001 Rule 4.1.1, MD-CPP-002 Rule
 16.6.1, MD-CPP-003 Rule 8.2.5, MD-CPP-004 Rule 8.2.6, MD-CPP-005 Rule 6.7.2, MD-CPP-006 Rule 19.0.2, MD-CPP-007 Rule
-21.2.4, MD-CPP-008 Rule 21.6.1).
+21.2.4, MD-CPP-008 Rule 21.6.1, MD-CPP-009 Rule 19.0.3).
 
 <!-- misra-counts:end -->
 

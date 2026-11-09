@@ -1123,8 +1123,9 @@ guidelines:
       - {by: handbook-check, how: "cpp20-profile/forbidden-features: no [[fallthrough]] (KB-CPP20-039)", partial: true}
       - by: review
         how: >-
-          Each switch has at least two cases, ends every clause with break or return, and has default unless every
-          enumerator is listed (KB-CPP-053).
+          Each switch has at least two cases, ends every clause with break or return, and ends with default; only a
+          switch over an unscoped enumeration without a fixed underlying type that lists every enumerator may leave
+          it out. Enum coverage is kept by -Wswitch-enum (KB-CPP-053).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
   - id: Rule 9.5.1
     kind: rule
@@ -1795,6 +1796,7 @@ guidelines:
       - by: review
         how: "Only comments and directives precede an #include; no #include inside a namespace or function."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+    deviations: [MD-CPP-009]
   - id: Rule 19.0.4
     kind: rule
     category: advisory

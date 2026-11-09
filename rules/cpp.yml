@@ -1060,20 +1060,24 @@ rules:
       - "hf:agents/handler-design.md:240-249,306"
 
   - id: KB-CPP-053
-    title: A mapping switch lists every enumerator and has no default
+    title: A mapping switch lists every enumerator and ends with default
     statement: >-
-      A `switch` that maps one error enum to another (`ToStatus`, `ToString`) names every enumerator and has no
-      `default:`, so a new enumerator is a compiler warning. `ToString()` returns a static string for every value.
+      A `switch` that maps one error enum to another (`ToStatus`, `ToString`) names every enumerator and ends with
+      `default: break;` followed by the fallback the function returns for a value that is no enumerator (MISRA C++
+      Rule 9.4.2 requires the default for a scoped enumeration). The code builds with `-Wswitch-enum`, so a new
+      enumerator is still a compiler warning although a default is present. `ToString()` returns a static string for
+      every value.
     level: must
     status: active
     since: "1.0"
     applies: {profiles: [driver, library, hal, template]}
     verify:
-      - check: compiler-warnings/-Wswitch
-      - review: Mapping switches over enums have no default and cover every enumerator.
+      - check: compiler-warnings/-Wswitch-enum
+      - review: Mapping switches over enums cover every enumerator and end with default.
     notes: >-
-      No conflict with `bugprone-switch-missing-default-case`: that check flags only switches on non-enum values,
-      which do need a `default:`. An enum switch leaves it out so `-Wswitch` reports a missing enumerator.
+      `-Wswitch` stops warning once a switch has a `default:`; `-Wswitch-enum` (GCC and Clang) warns about an
+      unhandled enumerator either way, so the default MISRA requires costs no coverage check. Do not enable Clang's
+      `-Wcovered-switch-default`, which contradicts Rule 9.4.2.
     page: standards/errors.md
     origin:
       - "kb:standards/errors.md:57,122"

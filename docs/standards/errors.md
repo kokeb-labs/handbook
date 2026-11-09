@@ -119,8 +119,9 @@ template <typename T>
 } // namespace kb
 ```
 
-The switch MUST list every enumerator and have no `default:`, so `-Wswitch` flags a new driver value that the
-handler does not map yet.
+The switch MUST list every enumerator and end with `default: break;` before the fallback return (MISRA C++
+Rule 9.4.2). The build enables `-Wswitch-enum`, so a new driver value that the handler does not map yet is still a
+warning (KB-CPP-053).
 
 ### Common chip-specific codes
 

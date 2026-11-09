@@ -141,7 +141,7 @@ deviations:
     mitigation: >-
       The list macro and its element macros are defined, expanded and #undef'd in the same header (Rule 19.0.4);
       element macros only produce enumerators, case labels or string literals; every parameter is parenthesised
-      where it forms an expression (Rule 19.3.4). The generated switch is checked by -Wswitch (KB-CPP-053).
+      where it forms an expression (Rule 19.3.4). The generated switch is checked by -Wswitch-enum (KB-CPP-053).
     approved_by: maintainer
     date: 2026-11-08
     review_by: 2027-11-08
@@ -180,3 +180,21 @@ deviations:
     approved_by: maintainer
     date: 2026-11-08
     review_by: 2027-11-08
+
+  - id: MD-CPP-009
+    guideline: Rule 19.0.3
+    scope: >-
+      The one `#include "../src/<name>.ipp"` that ends a driver's or library's umbrella header (`inc/<name>.hpp`),
+      after the closing namespace, which brings in the out-of-line definitions of the header's class templates.
+      No other late #include is covered.
+    justification: >-
+      A header-only class template needs its member definitions visible wherever it is instantiated. Keeping them
+      in `src/<name>.ipp` keeps the interface header readable and its Doxygen next to the declarations; the include
+      must follow the declarations it defines.
+    mitigation: >-
+      The .ipp has its own include guard, includes nothing (no standard header, so the concern of Rule 19.0.3 about
+      headers included after code cannot arise), is included only from that one place, and is compiled in every
+      host test and Cortex-M build; each public header also compiles alone (header checks).
+    approved_by: maintainer
+    date: 2026-11-09
+    review_by: 2027-11-09

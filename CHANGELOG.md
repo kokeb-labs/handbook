@@ -23,6 +23,12 @@ loosened rule is a major release.
 
 ### Changed
 
+- KB-CPP-053: a mapping switch lists every enumerator and ends with `default: break;` before its fallback (MISRA
+  C++ Rule 9.4.2 requires the default for a scoped enumeration); `-Wswitch-enum` keeps a new enumerator a warning.
+  The matrix's review text of Rule 9.4.2 and Standards > Errors say the same; the old "no default" reading was
+  wrong.
+- New deviation record MD-CPP-009 (Rule 19.0.3): the one `#include "../src/<name>.ipp"` that ends an umbrella
+  header.
 - MD-CPP-001 now names exactly what it covers: the features the C++20 profile allows, under its guidelines. A
   forbidden or deprecated feature, or anything from C++23 or later, is a violation of Rule 4.1.1 even where a
   toolchain's dialect accepts it. Its mitigation adds the strict-dialect build and the profile's source checks.
