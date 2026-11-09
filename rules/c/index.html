@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://kokeb-labs.github.io/handbook/rules/c/">
       
       
-        <link rel="prev" href="../cpp/">
+        <link rel="prev" href="../cpp20/">
       
       
         <link rel="next" href="../hardware/">
@@ -670,6 +670,8 @@
       
         
       
+        
+      
     
     
     
@@ -763,6 +765,34 @@
     
   
     C++ code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cpp20/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++20 profile
   
 
     
@@ -1339,6 +1369,8 @@
       
         
       
+        
+      
     
     
     
@@ -1704,7 +1736,7 @@ The C++ rules on heap, errors, integers and static analysis apply to C as well.<
 <td><a href="#kb-cc-002">KB-CC-002</a> C headers work from C++ and expose only C types</td>
 <td>must</td>
 <td>driver, library, hal, firmware, template</td>
-<td>planned</td>
+<td>checked</td>
 </tr>
 <tr>
 <td><a href="#kb-cc-003">KB-CC-003</a> C names are snake_case with the repository prefix; file-local functions are static</td>
@@ -1759,7 +1791,8 @@ the extensions off keeps the code portable to clang on the host.</p>
 only C types (<code>&lt;stdint.h&gt;</code>, <code>&lt;stdbool.h&gt;</code>, plain structs and enums), so C and C++ callers see the same ABI.</p>
 <p><em>Verified by:</em></p>
 <ul>
-<li><code>header-self-contained</code> (planned): every public header compiles on its own as the first include of a translation unit</li>
+<li><code>header-self-contained</code> (implemented): every public header compiles on its own as the first include of a translation
+  unit</li>
 <li>review: Each C API header has the extern "C" guard and uses only C types in its signatures.</li>
 </ul>
 <h2 id="kb-cc-003">KB-CC-003: C names are snake_case with the repository prefix; file-local functions are static<a class="headerlink" href="#kb-cc-003" title="Permanent link">&para;</a></h2>
@@ -1862,7 +1895,7 @@ exclusion covers vendor code and nothing else.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../cpp/" class="md-footer__link md-footer__link--prev" aria-label="Previous: C++ code">
+          <a href="../cpp20/" class="md-footer__link md-footer__link--prev" aria-label="Previous: C++20 profile">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1872,7 +1905,7 @@ exclusion covers vendor code and nothing else.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                C++ code
+                C++20 profile
               </div>
             </div>
           </a>

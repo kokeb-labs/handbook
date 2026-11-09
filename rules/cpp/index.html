@@ -16,7 +16,7 @@
         <link rel="prev" href="../architecture/">
       
       
-        <link rel="next" href="../c/">
+        <link rel="next" href="../cpp20/">
       
       
         
@@ -645,6 +645,8 @@
   
     
     
+      
+        
       
         
       
@@ -2271,6 +2273,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../cpp20/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++20 profile
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../c/" class="md-nav__link">
         
   
@@ -2675,6 +2705,8 @@
       
         
           
+        
+      
         
       
         
@@ -4546,7 +4578,7 @@ review hold each change to.</p>
 <td><a href="#kb-cpp-021">KB-CPP-021</a> Every header includes what it uses and compiles on its own</td>
 <td>must</td>
 <td>driver, library, hal, firmware, template</td>
-<td>planned</td>
+<td>checked</td>
 </tr>
 <tr>
 <td><a href="#kb-cpp-022">KB-CPP-022</a> Drivers carry no organisation brand</td>
@@ -5203,14 +5235,27 @@ review hold each change to.</p>
 <p>Code is written in ISO C++20 and builds with <code>CMAKE_CXX_STANDARD 20</code>, <code>CMAKE_CXX_STANDARD_REQUIRED ON</code> and
 <code>CMAKE_CXX_EXTENSIONS OFF</code>. Features beyond C++20 are not used.</p>
 <p><em>Why:</em> One language level across the stack lets any driver sit under any library. C++20 gives concepts and constexpr
-enough for zero-cost ports without the toolchain lag of C++23 on vendor compilers.</p>
+enough for zero-cost ports without the toolchain lag of C++23 on vendor compilers. Which C++20 features are used, and
+under which rules, is the C++20 profile (KB-CPP20-001 to 058).</p>
 <p><em>Verified by:</em></p>
 <ul>
 <li><code>compiler-warnings/-Wpedantic</code> (implemented): the build is warning-free with the named flag and -Werror</li>
 <li><code>forbidden-patterns/cmake-cxx-standard</code> (implemented): a source scan for a construct the handbook bans; the parameter
   names the pattern set</li>
+<li><code>cpp20-profile/cmake-extensions</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>strict-dialect</code> (implemented): every public header, and through the driver header its src/*.ipp, compiles as ISO
+  C++20 (-std=c++20 -pedantic-errors, extensions off) with each compiler the repository ships for: host GCC and Clang,
+  Arm GCC in the cross-build, and the ESP-IDF toolchain through a header self-check built at -std=c++20 inside the
+  ESP-IDF build, whose own default dialect is newer</li>
 </ul>
 <p><em>See also:</em> <a href="../../adr/0010-cpp20/">ADR-0010</a>; MISRA C++:2023 Rule 4.1.1 (the language standard is fixed)</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/">standards/cpp20-profile.md</a></p>
 <h2 id="kb-cpp-002">KB-CPP-002: No exceptions and no RTTI<a class="headerlink" href="#kb-cpp-002" title="Permanent link">&para;</a></h2>
 <p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0</p>
 <p>Code does not throw, catch or use <code>typeid</code> or <code>dynamic_cast</code>. Every target, including the exported library target,
@@ -5510,7 +5555,8 @@ it.</p>
 not rely on what its includer happened to include first.</p>
 <p><em>Verified by:</em></p>
 <ul>
-<li><code>header-self-contained</code> (planned): every public header compiles on its own as the first include of a translation unit</li>
+<li><code>header-self-contained</code> (implemented): every public header compiles on its own as the first include of a translation
+  unit</li>
 </ul>
 <p><em>See also:</em> C++ Core Guidelines SF.11</p>
 <h2 id="kb-cpp-022">KB-CPP-022: Drivers carry no organisation brand<a class="headerlink" href="#kb-cpp-022" title="Permanent link">&para;</a></h2>
@@ -6964,13 +7010,13 @@ failing chip.</p>
         
         
           
-          <a href="../c/" class="md-footer__link md-footer__link--next" aria-label="Next: C code">
+          <a href="../cpp20/" class="md-footer__link md-footer__link--next" aria-label="Next: C++20 profile">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                C code
+                C++20 profile
               </div>
             </div>
             <div class="md-footer__button md-icon">

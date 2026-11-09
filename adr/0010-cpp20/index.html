@@ -668,6 +668,8 @@
       
         
       
+        
+      
     
     
     
@@ -838,6 +840,8 @@
       
         
           
+        
+      
         
       
         
@@ -1865,6 +1869,9 @@ designated initialisers for configs. ESP-IDF 5.x and current STM32 toolchains su
 <p>Every repository builds as C++20 (<code>target_compile_features(&lt;target&gt; PUBLIC cxx_std_20)</code>, <code>Standard: c++20</code> in
 <code>.clang-format</code>). Public headers may use any C++20 language feature the pinned ESP-IDF GCC and the CI clang both
 support; library features are limited to the freestanding-friendly headers listed in <a href="../../standards/layers/#includes">layers.md</a>.</p>
+<p>The <a href="../../standards/cpp20-profile/">C++20 profile</a> (2026-11-08) narrows "any C++20 language feature" to the
+features it marks <em>Use</em> or <em>Use with rules</em>, each under its KB-CPP20 guidelines, and requires a strict-dialect
+build with every target compiler. It is also the scope of deviation MD-CPP-001.</p>
 <h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
 <ul>
 <li>One feature set for every repository; <code>void_t</code> detection and SFINAE tricks are replaced by <code>requires</code>.</li>

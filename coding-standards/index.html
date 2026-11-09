@@ -668,6 +668,8 @@
       
         
       
+        
+      
     
     
     
@@ -968,6 +970,8 @@
       
         
           
+        
+      
         
       
         
@@ -1408,8 +1412,11 @@ guidelines and is equivalent to MISRA C++:2023, but clarifies many of them, so t
 2023 text. The licensed copy the matrix was written from is held privately by the maintainer; the matrix records its
 SHA-256 (<code>licensed_copy_sha256</code>), so any entry can be traced to the exact edition it was checked against. When MISRA
 publishes a new corrigendum or edition, the matrix is reviewed against it in one pull request that changes the hash.</p>
-<p>MISRA C++:2023 targets C++17; our code is C++20 (ADR-0010). Deviation MD-CPP-001 records that, lists the C++20
-features in use, and says how each guideline applies to C++20 constructs.</p>
+<p>MISRA C++:2023 targets C++17; our code is C++20 (ADR-0010). The <a href="../standards/cpp20-profile/">C++20 profile</a> sorts
+the C++20 features into use, use with rules and forbid, as guidelines KB-CPP20-001 to 058 that extend the edition
+to C++20. Deviation MD-CPP-001 covers exactly the features the profile allows, under its guidelines; a forbidden
+feature, a deprecated one, or anything from C++23 or later is a violation of Rule 4.1.1, even where a toolchain's
+dialect accepts it. The profile page also says how each guideline applies to C++20 constructs.</p>
 <h2 id="reading-the-matrix">Reading the matrix<a class="headerlink" href="#reading-the-matrix" title="Permanent link">&para;</a></h2>
 <p>Each guideline has one entry:</p>
 <table>
@@ -1471,8 +1478,8 @@ features in use, and says how each guideline applies to C++20 constructs.</p>
 <li><code>compiler</code>: a GCC or Clang flag (with <code>-Werror</code>) whose diagnostic decides the guideline;</li>
 <li><code>clang-tidy</code>: a clang-tidy 20 check, with its options where they matter;</li>
 <li><code>cppcheck</code>: a cppcheck message id (there is no free MISRA C++ addon; cppcheck's MISRA addon covers MISRA C only);</li>
-<li><code>handbook-check</code>: one of the handbook's own implemented checks (<code>checks/source_checks.py</code> for include guards
-  and pragmas, ci-tools' handbook check for the forbidden patterns);</li>
+<li><code>handbook-check</code>: one of the handbook's own implemented checks (<code>checks/source_checks.py</code> for include guards,
+  pragmas and the C++20 profile checks <code>cpp20-profile/...</code>, ci-tools' handbook check for the forbidden patterns);</li>
 <li><code>review</code>: the step a reviewer checks on the pull request, used where no free tool decides the guideline;</li>
 <li><code>commercial-checker</code>: the MISRA checker the safety level adds, for every guideline no free tool decides;</li>
 <li><code>not-applicable</code>: the construct cannot occur in our code, and why.</li>

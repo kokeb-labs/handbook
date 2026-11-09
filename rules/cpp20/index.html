@@ -1,0 +1,4438 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+      
+      
+      
+        <link rel="canonical" href="https://kokeb-labs.github.io/handbook/rules/cpp20/">
+      
+      
+        <link rel="prev" href="../cpp/">
+      
+      
+        <link rel="next" href="../c/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/kokeb/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>C++20 profile - Kokeb Labs handbook</title>
+      
+    
+    
+  
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8%201.5c-2.363%200-4%201.69-4%203.75%200%20.984.424%201.625.984%202.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621%201.49a.75.75%200%200%201-1.484.211c-.04-.282-.163-.547-.37-.847a9%209%200%200%200-.542-.68q-.126-.149-.268-.32C3.201%207.75%202.5%206.766%202.5%205.25%202.5%202.31%204.863%200%208%200s5.5%202.31%205.5%205.25c0%201.516-.701%202.5-1.328%203.259q-.142.172-.268.319c-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751%200%200%201-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848q.113-.133.213-.253c.561-.679.985-1.32.985-2.304%200-2.06-1.637-3.75-4-3.75M5.75%2012h4.5a.75.75%200%200%201%200%201.5h-4.5a.75.75%200%200%201%200-1.5M6%2015.25a.75.75%200%200%201%20.75-.75h2.5a.75.75%200%200%201%200%201.5h-2.5a.75.75%200%200%201-.75-.75%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+  <link rel="stylesheet" href="../../assets/kokeb/kokeb.css">
+
+    
+      
+    
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="../../assets/kokeb/fonts.css">
+  <noscript><link rel="stylesheet" href="../../assets/kokeb/fonts.css"></noscript>
+
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+  
+  <meta name="theme-color" content="#0e1726" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b2140" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Kokeb Labs">
+  <meta property="og:title" content="C++20 profile - Kokeb Labs handbook">
+  <meta property="og:description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+  <meta property="og:url" content="https://kokeb-labs.github.io/handbook/rules/cpp20/">
+  <meta name="twitter:card" content="summary">
+  <script>
+(function () {
+  if (typeof mermaid != "undefined" && !(mermaid instanceof Element)) return;
+  var SRC = "https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js",
+      SRI = "sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2", config = {}, real, loading;
+  var waiting = [], io = null, ahead = false, ENGAGE = ["scroll", "keydown", "pointerdown", "touchstart"];
+  var stub = {
+    initialize: function (c) { config = c || {}; if (real) real.initialize(config); },
+    render: function (id, text) {
+      var el = null, pres = document.querySelectorAll("pre.mermaid:not([data-kb-mermaid])");
+      for (var i = 0; i < pres.length && !el; i++) if (pres[i].textContent === text) el = pres[i];
+      if (el) el.setAttribute("data-kb-mermaid", "");
+      return near(el).then(load).then(function (m) { return m.render(id, text); });
+    }
+  };
+  function load() {
+    return loading || (loading = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = SRC;
+      s.integrity = SRI;
+      s.crossOrigin = "anonymous";
+      s.onload = function () {
+        real = window.mermaid;
+        window.mermaid = stub;
+        real.initialize(config);
+        resolve(real);
+      };
+      s.onerror = function () { loading = null; reject(new Error("Mermaid did not load")); };
+      document.head.appendChild(s);
+    }));
+  }
+  // One observer for the diagrams still waiting: on the screen only until the reader engages, then a screen ahead.
+  function watch() {
+    if (io) io.disconnect();
+    io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) release(function (w) { return w.el === e.target; });
+      });
+    }, { rootMargin: ahead ? "100% 0px" : "0px" });
+    waiting.forEach(function (w) { io.observe(w.el); });
+  }
+  function release(which) {
+    waiting = waiting.filter(function (w) {
+      if (!which(w)) return true;
+      io.unobserve(w.el);
+      w.go();
+      return false;
+    });
+  }
+  function near(el) {
+    if (real || !el || !("IntersectionObserver" in window)) return Promise.resolve();
+    return new Promise(function (resolve) {
+      waiting.push({ el: el, go: resolve });
+      if (io) io.observe(el); else watch();
+    });
+  }
+  function engaged() {
+    ENGAGE.forEach(function (t) { window.removeEventListener(t, engaged, true); });
+    ahead = true;
+    if (io) watch();
+  }
+  ENGAGE.forEach(function (t) { window.addEventListener(t, engaged, { capture: true, passive: true }); });
+  window.addEventListener("beforeprint", function () { if (io) release(function () { return true; }); });
+  window.mermaid = stub;
+})();
+</script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#c20-profile" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kokeb Labs handbook" class="md-header__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          
+          <a class="kb-org" href="https://kokeb-labs.github.io/" title="All Kokeb Labs documentation">Kokeb Labs</a>
+          <span class="kb-org__sep" aria-hidden="true">/</span>
+          <span class="md-ellipsis">
+            Kokeb Labs handbook
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              C++20 profile
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Follow the system theme"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Follow the system theme" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../how-rules-work/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  How rules work
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../assurance-levels/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Assurance levels
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Rules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../deviations/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deviations and waivers
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../coding-standards/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Coding standards
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../evidence/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Regulated products
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../adr/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Decision records
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../checklists/migrate-driver/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Checklists
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kokeb Labs handbook" class="md-nav__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    Kokeb Labs handbook
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-rules-work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How rules work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assurance-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assurance levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++20 profile
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++20 profile
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-001: Strict ISO C++20, with a conformance build on every target compiler
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-002: Only profile features; nothing from C++23 or later
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-003: Nothing C++20 deprecates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-004: No feature-test macros to choose behaviour
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-005: Every template parameter is constrained by a named concept
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-006: Port concepts check the exact hook signature and noexcept
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-007: Optional hooks use named detection concepts; a misdeclared hook is an error
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-008: One dependent-false helper
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-009: Code that does not depend on the port lives outside the class template
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-010: Abbreviated function templates are constrained and stay out of the public API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-011: Concepts carry meaning; overloads are not chosen by subsumption
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-012: Pure computations are constexpr and proved with static_assert
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-013: consteval only for build-time construction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-014: constinit on every mutable static
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-015: if constexpr only on compile-time facts, each branch instantiated by a test
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-016: No std::is_constant_evaluated
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-017: Header-scope variables are constexpr
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-018: Configuration-dependent inline code: one configuration per program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-019: No allocation and no virtual functions in constant evaluation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-020: Every shift count is provably below the operand width
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-021: Bit work in uint32_t; no promoted narrow operands; no platform-width types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-022: Narrowing is explicit, compound assignment included
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-023: Mixed-sign comparison through std::cmp_less and its siblings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-024: Signed reinterpretation of wire values through a named helper
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-025: Integer-to-enum conversion only for proven enumerators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-026: One enumeration utility layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-027: using enum only at block scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-028: &lt;bit&gt; for counting and rotation instead of hand-written loops
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-029: std::bit_cast between equal-size values, never for byte order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-030: Strong types for units and easily swapped parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-031: Designated initialisers for configuration; every member has a default
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-032" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-032: No parenthesised aggregate initialisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-033" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-033: Defaulted operator== only on exactly comparable members
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-034" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-034: No three-way comparison in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-035" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-035: Structured bindings test the error before the value
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-036" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-036: Class-type template arguments are structural and integral
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-037" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-037: [[nodiscard]] on every error-carrying type
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-038" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-038: [[maybe_unused]] instead of (void) for conditionally used names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-039" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-039: No [[fallthrough]]
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-040: [[likely]] and [[unlikely]] only with a measurement
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-041" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-041: No [[no_unique_address]] in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-042" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-042: Caller buffers are spans, with a fixed extent when the size is known
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-043" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-043: A dynamic span is checked before it is indexed, wherever it is indexed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-044" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-044: Views and references never outlive what they refer to
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-045" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-045: Lambdas: explicit captures, local use, no state
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-046" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-046: No lambdas in unevaluated operands or at namespace scope in headers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-047" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-047: No generic lambdas in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-048" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-048: std::optional is read only when engaged, never through .value()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-049" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-049: No variant, any, function or expected in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-050: Range algorithms with rules; no views in target code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-051" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-051: No &lt;format&gt;, std::format or std::print
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-052" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-052: No std::source_location in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-053" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-053: No char8_t and no u8 literals in target code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-054" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-054: &lt;numbers&gt; for mathematical constants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-055" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-055: std::atomic_ref only for lock-free sharing with an interrupt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-056" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-056: No coroutines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-057" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-057: No modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-058" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-058: Loops are bounded by a validated constant
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware and porting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build and CMake
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../git/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git, review and release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI and supply chain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deviations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deviations and waivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../coding-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../evidence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulated products
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../standards/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../adr/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision records
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../checklists/migrate-driver/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Checklists
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-001: Strict ISO C++20, with a conformance build on every target compiler
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-002: Only profile features; nothing from C++23 or later
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-003: Nothing C++20 deprecates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-004: No feature-test macros to choose behaviour
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-005: Every template parameter is constrained by a named concept
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-006: Port concepts check the exact hook signature and noexcept
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-007: Optional hooks use named detection concepts; a misdeclared hook is an error
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-008: One dependent-false helper
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-009: Code that does not depend on the port lives outside the class template
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-010: Abbreviated function templates are constrained and stay out of the public API
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-011: Concepts carry meaning; overloads are not chosen by subsumption
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-012: Pure computations are constexpr and proved with static_assert
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-013: consteval only for build-time construction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-014: constinit on every mutable static
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-015: if constexpr only on compile-time facts, each branch instantiated by a test
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-016: No std::is_constant_evaluated
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-017: Header-scope variables are constexpr
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-018: Configuration-dependent inline code: one configuration per program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-019: No allocation and no virtual functions in constant evaluation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-020: Every shift count is provably below the operand width
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-021: Bit work in uint32_t; no promoted narrow operands; no platform-width types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-022: Narrowing is explicit, compound assignment included
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-023: Mixed-sign comparison through std::cmp_less and its siblings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-024: Signed reinterpretation of wire values through a named helper
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-025: Integer-to-enum conversion only for proven enumerators
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-026: One enumeration utility layer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-027: using enum only at block scope
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-028: &lt;bit&gt; for counting and rotation instead of hand-written loops
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-029: std::bit_cast between equal-size values, never for byte order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-030: Strong types for units and easily swapped parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-031: Designated initialisers for configuration; every member has a default
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-032" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-032: No parenthesised aggregate initialisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-033" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-033: Defaulted operator== only on exactly comparable members
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-034" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-034: No three-way comparison in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-035" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-035: Structured bindings test the error before the value
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-036" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-036: Class-type template arguments are structural and integral
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-037" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-037: [[nodiscard]] on every error-carrying type
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-038" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-038: [[maybe_unused]] instead of (void) for conditionally used names
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-039" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-039: No [[fallthrough]]
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-040: [[likely]] and [[unlikely]] only with a measurement
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-041" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-041: No [[no_unique_address]] in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-042" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-042: Caller buffers are spans, with a fixed extent when the size is known
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-043" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-043: A dynamic span is checked before it is indexed, wherever it is indexed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-044" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-044: Views and references never outlive what they refer to
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-045" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-045: Lambdas: explicit captures, local use, no state
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-046" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-046: No lambdas in unevaluated operands or at namespace scope in headers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-047" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-047: No generic lambdas in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-048" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-048: std::optional is read only when engaged, never through .value()
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-049" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-049: No variant, any, function or expected in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-050: Range algorithms with rules; no views in target code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-051" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-051: No &lt;format&gt;, std::format or std::print
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-052" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-052: No std::source_location in drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-053" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-053: No char8_t and no u8 literals in target code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-054" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-054: &lt;numbers&gt; for mathematical constants
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-055" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-055: std::atomic_ref only for lock-free sharing with an interrupt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-056" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-056: No coroutines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-057" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-057: No modules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-cpp20-058" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-CPP20-058: Loops are bounded by a validated constant
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/kokeb-labs/handbook/edit/main/rules/cpp20.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<!-- generated by checks/handbook.py from rules/*.yml: edit those, then run `python checks/handbook.py gen` -->
+<h1 id="c20-profile">C++20 profile<a class="headerlink" href="#c20-profile" title="Permanent link">&para;</a></h1>
+<p>The C++20 language and library features Kokeb Labs code may use, the rules each one comes with, and the ones it may not
+use, as numbered guidelines. They extend MISRA C++:2023, which is written for C++17, to the C++20 our code is written
+in, and they define exactly what deviation MD-CPP-001 covers. The C++20 profile page explains each feature's verdict;
+categories follow MISRA's model (mandatory and required guidelines are <code>must</code>, advisory ones <code>should</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Level</th>
+<th>Applies to</th>
+<th>Verified</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#kb-cpp20-001">KB-CPP20-001</a> Strict ISO C++20, with a conformance build on every target compiler</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-002">KB-CPP20-002</a> Only profile features; nothing from C++23 or later</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-003">KB-CPP20-003</a> Nothing C++20 deprecates</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-004">KB-CPP20-004</a> No feature-test macros to choose behaviour</td>
+<td>should</td>
+<td>driver, template, library</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-005">KB-CPP20-005</a> Every template parameter is constrained by a named concept</td>
+<td>must</td>
+<td>driver, template, library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-006">KB-CPP20-006</a> Port concepts check the exact hook signature and <code>noexcept</code></td>
+<td>must</td>
+<td>driver, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-007">KB-CPP20-007</a> Optional hooks use named detection concepts; a misdeclared hook is an error</td>
+<td>must</td>
+<td>driver, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-008">KB-CPP20-008</a> One dependent-false helper</td>
+<td>should</td>
+<td>driver, template, library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-009">KB-CPP20-009</a> Code that does not depend on the port lives outside the class template</td>
+<td>should</td>
+<td>driver, template, library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-010">KB-CPP20-010</a> Abbreviated function templates are constrained and stay out of the public API</td>
+<td>should</td>
+<td>driver, template, library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-011">KB-CPP20-011</a> Concepts carry meaning; overloads are not chosen by subsumption</td>
+<td>should</td>
+<td>driver, template, library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-012">KB-CPP20-012</a> Pure computations are <code>constexpr</code> and proved with <code>static_assert</code></td>
+<td>must</td>
+<td>driver, template, library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-013">KB-CPP20-013</a> <code>consteval</code> only for build-time construction</td>
+<td>should</td>
+<td>driver, template, library, hal, firmware</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-014">KB-CPP20-014</a> <code>constinit</code> on every mutable static</td>
+<td>must</td>
+<td>library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-015">KB-CPP20-015</a> <code>if constexpr</code> only on compile-time facts, each branch instantiated by a test</td>
+<td>must</td>
+<td>driver, template, library</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-016">KB-CPP20-016</a> No <code>std::is_constant_evaluated</code></td>
+<td>should</td>
+<td>driver, template, library</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-017">KB-CPP20-017</a> Header-scope variables are <code>constexpr</code></td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-018">KB-CPP20-018</a> Configuration-dependent inline code: one configuration per program</td>
+<td>must</td>
+<td>driver, template, library</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-019">KB-CPP20-019</a> No allocation and no virtual functions in constant evaluation</td>
+<td>must</td>
+<td>driver, template, library</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-020">KB-CPP20-020</a> Every shift count is provably below the operand width</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-021">KB-CPP20-021</a> Bit work in <code>uint32_t</code>; no promoted narrow operands; no platform-width types</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-022">KB-CPP20-022</a> Narrowing is explicit, compound assignment included</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-023">KB-CPP20-023</a> Mixed-sign comparison through <code>std::cmp_less</code> and its siblings</td>
+<td>should</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-024">KB-CPP20-024</a> Signed reinterpretation of wire values through a named helper</td>
+<td>must</td>
+<td>driver, template, library</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-025">KB-CPP20-025</a> Integer-to-enum conversion only for proven enumerators</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-026">KB-CPP20-026</a> One enumeration utility layer</td>
+<td>should</td>
+<td>driver, template, library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-027">KB-CPP20-027</a> <code>using enum</code> only at block scope</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-028">KB-CPP20-028</a> <code>&lt;bit&gt;</code> for counting and rotation instead of hand-written loops</td>
+<td>should</td>
+<td>driver, template, library, hal, firmware</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-029">KB-CPP20-029</a> <code>std::bit_cast</code> between equal-size values, never for byte order</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-030">KB-CPP20-030</a> Strong types for units and easily swapped parameters</td>
+<td>should</td>
+<td>driver, template, library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-031">KB-CPP20-031</a> Designated initialisers for configuration; every member has a default</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-032">KB-CPP20-032</a> No parenthesised aggregate initialisation</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-033">KB-CPP20-033</a> Defaulted <code>operator==</code> only on exactly comparable members</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-034">KB-CPP20-034</a> No three-way comparison in drivers</td>
+<td>must</td>
+<td>driver, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-035">KB-CPP20-035</a> Structured bindings test the error before the value</td>
+<td>should</td>
+<td>driver, template, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-036">KB-CPP20-036</a> Class-type template arguments are structural and integral</td>
+<td>should</td>
+<td>driver, template, library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-037">KB-CPP20-037</a> <code>[[nodiscard]]</code> on every error-carrying type</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-038">KB-CPP20-038</a> <code>[[maybe_unused]]</code> instead of <code>(void)</code> for conditionally used names</td>
+<td>should</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-039">KB-CPP20-039</a> No <code>[[fallthrough]]</code></td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-040">KB-CPP20-040</a> <code>[[likely]]</code> and <code>[[unlikely]]</code> only with a measurement</td>
+<td>should</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-041">KB-CPP20-041</a> No <code>[[no_unique_address]]</code> in drivers</td>
+<td>must</td>
+<td>driver, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-042">KB-CPP20-042</a> Caller buffers are spans, with a fixed extent when the size is known</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-043">KB-CPP20-043</a> A dynamic span is checked before it is indexed, wherever it is indexed</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-044">KB-CPP20-044</a> Views and references never outlive what they refer to</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-045">KB-CPP20-045</a> Lambdas: explicit captures, local use, no state</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-046">KB-CPP20-046</a> No lambdas in unevaluated operands or at namespace scope in headers</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-047">KB-CPP20-047</a> No generic lambdas in drivers</td>
+<td>should</td>
+<td>driver, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-048">KB-CPP20-048</a> <code>std::optional</code> is read only when engaged, never through <code>.value()</code></td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-049">KB-CPP20-049</a> No <code>variant</code>, <code>any</code>, <code>function</code> or <code>expected</code> in drivers</td>
+<td>must</td>
+<td>driver, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-050">KB-CPP20-050</a> Range algorithms with rules; no views in target code</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-051">KB-CPP20-051</a> No <code>&lt;format&gt;</code>, <code>std::format</code> or <code>std::print</code></td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-052">KB-CPP20-052</a> No <code>std::source_location</code> in drivers</td>
+<td>must</td>
+<td>driver, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-053">KB-CPP20-053</a> No <code>char8_t</code> and no <code>u8</code> literals in target code</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-054">KB-CPP20-054</a> <code>&lt;numbers&gt;</code> for mathematical constants</td>
+<td>should</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-055">KB-CPP20-055</a> <code>std::atomic_ref</code> only for lock-free sharing with an interrupt</td>
+<td>should</td>
+<td>hal, firmware</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-056">KB-CPP20-056</a> No coroutines</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-057">KB-CPP20-057</a> No modules</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-cpp20-058">KB-CPP20-058</a> Loops are bounded by a validated constant</td>
+<td>must</td>
+<td>driver, template, library, hal, firmware</td>
+<td>checked</td>
+</tr>
+</tbody>
+</table>
+<h2 id="kb-cpp20-001">KB-CPP20-001: Strict ISO C++20, with a conformance build on every target compiler<a class="headerlink" href="#kb-cpp20-001" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Every target a repository builds itself (library, tests, fuzzers, host examples, install consumer) compiles as ISO C++20
+with <code>CMAKE_CXX_EXTENSIONS OFF</code> and <code>-pedantic-errors</code>. Every public header also compiles on its own at <code>-std=c++20
+-pedantic-errors</code> with each compiler the repository ships for: host GCC and Clang, Arm GCC in the cross-build, and the
+ESP-IDF toolchain, whose own default dialect is newer (a header self-check compiled at <code>-std=c++20</code> inside the ESP-IDF
+build).</p>
+<p><em>Why:</em> MD-CPP-001 deviates Rule 4.1.1 for C++20, not for whatever a framework enables. CMake's default leaves extensions
+on (<code>-std=gnu++20</code>), and ESP-IDF builds as <code>gnu++23</code> or <code>gnu++26</code>, so without a strict build a GNU extension or a C++23
+feature compiles on one toolchain and breaks on another.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/cmake-extensions</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>forbidden-patterns/cmake-cxx-standard</code> (implemented): a source scan for a construct the handbook bans; the parameter
+  names the pattern set</li>
+<li><code>compiler-warnings/-pedantic-errors</code> (implemented): the build is warning-free with the named flag and -Werror</li>
+<li><code>strict-dialect</code> (implemented): every public header, and through the driver header its src/*.ipp, compiles as ISO
+  C++20 (-std=c++20 -pedantic-errors, extensions off) with each compiler the repository ships for: host GCC and Clang,
+  Arm GCC in the cross-build, and the ESP-IDF toolchain through a header self-check built at -std=c++20 inside the
+  ESP-IDF build, whose own default dialect is newer</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 4.1.1; MISRA C++:2023 Rule 4.1.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-a">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-002">KB-CPP20-002: Only profile features; nothing from C++23 or later<a class="headerlink" href="#kb-cpp20-002" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Target code uses only the language and library features this profile marks *Use* or *Use with rules*, under the
+guidelines attached to them, and library headers only from the layer's ADR-0017 subset. No feature of C++23 or later is
+used, even where a framework's dialect accepts it (<code>std::to_underlying</code>, <code>std::byteswap</code>, <code>std::expected</code>, <code>if
+consteval</code>, <code>[[assume]]</code>, deducing <code>this</code>, the <code>uz</code> literal suffix).</p>
+<p><em>Why:</em> MD-CPP-001 must name what it covers, and a feature that enters without review enters the safety case unexamined.
+Our own <code>detail::ToUnderlying</code> replaces the C++23 helper at no cost.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>strict-dialect</code> (implemented): every public header, and through the driver header its src/*.ipp, compiles as ISO
+  C++20 (-std=c++20 -pedantic-errors, extensions off) with each compiler the repository ships for: host GCC and Clang,
+  Arm GCC in the cross-build, and the ESP-IDF toolchain through a header self-check built at -std=c++20 inside the
+  ESP-IDF build, whose own default dialect is newer</li>
+<li><code>include-allowlist/driver</code> (implemented): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)</li>
+<li><code>include-allowlist/target</code> (implemented): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)</li>
+<li>review: A C++20 feature not in the profile joins it and MD-CPP-001 in one pull request, or is not used.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 4.1.1; MISRA C++:2023 Rule 4.1.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-a">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-003">KB-CPP20-003: Nothing C++20 deprecates<a class="headerlink" href="#kb-cpp20-003" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>No construct deprecated by C++20: compound assignment or <code>++</code>/<code>--</code> on a <code>volatile</code> object, <code>volatile</code> parameters and
+return types, implicit capture of <code>this</code> through <code>[=]</code>, a comma expression in a subscript, arithmetic or comparison
+between two different enumeration types or between an enumeration and a floating-point type.</p>
+<p><em>Why:</em> Deprecated features are candidates for removal and are deprecated because they mislead: a <code>volatile</code>
+read-modify-write is not atomic, and <code>[=]</code> does not copy the object.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>compiler-warnings/-Wdeprecated</code> (implemented): the build is warning-free with the named flag and -Werror</li>
+<li><code>compiler-warnings/-Wdeprecated-enum-enum-conversion</code> (implemented): the build is warning-free with the named flag and
+  -Werror</li>
+<li><code>compiler-warnings/-Wdeprecated-enum-float-conversion</code> (implemented): the build is warning-free with the named flag
+  and -Werror</li>
+<li><code>clang-tidy/cppcoreguidelines-misleading-capture-default-by-value</code> (implemented): a clang-tidy check from
+  config/.clang-tidy, run with the CMake compile database</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 4.1.2; MISRA C++:2023 Rule 10.1.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-a">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-004">KB-CPP20-004: No feature-test macros to choose behaviour<a class="headerlink" href="#kb-cpp20-004" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library · since 1.0</p>
+<p>Shared code does not test <code>__cpp_</code> or <code>__cpp_lib_</code> macros or include <code>&lt;version&gt;</code> to pick an implementation. There is one
+language level; a missing feature is a toolchain problem, not a branch.</p>
+<p><em>Why:</em> Two code paths per feature means one of them is untested on any given CI matrix.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 4.1.1; MISRA C++:2023 Rule 19.0.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-a">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-005">KB-CPP20-005: Every template parameter is constrained by a named concept<a class="headerlink" href="#kb-cpp20-005" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library · since 1.0 · enforced from 2027-03-01</p>
+<p>Each type template parameter in target code has a constraint: a named concept in the template head (<code>template &lt;SpiPort
+Port&gt;</code>) or a <code>requires</code> clause. A callable parameter is constrained with <code>std::invocable</code> and its result type.</p>
+<p><em>Why:</em> An unconstrained parameter accepts anything; misuse is reported deep inside the body, or compiles.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/unconstrained-template</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the
+  parameter names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: Every new template parameter names its concept.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 17.8.1; MISRA C++:2023 Dir 0.3.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-b">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-006">KB-CPP20-006: Port concepts check the exact hook signature and <code>noexcept</code><a class="headerlink" href="#kb-cpp20-006" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template · since 1.0 · enforced from 2027-03-01</p>
+<p>A port concept accepts only hooks with exactly the signature on the driver's Porting page: each argument is probed with
+a type that converts to the documented parameter type and to nothing else, each compound requirement states <code>noexcept</code>,
+and each result type is checked with <code>std::same_as</code>. Compile-fail tests prove that a narrowed parameter and a missing
+<code>noexcept</code> are rejected.</p>
+<p><em>Why:</em> A concept that probes with plain values is satisfied by <code>Transfer(..., uint16_t len)</code>, so the driver's length is
+truncated at every call without a diagnostic; KB-CPP-035 asks for <code>noexcept</code>, and the concept is where it can be proved.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>compile-fail-tests</code> (implemented): a misuse of the public API is a compile error, proved by a test that must fail to
+  compile</li>
+<li><code>codeql/port-hook-signature</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter
+  names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: Each port concept probes with <code>detail::Exactly&lt;T&gt;</code> and states <code>noexcept</code> on every hook.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.0.6; MISRA C++:2023 Rule 0.1.2; MISRA C++:2023 Rule 4.1.3</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-b">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-007">KB-CPP20-007: Optional hooks use named detection concepts; a misdeclared hook is an error<a class="headerlink" href="#kb-cpp20-007" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template · since 1.0 · enforced from 2027-03-01</p>
+<p>Each optional hook has a named concept <code>Has&lt;Hook&gt;</code> in <code>&lt;chip&gt;::detail</code> that checks argument types exactly, the result
+type and <code>noexcept</code>, and a <code>Declares&lt;Hook&gt;</code> concept that only tests the name; the driver <code>static_assert</code>s
+<code>!Declares&lt;Hook&gt; || Has&lt;Hook&gt;</code>. No anonymous requires-expression appears in an <code>if constexpr</code> condition.</p>
+<p><em>Why:</em> Detection that silently falls back when a hook is misdeclared turns a wiring mistake into a missing delay or a
+dropped GPIO error; one named concept is also what KB-CPP-036 asks for.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/inline-requires</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>compile-fail-tests</code> (implemented): a misuse of the public API is a compile error, proved by a test that must fail to
+  compile</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 0.1.2; MISRA C++:2023 Rule 9.6.5</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-b">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-008">KB-CPP20-008: One dependent-false helper<a class="headerlink" href="#kb-cpp20-008" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library · since 1.0</p>
+<p>A branch that must never be instantiated fails with <code>static_assert(detail::kAlwaysFalse&lt;T&gt;, "...")</code>, from one <code>template
+&lt;typename&gt; inline constexpr bool kAlwaysFalse = false;</code> per repository, not with ad hoc spellings such as <code>sizeof(T) ==
+0</code>.</p>
+<p><em>Why:</em> C++20 does not allow <code>static_assert(false)</code> in a discarded template branch; one named helper states the intent.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Discarded branches use <code>detail::kAlwaysFalse</code>.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 0.0.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-b">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-009">KB-CPP20-009: Code that does not depend on the port lives outside the class template<a class="headerlink" href="#kb-cpp20-009" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library · since 1.0</p>
+<p>Register encoders and decoders, validation, CRC, unit conversion and error text are namespace-scope <code>constexpr</code>
+functions, not members of the driver's class template.</p>
+<p><em>Why:</em> A member of <code>Driver&lt;Port&gt;</code> is emitted once per port type; a free <code>constexpr</code> function is emitted once or folded
+away, and can be proved with <code>static_assert</code>.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/port-independent-member</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the
+  parameter names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: A static member that never names the port moves out.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 6.2.3</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-b">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-010">KB-CPP20-010: Abbreviated function templates are constrained and stay out of the public API<a class="headerlink" href="#kb-cpp20-010" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library · since 1.0</p>
+<p>A function parameter declared <code>auto</code> has a type-constraint (<code>std::unsigned_integral auto</code>), and public driver member
+functions have no <code>auto</code> parameters.</p>
+<p><em>Why:</em> <code>void f(auto x)</code> is a template that instantiates for every argument type, <code>bool</code> and <code>char</code> included, and hides
+that from the reader and the code-size budget.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/unconstrained-auto-parameter</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the
+  parameter names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: No <code>auto</code> parameter in public driver API.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 17.8.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-b">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-011">KB-CPP20-011: Concepts carry meaning; overloads are not chosen by subsumption<a class="headerlink" href="#kb-cpp20-011" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library · since 1.0</p>
+<p>A concept names a contract a reader can state in one sentence. Driver code does not build overload sets chosen by
+concept subsumption, and does not define concepts that every type satisfies; a choice between behaviours is an <code>if
+constexpr</code> on a named concept.</p>
+<p><em>Why:</em> Subsumption depends on the exact spelling of atomic constraints, so a harmless edit can switch the chosen
+overload without a diagnostic.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: No two overloads differ only in one being more constrained.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 17.8.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-b">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-012">KB-CPP20-012: Pure computations are <code>constexpr</code> and proved with <code>static_assert</code><a class="headerlink" href="#kb-cpp20-012" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library · since 1.0 · enforced from 2027-03-01</p>
+<p>A function that computes only from its arguments (register encoder or decoder, frame builder, CRC, unit conversion,
+<code>Validate</code>) is <code>constexpr</code>. Each such function in a <code>_registers</code> or <code>_types</code> header is named in at least one
+<code>static_assert</code> with a datasheet value; an encode and decode pair has a round-trip <code>static_assert</code>; each preset asserts
+<code>Validate(preset) == Error::Ok</code>; and an array whose size mirrors a register count uses the named constant.</p>
+<p><em>Why:</em> A <code>static_assert</code> is evidence that costs nothing at run time and runs on every compiler, and undefined behaviour
+inside a constant evaluation is a compile error, so the vectors are also proved free of it.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/unasserted-constexpr</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter
+  names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: Every new pure function has a datasheet <code>static_assert</code>; encode and decode pairs a round trip.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 0.0.1; MISRA C++:2023 Rule 4.1.3</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-c">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-013">KB-CPP20-013: <code>consteval</code> only for build-time construction<a class="headerlink" href="#kb-cpp20-013" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library, hal, firmware · since 1.0</p>
+<p><code>consteval</code> is used for what must never run at run time: checked configuration values, generated tables, validated
+constants. A failed check calls a declared but undefined function whose name states the error. A <code>consteval</code> check never
+replaces the run-time validation of a value that can come from outside the build.</p>
+<p><em>Why:</em> A board's configuration is usually a constant, and rejecting a bad one at build time is better than at boot; the
+run-time <code>Validate()</code> stays for everything else.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The run-time <code>Validate()</code> call stays in the start-up path.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 0.1.2; MISRA C++:2023 Dir 0.3.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-c">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-014">KB-CPP20-014: <code>constinit</code> on every mutable static<a class="headerlink" href="#kb-cpp20-014" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Every object with static storage duration that is not <code>constexpr</code> (the cases MD-CPP-005 allows) is declared <code>constinit</code>.
+Drivers have no such objects (KB-CPP-040).</p>
+<p><em>Why:</em> <code>constinit</code> turns constant initialisation from a review claim into a compiler error and closes the static
+initialisation order hazard.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/cppcoreguidelines-avoid-non-const-global-variables</code> (implemented): a clang-tidy check from
+  config/.clang-tidy, run with the CMake compile database</li>
+<li><code>codeql/constinit</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter names the
+  query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop, pointer-length-parameter)</li>
+<li>review: Every mutable static is <code>constinit</code>.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 6.7.2; MISRA C++:2023 Rule 6.7.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-c">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-015">KB-CPP20-015: <code>if constexpr</code> only on compile-time facts, each branch instantiated by a test<a class="headerlink" href="#kb-cpp20-015" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library · since 1.0 · enforced from 2027-03-01</p>
+<p>The condition of <code>if constexpr</code> depends on a template parameter or a build-configuration constant, and each branch of a
+hook dispatch is instantiated by at least one host test (a minimal port and a full port).</p>
+<p><em>Why:</em> A discarded branch is not compiled for that instantiation, so a branch no test instantiates is unverified code.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>coverage-floor/level</code> (implemented): gcovr coverage of library code by the host tests at or above the floor
+  (coverage-floor/level for lines and branches, coverage-floor/mcdc for condition coverage), as ADR-0020 defines it</li>
+<li>review: The tests have a minimal and a full port, so both branches compile.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 0.0.1; MISRA C++:2023 Rule 0.0.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-c">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-016">KB-CPP20-016: No <code>std::is_constant_evaluated</code><a class="headerlink" href="#kb-cpp20-016" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library · since 1.0</p>
+<p>Code does not branch on <code>std::is_constant_evaluated()</code>.</p>
+<p><em>Why:</em> Inside <code>if constexpr</code> it is always true, a classic mistake; outside it, two implementations of one function have
+to be kept equivalent, and the clean form is C++23.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 0.0.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-c">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-017">KB-CPP20-017: Header-scope variables are <code>constexpr</code><a class="headerlink" href="#kb-cpp20-017" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>A variable defined in a header at namespace scope is <code>inline constexpr</code>; a static data member of a class template is
+<code>static constexpr</code>. No mutable <code>inline</code> variable exists.</p>
+<p><em>Why:</em> An <code>inline</code> variable is one object for the whole program, so a mutable one is a global by another name.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/cppcoreguidelines-avoid-non-const-global-variables</code> (implemented): a clang-tidy check from
+  config/.clang-tidy, run with the CMake compile database</li>
+<li><code>codeql/mutable-inline-variable</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the
+  parameter names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 6.2.4; MISRA C++:2023 Rule 6.2.1; MISRA C++:2023 Rule 6.7.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-c">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-018">KB-CPP20-018: Configuration-dependent inline code: one configuration per program<a class="headerlink" href="#kb-cpp20-018" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library · since 1.0 · enforced from 2027-03-01</p>
+<p>A header whose inline function bodies depend on configuration macros (<code>&lt;chip&gt;_kconfig.hpp</code>, or anything that uses
+<code>__has_include</code> for configuration) is a leaf: no other library header includes it, every translation unit of one program
+sees the same configuration, and its file comment says so.</p>
+<p><em>Why:</em> Different macro values in two translation units give two definitions of one inline function: an ODR violation
+with no diagnostic.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/kconfig-leaf</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter names
+  it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features, feature-test
+  macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li>review: The Kconfig header's comment states one configuration per program.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 6.2.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-c">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-019">KB-CPP20-019: No allocation and no virtual functions in constant evaluation<a class="headerlink" href="#kb-cpp20-019" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library · since 1.0 · enforced from 2027-03-01</p>
+<p><code>constexpr</code> code does not use <code>new</code>, <code>std::allocator</code> or an allocating container, and no function is <code>constexpr
+virtual</code>.</p>
+<p><em>Why:</em> C++20 allows transient allocation during constant evaluation, but the headers that offer it are outside the
+target subset, and the same code would run with the heap at run time.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/heap</code> (implemented): a source scan for a construct the handbook bans; the parameter names the
+  pattern set</li>
+<li><code>include-allowlist/driver</code> (implemented): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 21.6.1; MISRA C++:2023 Rule 21.6.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-c">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-020">KB-CPP20-020: Every shift count is provably below the operand width<a class="headerlink" href="#kb-cpp20-020" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category mandatory; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>A shift whose count is not a constant is preceded, in the same function, by a check or a mask that bounds the count
+below the width of the promoted left operand. A public helper that shifts by an enumeration or an integer argument masks
+the count itself.</p>
+<p><em>Why:</em> A shift by the width or more is undefined behaviour, and an <code>enum class</code> with a <code>uint8_t</code> base can hold any value
+from 0 to 255, so being an enumeration proves nothing.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/clang-analyzer-core.BitwiseShift</code> (implemented): a clang-tidy check from config/.clang-tidy, run with the
+  CMake compile database</li>
+<li><code>sanitizers</code> (implemented): host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer</li>
+<li><code>codeql/shift-range</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter names the
+  query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop, pointer-length-parameter)</li>
+<li>review: Every run-time shift count is masked or checked in the same function.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.0.4; MISRA C++:2023 Rule 4.1.3</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-021">KB-CPP20-021: Bit work in <code>uint32_t</code>; no promoted narrow operands; no platform-width types<a class="headerlink" href="#kb-cpp20-021" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Operands of <code>~</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code>, <code>&amp;</code>, <code>|</code>, <code>^</code> and arithmetic on register values are <code>uint32_t</code> (or <code>uint64_t</code>) before the
+operator; <code>uint8_t</code> and <code>uint16_t</code> values are cast up first. <code>unsigned</code>, <code>unsigned long</code>, <code>int</code> and the <code>UL</code> suffix
+never set a width: literals are <code>uint32_t{1}</code>, or <code>1U</code> when the other operand is already <code>uint32_t</code>. A loop counter used
+as a shift count is unsigned.</p>
+<p><em>Why:</em> Narrow unsigned values promote to signed <code>int</code>, and <code>unsigned long</code> is 32 bits on our targets but 64 bits on the
+host, so host tests cannot show a width bug.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/hicpp-signed-bitwise</code> (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake
+  compile database</li>
+<li><code>codeql/narrow-bitwise-operand</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the
+  parameter names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: Narrow operands are widened to <code>uint32_t</code> before bit operations; no <code>UL</code> widths.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.0.5; MISRA C++:2023 Rule 7.0.4; MISRA C++:2023 Rule 6.9.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-022">KB-CPP20-022: Narrowing is explicit, compound assignment included<a class="headerlink" href="#kb-cpp20-022" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Every conversion to a narrower or differently signed integer type is a <code>static_cast</code> where it happens, including the
+hidden one in <code>|=</code>, <code>&amp;=</code>, <code>+=</code>, in initialisation, argument passing and return. A value whose range is not proved by a
+mask or a preceding check is tested with <code>std::in_range&lt;T&gt;</code> first.</p>
+<p><em>Why:</em> <code>-Wconversion</code> is silent when it can prove the value fits, so the conversion stays unseen until the commercial
+checker runs; an explicit cast is also where a reviewer looks for the range argument.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>compiler-warnings/-Wconversion</code> (implemented): the build is warning-free with the named flag and -Werror</li>
+<li><code>clang-tidy/bugprone-narrowing-conversions</code> (implemented): a clang-tidy check from config/.clang-tidy, run with the
+  CMake compile database</li>
+<li><code>codeql/compound-narrowing</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter
+  names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: No <code>uint8_t |= unsigned</code> style compound assignment.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.0.6</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-023">KB-CPP20-023: Mixed-sign comparison through <code>std::cmp_less</code> and its siblings<a class="headerlink" href="#kb-cpp20-023" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library, hal, firmware · since 1.0</p>
+<p>When a signed and an unsigned value must be compared, the code uses <code>std::cmp_less</code> (or <code>cmp_equal</code>, <code>cmp_greater</code>, ...)
+instead of a cast.</p>
+<p><em>Why:</em> A cast picks a direction and can wrap; the C++20 functions compare the mathematical values.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>compiler-warnings/-Wsign-compare</code> (implemented): the build is warning-free with the named flag and -Werror</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.0.5</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-024">KB-CPP20-024: Signed reinterpretation of wire values through a named helper<a class="headerlink" href="#kb-cpp20-024" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library · since 1.0 · enforced from 2027-03-01</p>
+<p>A same-width signed value read from a wire or register comes from <code>std::bit_cast&lt;intN_t&gt;</code> or <code>static_cast&lt;intN_t&gt;</code> (both
+defined in C++20) inside a named helper whose comment states the encoding; an N-bit field narrower than its container is
+sign-extended by a named helper in <code>int32_t</code> arithmetic. Never through a union, <code>memcpy</code> or a pointer cast.</p>
+<p><em>Why:</em> C++20 fixed two's complement and made the conversion modular, but the encoding should be named once.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/cppcoreguidelines-pro-type-union-access</code> (implemented): a clang-tidy check from config/.clang-tidy, run
+  with the CMake compile database</li>
+<li><code>clang-tidy/cppcoreguidelines-pro-type-reinterpret-cast</code> (implemented): a clang-tidy check from config/.clang-tidy,
+  run with the CMake compile database</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 12.3.1; MISRA C++:2023 Rule 6.8.1; MISRA C++:2023 Rule 8.2.5</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-025">KB-CPP20-025: Integer-to-enum conversion only for proven enumerators<a class="headerlink" href="#kb-cpp20-025" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category mandatory; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p><code>static_cast&lt;E&gt;(x)</code> from a non-constant integer is allowed only when every value <code>x</code> can take is an enumerator: the
+mask's range equals the contiguous enumerator set, stated by a <code>static_assert</code> next to the enumeration, or the value is
+checked first and a non-enumerator becomes an <code>Error</code>.</p>
+<p><em>Why:</em> A non-enumerator in an enumeration defeats every <code>switch</code> and every <code>==</code> test that follows.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/enum-from-integer</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter
+  names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: Each integer-to-enum cast is preceded by a range check or proof.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 4.1.3; MISRA C++:2023 Rule 10.2.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-026">KB-CPP20-026: One enumeration utility layer<a class="headerlink" href="#kb-cpp20-026" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library · since 1.0</p>
+<p>Conversion to the underlying type goes through one <code>detail::ToUnderlying</code> function template, and range checks through
+one <code>detail::IsEnumerator</code> with an <code>EnumLast&lt;E&gt;</code> class template specialised next to each contiguous enumeration.
+Function templates are never explicitly specialised.</p>
+<p><em>Why:</em> Hand-written <code>static_cast&lt;uint8_t&gt;(x) &gt; static_cast&lt;uint8_t&gt;(Last)</code> checks must each be updated when an
+enumerator is added.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Enumeration range checks use <code>detail::IsEnumerator</code>.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 17.8.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-027">KB-CPP20-027: <code>using enum</code> only at block scope<a class="headerlink" href="#kb-cpp20-027" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p><code>using enum E;</code> appears only inside a function body, never at namespace or class scope in a header.</p>
+<p><em>Why:</em> At namespace scope it exports every enumerator into the enclosing namespace and undoes the scoping that scoped
+enumerations exist for.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/using-enum-scope</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter
+  names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: <code>using enum</code> only inside function bodies.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 6.4.1; MISRA C++:2023 Rule 10.2.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-028">KB-CPP20-028: <code>&lt;bit&gt;</code> for counting and rotation instead of hand-written loops<a class="headerlink" href="#kb-cpp20-028" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library, hal, firmware · since 1.0</p>
+<p>Population count, leading and trailing zero counts, single-bit tests and rotations use <code>std::popcount</code>,
+<code>std::countl_zero</code>, <code>std::countr_zero</code>, <code>std::has_single_bit</code>, <code>std::bit_width</code>, <code>std::rotl</code> and <code>std::rotr</code>. On a
+timing-critical path the generated code is checked once per target.</p>
+<p><em>Why:</em> They accept only unsigned types, are <code>constexpr</code> and are simpler to review than a loop.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Bit counting uses <code>&lt;bit&gt;</code>.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.0.4; MISRA C++:2023 Rule 9.5.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-029">KB-CPP20-029: <code>std::bit_cast</code> between equal-size values, never for byte order<a class="headerlink" href="#kb-cpp20-029" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p><code>std::bit_cast</code> is used only between trivially copyable value types of the same size, never to or from a pointer, and
+never to read a multi-byte wire value: byte order is always explicit shifts. <code>std::endian</code> appears only in a
+<code>static_assert</code> or in MCU port code.</p>
+<p><em>Why:</em> A <code>bit_cast</code> of a 4-byte buffer to <code>uint32_t</code> silently assumes the host byte order (KB-CPP-106).</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/bugprone-bitwise-pointer-cast</code> (implemented): a clang-tidy check from config/.clang-tidy, run with the
+  CMake compile database</li>
+<li><code>codeql/bit-cast-byte-order</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter
+  names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: No <code>bit_cast</code> from a byte array.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 8.2.5; MISRA C++:2023 Rule 8.2.4; MISRA C++:2023 Rule 8.2.6; MISRA C++:2023 Rule 6.8.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-030">KB-CPP20-030: Strong types for units and easily swapped parameters<a class="headerlink" href="#kb-cpp20-030" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library · since 1.0</p>
+<p>A public function with two or more adjacent parameters of the same arithmetic type but different meanings, or a physical
+quantity whose unit is easy to confuse, takes single-member strong types (<code>Milliamps</code>, <code>Microseconds</code>, <code>I2cAddress7</code>):
+trivially copyable aggregates of one integer with only the operations the unit supports.</p>
+<p><em>Why:</em> <code>CurrentCode(uint32_t ma, uint32_t rref_ohm)</code> compiles with the arguments swapped; a one-member struct is passed
+in a register on the Arm and Xtensa ABIs, so the safety costs nothing.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Adjacent same-typed parameters with different units use strong types.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.0.6</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-d">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-031">KB-CPP20-031: Designated initialisers for configuration; every member has a default<a class="headerlink" href="#kb-cpp20-031" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Every member of a configuration or value aggregate has a default member initialiser. Code that sets more than one member
+of such an aggregate in one expression uses designated initialisers; positional brace initialisation of a multi-member
+aggregate is used only inside the type's own header.</p>
+<p><em>Why:</em> C++20 already orders designators and forbids mixing; the defaults make an omitted designator mean the datasheet
+default, and designators keep a call site right when a field is inserted.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/modernize-use-designated-initializers</code> (implemented): a clang-tidy check from config/.clang-tidy, run with
+  the CMake compile database</li>
+<li><code>clang-tidy/cppcoreguidelines-pro-type-member-init</code> (implemented): a clang-tidy check from config/.clang-tidy, run
+  with the CMake compile database</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 11.6.1; MISRA C++:2023 Rule 15.1.4; MISRA C++:2023 Rule 7.0.6</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-e">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-032">KB-CPP20-032: No parenthesised aggregate initialisation<a class="headerlink" href="#kb-cpp20-032" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Aggregates are never initialised with parentheses (<code>Config(a, b)</code>).</p>
+<p><em>Why:</em> The C++20 parenthesised form is positional and, unlike braces, allows narrowing, so <code>Config(1000, 2.5)</code> compiles;
+it also reads like a constructor that does not exist.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/paren-aggregate-init</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter
+  names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: Aggregates use braces.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.0.6</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-e">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-033">KB-CPP20-033: Defaulted <code>operator==</code> only on exactly comparable members<a class="headerlink" href="#kb-cpp20-033" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p><code>operator==</code> of a value type is defaulted, never hand-written, and only when every member is an integer, <code>bool</code>,
+enumeration, <code>std::array</code> of those, or a type that itself follows this guideline. Types with floating-point or pointer
+members have no <code>operator==</code>.</p>
+<p><em>Why:</em> A defaulted <code>==</code> compares floats exactly and pointers by address, which is rarely what the same configuration
+means.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/float-defaulted-equality</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the
+  parameter names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: No defaulted <code>==</code> on a type with a float or pointer member.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 16.6.1; MISRA C++:2023 Dir 0.3.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-e">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-034">KB-CPP20-034: No three-way comparison in drivers<a class="headerlink" href="#kb-cpp20-034" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template · since 1.0 · enforced from 2027-03-01</p>
+<p>Drivers do not declare or use <code>operator&lt;=&gt;</code> and do not include <code>&lt;compare&gt;</code>. Libraries may default <code>&lt;=&gt;</code> for a type with
+a genuine total order, under KB-CPP20-033's member rules.</p>
+<p><em>Why:</em> Driver configurations, statuses and errors have no order, and <code>&lt;compare&gt;</code> is outside the driver subset.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>include-allowlist/driver</code> (implemented): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 16.6.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-e">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-035">KB-CPP20-035: Structured bindings test the error before the value<a class="headerlink" href="#kb-cpp20-035" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library, hal, firmware · since 1.0</p>
+<p>Structured bindings may decompose an aggregate returned by value. When it is a <code>Result</code>, the error binding is tested
+before the value binding is read. Bindings are by value, or <code>const auto&amp;</code> to a named object.</p>
+<p><em>Why:</em> <code>[[nodiscard]]</code> is satisfied by the binding, so the compiler no longer helps when the value is used first.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/structured-binding-order</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the
+  parameter names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: The error binding is tested first.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 0.1.2; MISRA C++:2023 Rule 11.6.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-e">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-036">KB-CPP20-036: Class-type template arguments are structural and integral<a class="headerlink" href="#kb-cpp20-036" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library · since 1.0</p>
+<p>A class type used as a non-type template parameter has only public integral, <code>bool</code> and enumeration members: no
+floating-point members, no pointers.</p>
+<p><em>Why:</em> Integral members keep instantiation identity obvious and portable across our compilers.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Class NTTPs have integral members only.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 17.8.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-e">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-037">KB-CPP20-037: <code>[[nodiscard]]</code> on every error-carrying type<a class="headerlink" href="#kb-cpp20-037" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p><code>Result&lt;T&gt;</code>, <code>Result&lt;void&gt;</code>, every <code>Error</code> enumeration and every status type are declared <code>[[nodiscard]]</code> on the type,
+and every <code>const</code> query member function is <code>[[nodiscard]]</code>. A deliberate discard is a <code>(void)</code> cast with a comment
+saying why.</p>
+<p><em>Why:</em> With the attribute on the type, every function returning it is covered, <code>Validate()</code> and bus helpers included,
+and the compiler proves what review used to.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/nodiscard-error</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>compiler-warnings/-Wunused-result</code> (implemented): the build is warning-free with the named flag and -Werror</li>
+<li><code>clang-tidy/bugprone-unused-return-value</code> (implemented): a clang-tidy check from config/.clang-tidy, run with the
+  CMake compile database</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 0.1.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-f">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-038">KB-CPP20-038: <code>[[maybe_unused]]</code> instead of <code>(void)</code> for conditionally used names<a class="headerlink" href="#kb-cpp20-038" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library, hal, firmware · since 1.0</p>
+<p>A parameter or variable used only in some <code>if constexpr</code> branches is declared <code>[[maybe_unused]]</code>; a <code>(void)x;</code> statement
+is kept for discarding a result.</p>
+<p><em>Why:</em> It keeps <code>(void)</code> meaning one thing: an explicit discard.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>compiler-warnings/-Wunused-parameter</code> (implemented): the build is warning-free with the named flag and -Werror</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 0.2.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-f">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-039">KB-CPP20-039: No <code>[[fallthrough]]</code><a class="headerlink" href="#kb-cpp20-039" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Every non-empty <code>switch</code> clause ends with <code>break</code>, <code>return</code> or a <code>[[noreturn]]</code> call; <code>[[fallthrough]]</code> is not used.</p>
+<p><em>Why:</em> The attribute documents a fall-through our switch layout does not allow at all; adjacent case labels already
+cover several values with one action.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>compiler-warnings/-Wimplicit-fallthrough</code> (implemented): the build is warning-free with the named flag and -Werror</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 9.4.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-f">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-040">KB-CPP20-040: <code>[[likely]]</code> and <code>[[unlikely]]</code> only with a measurement<a class="headerlink" href="#kb-cpp20-040" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library, hal, firmware · since 1.0</p>
+<p>These attributes are added only with a recorded measurement on the target (KB-CPP-074), named in a comment on the same
+line that contains the word <code>measured</code>.</p>
+<p><em>Why:</em> Their effect depends on the compiler and target; a wrong hint slows the path it was meant to speed up.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-f">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-041">KB-CPP20-041: No <code>[[no_unique_address]]</code> in drivers<a class="headerlink" href="#kb-cpp20-041" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template · since 1.0 · enforced from 2027-03-01</p>
+<p>Drivers do not use <code>[[no_unique_address]]</code>, and no type whose layout is asserted (KB-CPP-009) uses it anywhere.</p>
+<p><em>Why:</em> It lets members overlap, which changes size and offsets differently per compiler, so layout assertions pass on
+one and fail on another.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 12.2.1; MISRA C++:2023 Rule 21.2.4</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-f">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-042">KB-CPP20-042: Caller buffers are spans, with a fixed extent when the size is known<a class="headerlink" href="#kb-cpp20-042" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>A function in target code that takes a buffer takes <code>std::span&lt;T&gt;</code> or <code>std::span&lt;const T&gt;</code>, with a fixed extent when the
+size is a property of the chip or the frame, and a dynamic extent only when the caller chooses the count.
+Pointer-and-length pairs exist only in the port hook signatures (KB-CPP-035), where the driver passes <code>.data()</code> and
+<code>.size()</code> of an array or span it owns.</p>
+<p><em>Why:</em> The size travels with the pointer, so the callee can check it, and a fixed extent turns the check into a compile
+error. MD-CPP-001's justification relies on it.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/pointer-length-parameter</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the
+  parameter names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: No pointer-and-length parameter outside port hooks.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.11.2; MISRA C++:2023 Rule 8.7.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-g">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-043">KB-CPP20-043: A dynamic span is checked before it is indexed, wherever it is indexed<a class="headerlink" href="#kb-cpp20-043" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Before the first element access, a function that receives a dynamic-extent span checks its size against the contract
+(not empty, not above the documented maximum, the output at least as large as the input). A helper that copies into a
+fixed buffer checks the length itself instead of trusting its callers. <code>first</code>, <code>last</code> and <code>subspan</code> take only counts
+proved in range. Host tests and fuzzers build with the standard library's assertions, so an out-of-range access traps.</p>
+<p><em>Why:</em> C++20 <code>std::span</code> has no checked <code>at()</code>; an out-of-range <code>operator[]</code>, <code>first(n)</code> or <code>subspan</code> is undefined.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>library-hardening</code> (implemented): host tests and fuzz targets build with the standard library's assertions
+  (_GLIBCXX_ASSERTIONS, libc++ hardening), so an out-of-range span or array access traps</li>
+<li><code>sanitizers</code> (implemented): host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer</li>
+<li><code>codeql/unchecked-span-index</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter
+  names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: Every dynamic span is size-checked before its first access.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 8.7.1; MISRA C++:2023 Rule 4.1.3</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-g">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-044">KB-CPP20-044: Views and references never outlive what they refer to<a class="headerlink" href="#kb-cpp20-044" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category mandatory; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>A <code>std::span</code> (and above the drivers a <code>std::string_view</code>) is never a data member, never returned when it refers to a
+local or a temporary, and never built from a temporary container. A lambda that captures by reference is never stored or
+returned. A member function that returns a reference into <code>*this</code> is <code>&amp;</code>-qualified, with the rvalue overload deleted.</p>
+<p><em>Why:</em> Dangling access is undefined behaviour that tests reusing the stack the same way never show, and since C++17 a
+non-copyable driver can be a temporary.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/bugprone-dangling-handle</code> (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake
+  compile database</li>
+<li><code>codeql/span-member</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter names the
+  query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop, pointer-length-parameter)</li>
+<li>review: No span member; reference accessors are <code>&amp;</code>-qualified.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 6.8.2; MISRA C++:2023 Rule 6.8.3; MISRA C++:2023 Rule 6.8.1; MISRA C++:2023 Rule 6.8.4</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-g">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-045">KB-CPP20-045: Lambdas: explicit captures, local use, no state<a class="headerlink" href="#kb-cpp20-045" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Lambdas in target code list every capture (<code>[this, address]</code>, never <code>[=]</code> or <code>[&amp;]</code>), are not <code>mutable</code>, are called
+within the full expression or passed down the stack to a constrained template, and are never stored beyond the enclosing
+function. No lambda calls itself.</p>
+<p><em>Why:</em> A default capture hides what a closure depends on, a stored closure is a lifetime hazard, and recursion breaks
+the stack bound.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/cppcoreguidelines-misleading-capture-default-by-value</code> (implemented): a clang-tidy check from
+  config/.clang-tidy, run with the CMake compile database</li>
+<li><code>codeql/lambda-capture</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter names
+  the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop, pointer-length-parameter)</li>
+<li>review: Every lambda capture is explicit.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 8.1.1; MISRA C++:2023 Rule 8.1.2; MISRA C++:2023 Rule 7.11.3</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-h">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-046">KB-CPP20-046: No lambdas in unevaluated operands or at namespace scope in headers<a class="headerlink" href="#kb-cpp20-046" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>No lambda appears in <code>decltype</code>, <code>sizeof</code>, a template argument or a default template argument, and no header defines a
+namespace-scope variable initialised with a lambda.</p>
+<p><em>Why:</em> Every lambda expression has its own type, so the same declaration in two translation units names different types:
+an ODR trap with no diagnostic.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/lambda-unevaluated</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter
+  names the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop,
+  pointer-length-parameter)</li>
+<li>review: No lambda in an unevaluated operand.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 6.2.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-h">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-047">KB-CPP20-047: No generic lambdas in drivers<a class="headerlink" href="#kb-cpp20-047" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template · since 1.0</p>
+<p>Drivers do not use <code>[]&lt;typename T&gt;(...)</code> or <code>auto</code> lambda parameters; a generic helper is a named, constrained function
+template in <code>detail</code>.</p>
+<p><em>Why:</em> A generic lambda is an unconstrained template (KB-CPP20-005) that is harder to read in review.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>codeql/generic-lambda</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter names
+  the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop, pointer-length-parameter)</li>
+<li>review: No generic lambda in driver code.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 17.8.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-h">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-048">KB-CPP20-048: <code>std::optional</code> is read only when engaged, never through <code>.value()</code><a class="headerlink" href="#kb-cpp20-048" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category mandatory; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p><code>*opt</code> and <code>opt-&gt;</code> are used only where a test of <code>opt.has_value()</code> (or <code>if (opt)</code>) dominates them; <code>.value()</code> is never
+called. Failure is modelled with <code>Result</code>, not <code>std::optional</code>: an optional means may be absent, and that is fine.</p>
+<p><em>Why:</em> Dereferencing an empty optional is undefined behaviour, and <code>.value()</code> throws, which with <code>-fno-exceptions</code> ends
+the program.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/bugprone-unchecked-optional-access</code> (implemented): a clang-tidy check from config/.clang-tidy, run with
+  the CMake compile database</li>
+<li><code>clang-tidy/bugprone-optional-value-conversion</code> (implemented): a clang-tidy check from config/.clang-tidy, run with
+  the CMake compile database</li>
+<li>review: No <code>.value()</code> on an optional.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 4.1.3; MISRA C++:2023 Rule 0.1.2; MISRA C++:2023 Dir 0.3.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-i">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-049">KB-CPP20-049: No <code>variant</code>, <code>any</code>, <code>function</code> or <code>expected</code> in drivers<a class="headerlink" href="#kb-cpp20-049" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template · since 1.0 · enforced from 2027-03-01</p>
+<p>Drivers do not use <code>std::variant</code>, <code>std::any</code>, <code>std::function</code> or <code>std::expected</code>. Libraries may use <code>std::variant</code> with
+<code>std::get_if</code> or <code>std::visit</code> over an exhaustive overload set, never <code>std::get</code>.</p>
+<p><em>Why:</em> <code>std::get</code> and <code>std::visit</code> on a valueless variant throw, <code>std::function</code> may allocate, <code>std::any</code> needs RTTI,
+and <code>std::expected</code> is C++23.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>include-allowlist/driver</code> (implemented): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 21.6.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-i">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-050">KB-CPP20-050: Range algorithms with rules; no views in target code<a class="headerlink" href="#kb-cpp20-050" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Non-allocating algorithms from <code>&lt;algorithm&gt;</code>, the <code>std::ranges::</code> overloads included, may be used on named arrays and
+spans with side-effect-free predicates. <code>&lt;ranges&gt;</code> and range views are not used in target code.</p>
+<p><em>Why:</em> The algorithms are bounded loops with clear contracts; views evaluate lazily and hold references, so a lifetime
+error moves away from where it is written, and they are slow in unoptimised debug images.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>include-allowlist/driver</code> (implemented): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 28.3.1; MISRA C++:2023 Rule 9.5.2; MISRA C++:2023 Rule 6.8.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-i">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-051">KB-CPP20-051: No <code>&lt;format&gt;</code>, <code>std::format</code> or <code>std::print</code><a class="headerlink" href="#kb-cpp20-051" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Target code does not include <code>&lt;format&gt;</code> or <code>&lt;print&gt;</code> or call their functions. Text above the drivers is formatted with
+<code>snprintf</code> into a caller's buffer (ADR-0017).</p>
+<p><em>Why:</em> <code>std::format</code> returns a heap string, throws on a bad format and pulls in locale support.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 21.6.1; MISRA C++:2023 Rule 21.10.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-i">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-052">KB-CPP20-052: No <code>std::source_location</code> in drivers<a class="headerlink" href="#kb-cpp20-052" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template · since 1.0 · enforced from 2027-03-01</p>
+<p>Drivers do not include <code>&lt;source_location&gt;</code>. Above the drivers it is used only as a defaulted parameter of the logging
+facade, which stores only the line and a file identifier.</p>
+<p><em>Why:</em> Drivers never format text (KB-CPP-037), and each use places file and function strings in flash.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>include-allowlist/driver</code> (implemented): a script over the include graph that fails on a header outside the allowed
+  set for the directory; the parameter names the table (driver, hosted, kb-core, handlers, hal-boundary)</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-i">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-053">KB-CPP20-053: No <code>char8_t</code> and no <code>u8</code> literals in target code<a class="headerlink" href="#kb-cpp20-053" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p><code>char8_t</code> and <code>u8</code> character and string literals are not used.</p>
+<p><em>Why:</em> Drivers move bytes, not text, and C++20 changed the type of <code>u8</code> literals, which breaks code moving between
+dialects.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 7.0.3</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-i">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-054">KB-CPP20-054: <code>&lt;numbers&gt;</code> for mathematical constants<a class="headerlink" href="#kb-cpp20-054" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template, library, hal, firmware · since 1.0</p>
+<p>Mathematical constants come from <code>&lt;numbers&gt;</code> (<code>std::numbers::pi_v&lt;float&gt;</code>) wherever the layer's ADR-0017 subset includes
+it, never as hand-typed digits.</p>
+<p><em>Why:</em> Constants only, no code; it removes hand-typed digits and the suppression that goes with them.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/modernize-use-std-numbers</code> (implemented): a clang-tidy check from config/.clang-tidy, run with the CMake
+  compile database</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Dir 0.3.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-i">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-055">KB-CPP20-055: <code>std::atomic_ref</code> only for lock-free sharing with an interrupt<a class="headerlink" href="#kb-cpp20-055" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · hal, firmware · since 1.0</p>
+<p>HAL code may use <code>std::atomic_ref&lt;T&gt;</code> for an object shared with an interrupt handler only when
+<code>std::atomic_ref&lt;T&gt;::is_always_lock_free</code> is asserted and every access to the object goes through it.</p>
+<p><em>Why:</em> It makes a plain member atomic without changing its type, but mixing atomic and plain access is a data race.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: A <code>static_assert</code> of <code>is_always_lock_free</code> sits next to each <code>atomic_ref</code>.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 10.1.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-i">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-056">KB-CPP20-056: No coroutines<a class="headerlink" href="#kb-cpp20-056" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>No <code>co_await</code>, <code>co_yield</code> or <code>co_return</code>, and no <code>&lt;coroutine&gt;</code>.</p>
+<p><em>Why:</em> The coroutine frame is heap-allocated unless the optimiser removes it, which is not guaranteed; the generated
+state machine is hard to bound for stack and timing; and the RTOS task model already gives concurrency.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+<li><code>clang-tidy/cppcoreguidelines-avoid-capturing-lambda-coroutines</code> (implemented): a clang-tidy check from
+  config/.clang-tidy, run with the CMake compile database</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 21.6.1; MISRA C++:2023 Rule 8.2.10</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-j">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-057">KB-CPP20-057: No modules<a class="headerlink" href="#kb-cpp20-057" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>No <code>import</code>, <code>export module</code>, module partitions or header units.</p>
+<p><em>Why:</em> ESP-IDF's build does not support them, GCC's support is partial, CMake needs a scanning generator, and the
+analysis tools lag; header-only drivers gain little.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cpp20-profile/forbidden-features</code> (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source_location&gt;, variant, any, function or
+  [[no_unique_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 4.1.1</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-j">standards/cpp20-profile.md</a></p>
+<h2 id="kb-cpp20-058">KB-CPP20-058: Loops are bounded by a validated constant<a class="headerlink" href="#kb-cpp20-058" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Category required; warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, template, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>A loop whose bound comes from configuration or input compares its counter with <code>&lt;</code> against a bound that <code>Validate()</code> or
+a preceding check limited to a named maximum. <code>&lt;=</code> against an unsigned bound that can be the type's maximum is not used,
+a <code>for</code> condition has one counter comparison and no extra error flag, and one index never serves two different arrays.</p>
+<p><em>Why:</em> <code>ms &lt;= timeout</code> with <code>timeout == UINT32_MAX</code> never ends because the counter wraps; a bounded loop is what lets us
+state the worst-case time of a call.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>clang-tidy/bugprone-too-small-loop-variable</code> (implemented): a clang-tidy check from config/.clang-tidy, run with the
+  CMake compile database</li>
+<li><code>codeql/unbounded-loop</code> (planned): a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter names
+  the query (for example shift-range, compound-narrowing, enum-from-integer, unbounded-loop, pointer-length-parameter)</li>
+<li>review: Every loop bound from configuration or input is validated against a named maximum.</li>
+</ul>
+<p><em>See also:</em> MISRA C++:2023 Rule 9.5.1; MISRA C++:2023 Rule 0.0.2</p>
+<p><em>Explained in:</em> <a href="../../standards/cpp20-profile/#part-j">standards/cpp20-profile.md</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../cpp/" class="md-footer__link md-footer__link--prev" aria-label="Previous: C++ code">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                C++ code
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../c/" class="md-footer__link md-footer__link--next" aria-label="Next: C code">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                C code
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      
+<div class="md-copyright kb-footer">
+  <nav class="kb-footer__links" aria-label="Kokeb Labs">
+    <a href="https://kokeb-labs.github.io/">Kokeb Labs docs</a>
+    <a href="https://github.com/kokeb-labs">GitHub organisation</a>
+    
+      <a href="https://github.com/kokeb-labs/handbook">Source</a>
+      <a href="https://github.com/kokeb-labs/handbook/issues">Report an issue</a>
+      <a href="https://github.com/kokeb-labs/handbook/blob/main/LICENSE">License</a>
+    
+  </nav>
+  
+    <div class="md-copyright__highlight">Copyright &copy; Kokeb Labs contributors</div>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/kokeb-labs" target="_blank" rel="noopener" title="Kokeb Labs on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "navigation.instant", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>
