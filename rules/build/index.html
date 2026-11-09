@@ -1,0 +1,2851 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+      
+      
+      
+        <link rel="canonical" href="https://kokeb-labs.github.io/handbook/rules/build/">
+      
+      
+        <link rel="prev" href="../hardware/">
+      
+      
+        <link rel="next" href="../testing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/kokeb/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Build and CMake - Kokeb Labs handbook</title>
+      
+    
+    
+  
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8%201.5c-2.363%200-4%201.69-4%203.75%200%20.984.424%201.625.984%202.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621%201.49a.75.75%200%200%201-1.484.211c-.04-.282-.163-.547-.37-.847a9%209%200%200%200-.542-.68q-.126-.149-.268-.32C3.201%207.75%202.5%206.766%202.5%205.25%202.5%202.31%204.863%200%208%200s5.5%202.31%205.5%205.25c0%201.516-.701%202.5-1.328%203.259q-.142.172-.268.319c-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751%200%200%201-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848q.113-.133.213-.253c.561-.679.985-1.32.985-2.304%200-2.06-1.637-3.75-4-3.75M5.75%2012h4.5a.75.75%200%200%201%200%201.5h-4.5a.75.75%200%200%201%200-1.5M6%2015.25a.75.75%200%200%201%20.75-.75h2.5a.75.75%200%200%201%200%201.5h-2.5a.75.75%200%200%201-.75-.75%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+  <link rel="stylesheet" href="../../assets/kokeb/kokeb.css">
+
+    
+      
+    
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="../../assets/kokeb/fonts.css">
+  <noscript><link rel="stylesheet" href="../../assets/kokeb/fonts.css"></noscript>
+
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+  
+  <meta name="theme-color" content="#0e1726" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b2140" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Kokeb Labs">
+  <meta property="og:title" content="Build and CMake - Kokeb Labs handbook">
+  <meta property="og:description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+  <meta property="og:url" content="https://kokeb-labs.github.io/handbook/rules/build/">
+  <meta name="twitter:card" content="summary">
+  <script>
+(function () {
+  if (typeof mermaid != "undefined" && !(mermaid instanceof Element)) return;
+  var SRC = "https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js",
+      SRI = "sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2", config = {}, real, loading;
+  var waiting = [], io = null, ahead = false, ENGAGE = ["scroll", "keydown", "pointerdown", "touchstart"];
+  var stub = {
+    initialize: function (c) { config = c || {}; if (real) real.initialize(config); },
+    render: function (id, text) {
+      var el = null, pres = document.querySelectorAll("pre.mermaid:not([data-kb-mermaid])");
+      for (var i = 0; i < pres.length && !el; i++) if (pres[i].textContent === text) el = pres[i];
+      if (el) el.setAttribute("data-kb-mermaid", "");
+      return near(el).then(load).then(function (m) { return m.render(id, text); });
+    }
+  };
+  function load() {
+    return loading || (loading = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = SRC;
+      s.integrity = SRI;
+      s.crossOrigin = "anonymous";
+      s.onload = function () {
+        real = window.mermaid;
+        window.mermaid = stub;
+        real.initialize(config);
+        resolve(real);
+      };
+      s.onerror = function () { loading = null; reject(new Error("Mermaid did not load")); };
+      document.head.appendChild(s);
+    }));
+  }
+  // One observer for the diagrams still waiting: on the screen only until the reader engages, then a screen ahead.
+  function watch() {
+    if (io) io.disconnect();
+    io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) release(function (w) { return w.el === e.target; });
+      });
+    }, { rootMargin: ahead ? "100% 0px" : "0px" });
+    waiting.forEach(function (w) { io.observe(w.el); });
+  }
+  function release(which) {
+    waiting = waiting.filter(function (w) {
+      if (!which(w)) return true;
+      io.unobserve(w.el);
+      w.go();
+      return false;
+    });
+  }
+  function near(el) {
+    if (real || !el || !("IntersectionObserver" in window)) return Promise.resolve();
+    return new Promise(function (resolve) {
+      waiting.push({ el: el, go: resolve });
+      if (io) io.observe(el); else watch();
+    });
+  }
+  function engaged() {
+    ENGAGE.forEach(function (t) { window.removeEventListener(t, engaged, true); });
+    ahead = true;
+    if (io) watch();
+  }
+  ENGAGE.forEach(function (t) { window.addEventListener(t, engaged, { capture: true, passive: true }); });
+  window.addEventListener("beforeprint", function () { if (io) release(function () { return true; }); });
+  window.mermaid = stub;
+})();
+</script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#build-and-cmake" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kokeb Labs handbook" class="md-header__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          
+          <a class="kb-org" href="https://kokeb-labs.github.io/" title="All Kokeb Labs documentation">Kokeb Labs</a>
+          <span class="kb-org__sep" aria-hidden="true">/</span>
+          <span class="md-ellipsis">
+            Kokeb Labs handbook
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Build and CMake
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Follow the system theme"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Follow the system theme" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../how-rules-work/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  How rules work
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../assurance-levels/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Assurance levels
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Rules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../deviations/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deviations and waivers
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../coding-standards/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Coding standards
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../evidence/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Regulated products
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../adr/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Decision records
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../checklists/migrate-driver/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Checklists
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kokeb Labs handbook" class="md-nav__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    Kokeb Labs handbook
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-rules-work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How rules work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assurance-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assurance levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware and porting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build and CMake
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build and CMake
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-001: The installed package works with find_package
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-002: No file(GLOB) for library sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-003: The root CMakeLists.txt is also the ESP-IDF component
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-004: One build-settings file holds the version, target name and source list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-005: Every copy of the version derives from or is tested against the build settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-006: The same &lt;chip&gt;::&lt;chip&gt; target through add_subdirectory and find_package
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-007: Install rules install every header the public API reaches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-008: Standard options &lt;CHIP&gt;_BUILD_TESTS and &lt;CHIP&gt;_ENABLE_WARNINGS, both off by default
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-009: Compile flags and definitions are set per target, never globally
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-010: CMake configures without developer warnings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-011: Header-only libraries are INTERFACE targets; compiled ones are STATIC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-012: The root CMakeLists.txt declares the org's CMake minimum, 3.16
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-013: Kconfig lives in _config/Kconfig and defines every CONFIG_ value the code reads
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-014: The exported target itself builds warning-free with the org flag set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-015: Supported compilers and toolchains are pinned and listed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-016: Release builds are reproducible
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-017: Image size and stack usage stay within recorded budgets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-018: Firmware reports its version and the exact source of every pinned component
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-019: ESP-IDF builds set a 1 kHz FreeRTOS tick in sdkconfig.defaults
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-020: kb-core parts are separate targets with distinct include roots
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-021: Each build selects exactly one MCU family and one RTOS backend
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-022: Enabling an MCU-bound driver for the wrong MCU fails at configure time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-023: kb-core options use the KB_ scheme and default to the smallest build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-024: Enabling a module enables what it depends on, never the reverse
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-025: kb-core links each driver's target and never copies its file lists
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-026: ESP-IDF REQUIRES follow the enabled options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-027: Configure prints a summary of what is built
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-028: Keep CMake plain and linear
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-029: Depend on as little as possible
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../git/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git, review and release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI and supply chain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deviations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deviations and waivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../coding-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../evidence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulated products
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../standards/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../adr/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision records
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../checklists/migrate-driver/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Checklists
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-001: The installed package works with find_package
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-002: No file(GLOB) for library sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-003: The root CMakeLists.txt is also the ESP-IDF component
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-004: One build-settings file holds the version, target name and source list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-005: Every copy of the version derives from or is tested against the build settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-006: The same &lt;chip&gt;::&lt;chip&gt; target through add_subdirectory and find_package
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-007: Install rules install every header the public API reaches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-008: Standard options &lt;CHIP&gt;_BUILD_TESTS and &lt;CHIP&gt;_ENABLE_WARNINGS, both off by default
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-009: Compile flags and definitions are set per target, never globally
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-010: CMake configures without developer warnings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-011: Header-only libraries are INTERFACE targets; compiled ones are STATIC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-012: The root CMakeLists.txt declares the org's CMake minimum, 3.16
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-013: Kconfig lives in _config/Kconfig and defines every CONFIG_ value the code reads
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-014: The exported target itself builds warning-free with the org flag set
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-015: Supported compilers and toolchains are pinned and listed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-016: Release builds are reproducible
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-017: Image size and stack usage stay within recorded budgets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-018: Firmware reports its version and the exact source of every pinned component
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-019: ESP-IDF builds set a 1 kHz FreeRTOS tick in sdkconfig.defaults
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-020: kb-core parts are separate targets with distinct include roots
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-021: Each build selects exactly one MCU family and one RTOS backend
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-022: Enabling an MCU-bound driver for the wrong MCU fails at configure time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-023: kb-core options use the KB_ scheme and default to the smallest build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-024: Enabling a module enables what it depends on, never the reverse
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-025: kb-core links each driver's target and never copies its file lists
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-026: ESP-IDF REQUIRES follow the enabled options
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-027: Configure prints a summary of what is built
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-028: Keep CMake plain and linear
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-bld-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-BLD-029: Depend on as little as possible
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/kokeb-labs/handbook/edit/main/rules/build.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<!-- generated by checks/handbook.py from rules/*.yml: edit those, then run `python checks/handbook.py gen` -->
+<h1 id="build-and-cmake">Build and CMake<a class="headerlink" href="#build-and-cmake" title="Permanent link">&para;</a></h1>
+<p>How a repository builds, installs and is consumed.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Level</th>
+<th>Applies to</th>
+<th>Verified</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#kb-bld-001">KB-BLD-001</a> The installed package works with find_package</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-002">KB-BLD-002</a> No file(GLOB) for library sources</td>
+<td>must</td>
+<td>driver, library, hal, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-003">KB-BLD-003</a> The root CMakeLists.txt is also the ESP-IDF component</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-004">KB-BLD-004</a> One build-settings file holds the version, target name and source list</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-005">KB-BLD-005</a> Every copy of the version derives from or is tested against the build settings</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-006">KB-BLD-006</a> The same &lt;chip&gt;::&lt;chip&gt; target through add_subdirectory and find_package</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-007">KB-BLD-007</a> Install rules install every header the public API reaches</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-008">KB-BLD-008</a> Standard options <code>&lt;CHIP&gt;_BUILD_TESTS</code> and <code>&lt;CHIP&gt;_ENABLE_WARNINGS</code>, both off by default</td>
+<td>must</td>
+<td>driver, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-009">KB-BLD-009</a> Compile flags and definitions are set per target, never globally</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-010">KB-BLD-010</a> CMake configures without developer warnings</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-011">KB-BLD-011</a> Header-only libraries are INTERFACE targets; compiled ones are STATIC</td>
+<td>should</td>
+<td>driver, library, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-012">KB-BLD-012</a> The root CMakeLists.txt declares the org's CMake minimum, 3.16</td>
+<td>should</td>
+<td>driver, library, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-013">KB-BLD-013</a> Kconfig lives in _config/Kconfig and defines every CONFIG_ value the code reads</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-014">KB-BLD-014</a> The exported target itself builds warning-free with the org flag set</td>
+<td>must</td>
+<td>driver, library, hal, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-015">KB-BLD-015</a> Supported compilers and toolchains are pinned and listed</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-016">KB-BLD-016</a> Release builds are reproducible</td>
+<td>should</td>
+<td>library, hal, firmware (high level and above)</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-017">KB-BLD-017</a> Image size and stack usage stay within recorded budgets</td>
+<td>must</td>
+<td>driver, library, hal, firmware (high level and above)</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-018">KB-BLD-018</a> Firmware reports its version and the exact source of every pinned component</td>
+<td>must</td>
+<td>firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-019">KB-BLD-019</a> ESP-IDF builds set a 1 kHz FreeRTOS tick in sdkconfig.defaults</td>
+<td>must</td>
+<td>driver, hal, firmware, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-020">KB-BLD-020</a> kb-core parts are separate targets with distinct include roots</td>
+<td>must</td>
+<td>library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-021">KB-BLD-021</a> Each build selects exactly one MCU family and one RTOS backend</td>
+<td>must</td>
+<td>library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-022">KB-BLD-022</a> Enabling an MCU-bound driver for the wrong MCU fails at configure time</td>
+<td>must</td>
+<td>library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-023">KB-BLD-023</a> kb-core options use the KB_ scheme and default to the smallest build</td>
+<td>must</td>
+<td>library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-024">KB-BLD-024</a> Enabling a module enables what it depends on, never the reverse</td>
+<td>should</td>
+<td>library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-025">KB-BLD-025</a> kb-core links each driver's target and never copies its file lists</td>
+<td>must</td>
+<td>library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-026">KB-BLD-026</a> ESP-IDF REQUIRES follow the enabled options</td>
+<td>should</td>
+<td>library, hal</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-027">KB-BLD-027</a> Configure prints a summary of what is built</td>
+<td>should</td>
+<td>library, hal</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-028">KB-BLD-028</a> Keep CMake plain and linear</td>
+<td>guide</td>
+<td>driver, library, hal, firmware, template</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-bld-029">KB-BLD-029</a> Depend on as little as possible</td>
+<td>guide</td>
+<td>driver, library, hal</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<h2 id="kb-bld-001">KB-BLD-001: The installed package works with find_package<a class="headerlink" href="#kb-bld-001" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, template · since 1.0</p>
+<p>A library or driver installs a CMake package (<code>&lt;name&gt;Config.cmake</code> with an exported <code>&lt;name&gt;::&lt;name&gt;</code> target) that a
+separate project finds with <code>find_package</code> and links; CI builds such a consumer.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-consumer</code> (implemented): the installed package is found and linked by a separate CMake project (find_package)</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/">standards/driver.md</a></p>
+<h2 id="kb-bld-002">KB-BLD-002: No file(GLOB) for library sources<a class="headerlink" href="#kb-bld-002" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, template · since 1.0</p>
+<p>Library targets list their sources explicitly; <code>file(GLOB)</code> is not used for sources or headers.</p>
+<p><em>Why:</em> A glob hides an added or removed file from review and from the build system's dependency tracking.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/cmake-glob</code> (implemented): a source scan for a construct the handbook bans; the parameter names
+  the pattern set</li>
+</ul>
+<h2 id="kb-bld-003">KB-BLD-003: The root CMakeLists.txt is also the ESP-IDF component<a class="headerlink" href="#kb-bld-003" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, template · since 1.0</p>
+<p>Under <code>ESP_PLATFORM</code> the root <code>CMakeLists.txt</code> registers the repository as an ESP-IDF component and returns before
+<code>project()</code>; there is no separate wrapper component. <code>examples/esp32/</code> reaches it through <code>EXTRA_COMPONENT_DIRS</code>
+pointing at the repository root, and kb-core maps its <code>CONFIG_KB_*</code> values onto its CMake options in that one place.</p>
+<p><em>Why:</em> One CMake entry point for every build system means the ESP-IDF build cannot drift from the host and find_package
+builds.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>esp-idf-examples</code> (planned): every app in examples/esp32 builds with the pinned ESP-IDF, using the repository root as
+  its component (runs today in driver-template esp32-examples-build-ci.yml through ci-tools ru-build)</li>
+<li>review: The root CMakeLists.txt is the ESP-IDF component; no wrapper component or extra CMake entry point.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0011-repository-root-layout/">ADR-0011</a></p>
+<p><em>Explained in:</em> <a href="../../standards/driver/">standards/driver.md</a></p>
+<h2 id="kb-bld-004">KB-BLD-004: One build-settings file holds the version, target name and source list<a class="headerlink" href="#kb-bld-004" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, template · since 1.0</p>
+<p><code>cmake/&lt;chip&gt;_build_settings.cmake</code> (<code>cmake/kb_build_settings.cmake</code> for kb-core, one version for all its parts) is the
+only place the version, the target name, the options and the source list are written. It is guarded with
+<code>include_guard(GLOBAL)</code>, and the variables it sets carry the unbranded <code>&lt;CHIP&gt;_</code> prefix.</p>
+<p><em>Why:</em> A value written twice is eventually written differently.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>version-copies</code> (planned): project(), the package version, the generated version header, Doxyfile PROJECT_NUMBER,
+  driver.yml and the version getter all equal the version in the build settings (driver-template version ctests, less
+  driver.yml)</li>
+<li>review: Version, target name, options and sources are set only in the build-settings file.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0012-unbranded-drivers/">ADR-0012</a>; <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a>; IEC
+62304:2006+A1:2015 8.1.1 (configuration item identification)</p>
+<p><em>Explained in:</em> <a href="../../standards/driver/">standards/driver.md</a></p>
+<h2 id="kb-bld-005">KB-BLD-005: Every copy of the version derives from or is tested against the build settings<a class="headerlink" href="#kb-bld-005" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, template · since 1.0</p>
+<p><code>project()</code>, the package version file, the generated <code>&lt;chip&gt;_version.h</code> (<code>&lt;CHIP&gt;_VERSION_*</code>), Doxyfile <code>PROJECT_NUMBER</code>,
+<code>driver.yml</code> and <code>GetDriverVersion()</code> either derive from the build settings or are compared with them by a test. A
+release changes the version in the build settings and the test proves the copies agree.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>version-copies</code> (planned): project(), the package version, the generated version header, Doxyfile PROJECT_NUMBER,
+  driver.yml and the version getter all equal the version in the build settings (driver-template version ctests, less
+  driver.yml)</li>
+<li>review: A release pull request bumps the version only in the build settings and the version tests pass.</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 8.1.1</p>
+<h2 id="kb-bld-006">KB-BLD-006: The same &lt;chip&gt;::&lt;chip&gt; target through add_subdirectory and find_package<a class="headerlink" href="#kb-bld-006" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, template · since 1.0</p>
+<p>The library target has the alias <code>&lt;chip&gt;::&lt;chip&gt;</code> and <code>EXPORT_NAME &lt;chip&gt;</code>, so a consumer writes the same
+<code>target_link_libraries</code> line whether it uses <code>add_subdirectory()</code> or the installed package. Targets carry no
+organisation prefix.</p>
+<p><em>Why:</em> Submodule consumers and package consumers then differ only in how they find the code, never in what they link.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-consumer</code> (implemented): the installed package is found and linked by a separate CMake project (find_package)</li>
+<li><code>host-tests</code> (implemented): the unit tests build and pass on the host with gcc and clang</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0012-unbranded-drivers/">ADR-0012</a></p>
+<p><em>Explained in:</em> <a href="../../standards/driver/">standards/driver.md</a></p>
+<h2 id="kb-bld-007">KB-BLD-007: Install rules install every header the public API reaches<a class="headerlink" href="#kb-bld-007" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, template · since 1.0</p>
+<p><code>cmake --install</code> installs every header the umbrella header includes, every <code>.ipp</code>, the generated version header and the
+package configuration and version files, keeping the relative layout the includes rely on.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-consumer</code> (implemented): the installed package is found and linked by a separate CMake project (find_package)</li>
+</ul>
+<h2 id="kb-bld-008">KB-BLD-008: Standard options <code>&lt;CHIP&gt;_BUILD_TESTS</code> and <code>&lt;CHIP&gt;_ENABLE_WARNINGS</code>, both off by default<a class="headerlink" href="#kb-bld-008" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, template · since 1.0</p>
+<p>The root CMakeLists.txt offers <code>&lt;CHIP&gt;_BUILD_TESTS</code> and <code>&lt;CHIP&gt;_ENABLE_WARNINGS</code>, both <code>OFF</code> by default, so a consumer
+builds neither the tests nor the warning set unless it asks.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-configure/standard-options</code> (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles</li>
+<li>review: The two options exist with the standard names and default OFF.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/">standards/driver.md</a></p>
+<h2 id="kb-bld-009">KB-BLD-009: Compile flags and definitions are set per target, never globally<a class="headerlink" href="#kb-bld-009" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01</p>
+<p>CMake files set flags, definitions and include paths with <code>target_*</code> commands. <code>add_compile_options</code>, <code>add_definitions</code>,
+<code>include_directories</code> and writes to <code>CMAKE_CXX_FLAGS</code> are not used.</p>
+<p><em>Why:</em> A global flag leaks into every consumer's build and into code it was never reviewed against.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/cmake-global-flags</code> (planned): a source scan for a construct the handbook bans; the parameter
+  names the pattern set</li>
+</ul>
+<h2 id="kb-bld-010">KB-BLD-010: CMake configures without developer warnings<a class="headerlink" href="#kb-bld-010" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01</p>
+<p>The project configures cleanly with <code>-Werror=dev --warn-uninitialized</code>, for the host build and for every option
+combination CI exercises.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-configure/dev-warnings</code> (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles</li>
+</ul>
+<h2 id="kb-bld-011">KB-BLD-011: Header-only libraries are INTERFACE targets; compiled ones are STATIC<a class="headerlink" href="#kb-bld-011" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, library, template · since 1.0</p>
+<p>A library with no sources is an <code>INTERFACE</code> target and one with sources is <code>STATIC</code>. Switching between the two changes
+only the source list in the build settings.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The target type matches whether the build settings list sources.</li>
+</ul>
+<h2 id="kb-bld-012">KB-BLD-012: The root CMakeLists.txt declares the org's CMake minimum, 3.16<a class="headerlink" href="#kb-bld-012" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, library, template · since 1.0</p>
+<p>The root <code>CMakeLists.txt</code> starts with <code>cmake_minimum_required(VERSION 3.16)</code>; a repository raises it only with a reason
+in the pull request.</p>
+<p><em>Why:</em> ESP-IDF 5 and the vendor toolchains in use all ship CMake 3.16 or newer; asking for more locks some out.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: cmake_minimum_required is 3.16, or the pull request says why it is higher.</li>
+</ul>
+<h2 id="kb-bld-013">KB-BLD-013: Kconfig lives in _config/Kconfig and defines every CONFIG_ value the code reads<a class="headerlink" href="#kb-bld-013" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, template · since 1.0 · enforced from 2027-03-01</p>
+<p>A component with ESP-IDF options ships <code>_config/Kconfig</code>, registered through <code>KCONFIG</code> in the root CMakeLists.txt. Code
+reads no <code>CONFIG_*</code> symbol that this file (or ESP-IDF itself) does not define, and compiles with every such value unset.</p>
+<p><em>Why:</em> A CONFIG_ name with no Kconfig behind it is silently never set, and its feature is silently off.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>kconfig-symbols</code> (planned): every CONFIG_ symbol the sources read is defined in _config/Kconfig or by ESP-IDF</li>
+<li><code>host-tests</code> (implemented): the unit tests build and pass on the host with gcc and clang</li>
+</ul>
+<h2 id="kb-bld-014">KB-BLD-014: The exported target itself builds warning-free with the org flag set<a class="headerlink" href="#kb-bld-014" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, template · since 1.0 · enforced from 2027-03-01</p>
+<p>CI compiles the library's own sources and every public header with <code>&lt;CHIP&gt;_ENABLE_WARNINGS=ON</code>, the org warning set,
+<code>-fno-exceptions -fno-rtti</code> and <code>-Werror</code>, not only the test targets that include them.</p>
+<p><em>Why:</em> Today the flags reach a compiled library's sources only through the tests, so a STATIC target can ship code the
+warning set never saw.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>exported-target-flags</code> (planned): the library target's own sources and every public header compile with
+  &lt;CHIP&gt;_ENABLE_WARNINGS=ON, the org warning set and -Werror</li>
+<li><code>exceptions-rtti-off</code> (planned): the exported library target compiles with -fno-exceptions -fno-rtti, not only the
+  tests</li>
+</ul>
+<h2 id="kb-bld-015">KB-BLD-015: Supported compilers and toolchains are pinned and listed<a class="headerlink" href="#kb-bld-015" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01</p>
+<p>The repository lists the compilers it supports (host gcc and clang, arm-none-eabi-gcc, the ESP-IDF release) with exact
+versions, and CI builds with exactly those versions. Changing one is a pull request of its own.</p>
+<p><em>Why:</em> An unpinned toolchain changes the warnings, the code generated and the static-analysis findings without any
+commit to blame; clang-tidy 18 and 20 already disagree on the same code.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>toolchain-pins</code> (planned): the repository lists exact versions of every supported compiler and ESP-IDF, and every CI
+  build uses exactly those versions</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 8.1.2 (SOUP identification, for the toolchain)</p>
+<h2 id="kb-bld-016">KB-BLD-016: Release builds are reproducible<a class="headerlink" href="#kb-bld-016" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · library, hal, firmware (high level and above) · since 1.0 · enforced from 2027-03-01</p>
+<p>Building the same tag twice with the pinned toolchain gives byte-identical artefacts: no <code>__DATE__</code> or <code>__TIME__</code>, build
+paths stripped with <code>-ffile-prefix-map</code>, and timestamps taken from <code>SOURCE_DATE_EPOCH</code>.</p>
+<p><em>Why:</em> An evidence package is only worth something if anyone can rebuild the binary it describes.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>reproducible-build</code> (planned): two clean builds of the same commit in different directories produce byte-identical
+  artefacts</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 8.1.1</p>
+<h2 id="kb-bld-017">KB-BLD-017: Image size and stack usage stay within recorded budgets<a class="headerlink" href="#kb-bld-017" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware (high level and above) · since 1.0 · enforced from 2027-03-01</p>
+<p>Firmware and example images are built with <code>-fstack-usage</code>. The repository records a flash, RAM and per-task stack
+budget, and CI fails when a build exceeds one or a function's stack use is unbounded.</p>
+<p><em>Why:</em> Stack overflow on a microcontroller corrupts memory silently; a budget turns it into a build failure.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>size-budget</code> (planned): flash and RAM use of each built image stays within the budget recorded in the repository</li>
+<li><code>stack-usage</code> (planned): the target build with -fstack-usage reports every task entry and ISR within the stack budget
+  in the repository's budget file; unbounded (dynamic) frames fail</li>
+</ul>
+<p><em>See also:</em> NASA/JPL Power of Ten Rule 1 (no recursion, so stack use is bounded)</p>
+<h2 id="kb-bld-018">KB-BLD-018: Firmware reports its version and the exact source of every pinned component<a class="headerlink" href="#kb-bld-018" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Firmware embeds a header generated by CMake with its own version, the release train and the tag and commit SHA of every
+pinned submodule, and reports them at start-up and on request. No version is hard-coded.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>provenance-header</code> (planned): the firmware's generated provenance header names its version, release train and the tag
+  and SHA of every submodule, matching .gitmodules and git describe</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a>; IEC 62304:2006+A1:2015 8.1.3 (identify the system
+configuration)</p>
+<p><em>Explained in:</em> <a href="../../standards/product/">standards/product.md</a></p>
+<h2 id="kb-bld-019">KB-BLD-019: ESP-IDF builds set a 1 kHz FreeRTOS tick in sdkconfig.defaults<a class="headerlink" href="#kb-bld-019" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, hal, firmware, template · since 1.0 · enforced from 2027-03-01</p>
+<p>Every ESP-IDF project, including driver examples, sets <code>CONFIG_FREERTOS_HZ=1000</code> in <code>sdkconfig.defaults</code>. ThreadX builds
+should set <code>TX_TIMER_TICKS_PER_SECOND</code> to 1000.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>sdkconfig-defaults/freertos-hz</code> (planned): sdkconfig.defaults of every ESP-IDF project sets the named value
+  (freertos-hz is CONFIG_FREERTOS_HZ=1000)</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0006-freertos-1khz-tick/">ADR-0006</a>; <a href="../../adr/0018-sdkconfig/">ADR-0018</a></p>
+<p><em>Explained in:</em> <a href="../../standards/threading-and-timing/">standards/threading-and-timing.md</a></p>
+<h2 id="kb-bld-020">KB-BLD-020: kb-core parts are separate targets with distinct include roots<a class="headerlink" href="#kb-bld-020" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · library · since 1.0 · enforced from 2027-03-01</p>
+<p>kb-core builds <code>kb::utils</code>, <code>kb::rtos</code>, <code>kb::interfaces</code> and <code>kb::handlers</code> as separate targets, each with one include
+root reached as <code>"kb/&lt;part&gt;/&lt;Header&gt;.h"</code>; no two parts install the same path. Each part is usable through
+<code>add_subdirectory()</code> and through its installed package.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-configure/kb-core-targets</code> (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles</li>
+<li><code>installed-header-collisions</code> (planned): the install trees of the kb-core packages contain no path twice</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a></p>
+<p><em>Explained in:</em> <a href="../../standards/library/">standards/library.md</a></p>
+<h2 id="kb-bld-021">KB-BLD-021: Each build selects exactly one MCU family and one RTOS backend<a class="headerlink" href="#kb-bld-021" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · library · since 1.0 · enforced from 2027-03-01</p>
+<p><code>KB_MCU</code> (ESP32, STM32, HOST or NONE) and <code>KB_RTOS</code> (FREERTOS, THREADX or NONE) each select exactly one backend and
+define exactly one macro for it. <code>KB_MCU=NONE</code> builds the MCU-independent base only and <code>KB_MCU=HOST</code> is the test
+backend; the API is the same on every backend.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-configure/backend-selection</code> (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a>; <a href="../../adr/0014-three-kinds-of-specific/">ADR-0014</a></p>
+<p><em>Explained in:</em> <a href="../../standards/library/">standards/library.md</a></p>
+<h2 id="kb-bld-022">KB-BLD-022: Enabling an MCU-bound driver for the wrong MCU fails at configure time<a class="headerlink" href="#kb-bld-022" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · library · since 1.0 · enforced from 2027-03-01</p>
+<p>Drivers bound to an MCU family or peripheral are listed in <code>KB_MCU_GATES</code>, generated from <code>catalog/compat.yml</code> and never
+edited by hand. Enabling one for another MCU stops the CMake configure step with a message naming the gate. A kb-core
+release regenerates the table and checks it agrees with <code>compat.yml</code>.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-configure/mcu-gates</code> (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles</li>
+<li>review: compat.yml was regenerated for the release and the gate table matches it.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a>; <a href="../../adr/0014-three-kinds-of-specific/">ADR-0014</a></p>
+<p><em>Explained in:</em> <a href="../../standards/layers/">standards/layers.md</a></p>
+<h2 id="kb-bld-023">KB-BLD-023: kb-core options use the KB_ scheme and default to the smallest build<a class="headerlink" href="#kb-bld-023" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · library · since 1.0 · enforced from 2027-03-01</p>
+<p>kb-core's options are <code>KB_MCU</code>, <code>KB_RTOS</code>, <code>KB_ENABLE_&lt;CHIP&gt;</code>, <code>KB_ENABLE_&lt;FEATURE&gt;</code> and <code>KB_BUILD_TESTS</code>. Each enable
+option has an explicit default, <code>OFF</code> unless the pull request justifies otherwise, so an unconfigured build is the base
+only. <code>KB_ENABLE_&lt;CHIP&gt;</code> is the only switch that compiles a handler.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-configure/option-defaults</code> (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a></p>
+<p><em>Explained in:</em> <a href="../../standards/library/">standards/library.md</a></p>
+<h2 id="kb-bld-024">KB-BLD-024: Enabling a module enables what it depends on, never the reverse<a class="headerlink" href="#kb-bld-024" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · library · since 1.0 · enforced from 2027-03-01</p>
+<p>Turning on one option also turns on the modules it needs: a driver enables the interfaces it uses, and an interface
+never enables a driver. Every option configures and builds when it is the only one switched on.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>cmake-configure/single-toggles</code> (planned): a CMake configure test asserts the named property: standard-options,
+  dev-warnings, kb-core-targets, backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults,
+  single-toggles</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/layers/">standards/layers.md</a></p>
+<h2 id="kb-bld-025">KB-BLD-025: kb-core links each driver's target and never copies its file lists<a class="headerlink" href="#kb-bld-025" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · library · since 1.0</p>
+<p>kb-core consumes a driver by linking <code>&lt;chip&gt;::&lt;chip&gt;</code> from its pinned submodule. <code>kb_build_settings.cmake</code> holds the
+version, options, targets and gate table, and no driver source or include path.</p>
+<p><em>Why:</em> A copied file list breaks the day the driver adds a file, and bypasses the driver's own flags.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: kb-core CMake names no file or include directory inside a driver submodule.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a>; <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a></p>
+<p><em>Explained in:</em> <a href="../../standards/library/">standards/library.md</a></p>
+<h2 id="kb-bld-026">KB-BLD-026: ESP-IDF REQUIRES follow the enabled options<a class="headerlink" href="#kb-bld-026" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · library, hal · since 1.0</p>
+<p>Under ESP-IDF the component's <code>REQUIRES</code> list is built from the enabled options, without duplicates, so a disabled
+module pulls in no component. A component that exists only in some ESP-IDF releases is checked for and reported, not
+assumed.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Each REQUIRES entry is added by the option that needs it.</li>
+</ul>
+<h2 id="kb-bld-027">KB-BLD-027: Configure prints a summary of what is built<a class="headerlink" href="#kb-bld-027" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · library, hal · since 1.0</p>
+<p>A library or HAL with options prints one configuration summary at the end of configure: MCU, RTOS, enabled drivers and
+features, and their count.</p>
+<p><em>Why:</em> A CI log then says what was actually built without anyone reproducing the configure step.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The configure log shows the summary block.</li>
+</ul>
+<h2 id="kb-bld-028">KB-BLD-028: Keep CMake plain and linear<a class="headerlink" href="#kb-bld-028" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · driver, library, hal, firmware, template · since 1.0</p>
+<p>Build settings read top to bottom as a list of settings: no logic hidden in helper functions, paths derived from
+<code>CMAKE_CURRENT_LIST_DIR</code> and overridable as cache variables where a consumer may need to.</p>
+<h2 id="kb-bld-029">KB-BLD-029: Depend on as little as possible<a class="headerlink" href="#kb-bld-029" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · driver, library, hal · since 1.0</p>
+<p>Add a dependency only when it removes more than it costs, keep the dependency list of a published component accurate,
+and prefer a compatible change to a breaking one.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../hardware/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Hardware and porting">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Hardware and porting
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../testing/" class="md-footer__link md-footer__link--next" aria-label="Next: Testing">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Testing
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      
+<div class="md-copyright kb-footer">
+  <nav class="kb-footer__links" aria-label="Kokeb Labs">
+    <a href="https://kokeb-labs.github.io/">Kokeb Labs docs</a>
+    <a href="https://github.com/kokeb-labs">GitHub organisation</a>
+    
+      <a href="https://github.com/kokeb-labs/handbook">Source</a>
+      <a href="https://github.com/kokeb-labs/handbook/issues">Report an issue</a>
+      <a href="https://github.com/kokeb-labs/handbook/blob/main/LICENSE">License</a>
+    
+  </nav>
+  
+    <div class="md-copyright__highlight">Copyright &copy; Kokeb Labs contributors</div>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/kokeb-labs" target="_blank" rel="noopener" title="Kokeb Labs on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "navigation.instant", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>

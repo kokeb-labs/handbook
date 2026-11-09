@@ -1,0 +1,3056 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+      
+      
+      
+        <link rel="canonical" href="https://kokeb-labs.github.io/handbook/rules/git/">
+      
+      
+        <link rel="prev" href="../repo/">
+      
+      
+        <link rel="next" href="../ci/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/kokeb/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Git, review and release - Kokeb Labs handbook</title>
+      
+    
+    
+  
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8%201.5c-2.363%200-4%201.69-4%203.75%200%20.984.424%201.625.984%202.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621%201.49a.75.75%200%200%201-1.484.211c-.04-.282-.163-.547-.37-.847a9%209%200%200%200-.542-.68q-.126-.149-.268-.32C3.201%207.75%202.5%206.766%202.5%205.25%202.5%202.31%204.863%200%208%200s5.5%202.31%205.5%205.25c0%201.516-.701%202.5-1.328%203.259q-.142.172-.268.319c-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751%200%200%201-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848q.113-.133.213-.253c.561-.679.985-1.32.985-2.304%200-2.06-1.637-3.75-4-3.75M5.75%2012h4.5a.75.75%200%200%201%200%201.5h-4.5a.75.75%200%200%201%200-1.5M6%2015.25a.75.75%200%200%201%20.75-.75h2.5a.75.75%200%200%201%200%201.5h-2.5a.75.75%200%200%201-.75-.75%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+  <link rel="stylesheet" href="../../assets/kokeb/kokeb.css">
+
+    
+      
+    
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="../../assets/kokeb/fonts.css">
+  <noscript><link rel="stylesheet" href="../../assets/kokeb/fonts.css"></noscript>
+
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+  
+  <meta name="theme-color" content="#0e1726" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b2140" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Kokeb Labs">
+  <meta property="og:title" content="Git, review and release - Kokeb Labs handbook">
+  <meta property="og:description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+  <meta property="og:url" content="https://kokeb-labs.github.io/handbook/rules/git/">
+  <meta name="twitter:card" content="summary">
+  <script>
+(function () {
+  if (typeof mermaid != "undefined" && !(mermaid instanceof Element)) return;
+  var SRC = "https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js",
+      SRI = "sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2", config = {}, real, loading;
+  var waiting = [], io = null, ahead = false, ENGAGE = ["scroll", "keydown", "pointerdown", "touchstart"];
+  var stub = {
+    initialize: function (c) { config = c || {}; if (real) real.initialize(config); },
+    render: function (id, text) {
+      var el = null, pres = document.querySelectorAll("pre.mermaid:not([data-kb-mermaid])");
+      for (var i = 0; i < pres.length && !el; i++) if (pres[i].textContent === text) el = pres[i];
+      if (el) el.setAttribute("data-kb-mermaid", "");
+      return near(el).then(load).then(function (m) { return m.render(id, text); });
+    }
+  };
+  function load() {
+    return loading || (loading = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = SRC;
+      s.integrity = SRI;
+      s.crossOrigin = "anonymous";
+      s.onload = function () {
+        real = window.mermaid;
+        window.mermaid = stub;
+        real.initialize(config);
+        resolve(real);
+      };
+      s.onerror = function () { loading = null; reject(new Error("Mermaid did not load")); };
+      document.head.appendChild(s);
+    }));
+  }
+  // One observer for the diagrams still waiting: on the screen only until the reader engages, then a screen ahead.
+  function watch() {
+    if (io) io.disconnect();
+    io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) release(function (w) { return w.el === e.target; });
+      });
+    }, { rootMargin: ahead ? "100% 0px" : "0px" });
+    waiting.forEach(function (w) { io.observe(w.el); });
+  }
+  function release(which) {
+    waiting = waiting.filter(function (w) {
+      if (!which(w)) return true;
+      io.unobserve(w.el);
+      w.go();
+      return false;
+    });
+  }
+  function near(el) {
+    if (real || !el || !("IntersectionObserver" in window)) return Promise.resolve();
+    return new Promise(function (resolve) {
+      waiting.push({ el: el, go: resolve });
+      if (io) io.observe(el); else watch();
+    });
+  }
+  function engaged() {
+    ENGAGE.forEach(function (t) { window.removeEventListener(t, engaged, true); });
+    ahead = true;
+    if (io) watch();
+  }
+  ENGAGE.forEach(function (t) { window.addEventListener(t, engaged, { capture: true, passive: true }); });
+  window.addEventListener("beforeprint", function () { if (io) release(function () { return true; }); });
+  window.mermaid = stub;
+})();
+</script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#git-review-and-release" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kokeb Labs handbook" class="md-header__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          
+          <a class="kb-org" href="https://kokeb-labs.github.io/" title="All Kokeb Labs documentation">Kokeb Labs</a>
+          <span class="kb-org__sep" aria-hidden="true">/</span>
+          <span class="md-ellipsis">
+            Kokeb Labs handbook
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Git, review and release
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Follow the system theme"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Follow the system theme" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../how-rules-work/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  How rules work
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../assurance-levels/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Assurance levels
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Rules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../deviations/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deviations and waivers
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../coding-standards/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Coding standards
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../evidence/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Regulated products
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../adr/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Decision records
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../checklists/migrate-driver/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Checklists
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kokeb Labs handbook" class="md-nav__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    Kokeb Labs handbook
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-rules-work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How rules work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assurance-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assurance levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware and porting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build and CMake
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git, review and release
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git, review and release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-001: Every commit is signed off (DCO)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-002: Changes reach main only through a pull request that passes the CI gate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-003: Release tags are immutable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-004: The changelog names every release
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-005: main is the only long-lived branch; work branches name their kind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-006: A maintenance branch is cut from its release tag and changed only by pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-007: Commits on main are signed; work-branch commits need not be
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-008: Repair a work branch by rebasing it; never rewrite main
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-009: Pull request titles are short imperative sentences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-010: One logical change per pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-011: The pull request template is filled in
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-012: Every change in behaviour adds a changelog entry under Unreleased
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-013: Every breaking change is listed under Breaking with what a caller must change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-014: A pull request names every rule it does not follow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-015: Every review conversation is resolved before merge
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-016: Approvals follow the organisation's review mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-017: Review starts with architecture and layering, then the details
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-018: Contributions come in under the repository's licence, with no CLA
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-019: Each repository has its own SemVer, starting at 0.1.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-020: A release tag matches the declared version on a green commit of main
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-021: A release is a Release vX.Y.Z pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-022: Release notes are the changelog section and state the bench status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-023: A product release attaches its binaries, checksums and effective sdkconfig
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-024: Releases at high level carry checksums, provenance and an SBOM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-025: At safety level, release tags and the evidence package are signed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-026: Safety issues come first, and no release ships with one open against it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-027: At safety level, a release lists its known anomalies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-028: Submodules pin release-tag commits, and code is never edited inside one
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-029: A pin bump is its own pull request, opened by the bump bot or by hand
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-030: Changes and releases travel up the stack one layer at a time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-031: A release wave stabilises through release candidates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-032" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-032: A release train names one kb-core release and the drivers it pins
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-033" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-033: A change of decision comes with its decision record, in the same pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-034" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-034: When a repository and the handbook disagree, the handbook wins
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI and supply chain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deviations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deviations and waivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../coding-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../evidence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulated products
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../standards/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../adr/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision records
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../checklists/migrate-driver/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Checklists
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-001: Every commit is signed off (DCO)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-002: Changes reach main only through a pull request that passes the CI gate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-003: Release tags are immutable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-004: The changelog names every release
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-005: main is the only long-lived branch; work branches name their kind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-006: A maintenance branch is cut from its release tag and changed only by pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-007: Commits on main are signed; work-branch commits need not be
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-008: Repair a work branch by rebasing it; never rewrite main
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-009: Pull request titles are short imperative sentences
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-010: One logical change per pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-011: The pull request template is filled in
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-012: Every change in behaviour adds a changelog entry under Unreleased
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-013: Every breaking change is listed under Breaking with what a caller must change
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-014: A pull request names every rule it does not follow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-015: Every review conversation is resolved before merge
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-016: Approvals follow the organisation's review mode
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-017: Review starts with architecture and layering, then the details
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-018: Contributions come in under the repository's licence, with no CLA
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-019: Each repository has its own SemVer, starting at 0.1.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-020: A release tag matches the declared version on a green commit of main
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-021: A release is a Release vX.Y.Z pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-022: Release notes are the changelog section and state the bench status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-023: A product release attaches its binaries, checksums and effective sdkconfig
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-024: Releases at high level carry checksums, provenance and an SBOM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-025: At safety level, release tags and the evidence package are signed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-026: Safety issues come first, and no release ships with one open against it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-027: At safety level, a release lists its known anomalies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-028: Submodules pin release-tag commits, and code is never edited inside one
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-029: A pin bump is its own pull request, opened by the bump bot or by hand
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-030: Changes and releases travel up the stack one layer at a time
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-031: A release wave stabilises through release candidates
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-032" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-032: A release train names one kb-core release and the drivers it pins
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-033" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-033: A change of decision comes with its decision record, in the same pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-git-034" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-GIT-034: When a repository and the handbook disagree, the handbook wins
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/kokeb-labs/handbook/edit/main/rules/git.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<!-- generated by checks/handbook.py from rules/*.yml: edit those, then run `python checks/handbook.py gen` -->
+<h1 id="git-review-and-release">Git, review and release<a class="headerlink" href="#git-review-and-release" title="Permanent link">&para;</a></h1>
+<p>How changes reach main and how releases are cut.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Level</th>
+<th>Applies to</th>
+<th>Verified</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#kb-git-001">KB-GIT-001</a> Every commit is signed off (DCO)</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-git-002">KB-GIT-002</a> Changes reach main only through a pull request that passes the CI gate</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-git-003">KB-GIT-003</a> Release tags are immutable</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-git-004">KB-GIT-004</a> The changelog names every release</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-005">KB-GIT-005</a> main is the only long-lived branch; work branches name their kind</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-006">KB-GIT-006</a> A maintenance branch is cut from its release tag and changed only by pull request</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-007">KB-GIT-007</a> Commits on main are signed; work-branch commits need not be</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-git-008">KB-GIT-008</a> Repair a work branch by rebasing it; never rewrite main</td>
+<td>guide</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-git-009">KB-GIT-009</a> Pull request titles are short imperative sentences</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-010">KB-GIT-010</a> One logical change per pull request</td>
+<td>guide</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-git-011">KB-GIT-011</a> The pull request template is filled in</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-012">KB-GIT-012</a> Every change in behaviour adds a changelog entry under Unreleased</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-013">KB-GIT-013</a> Every breaking change is listed under Breaking with what a caller must change</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-014">KB-GIT-014</a> A pull request names every rule it does not follow</td>
+<td>must</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-git-015">KB-GIT-015</a> Every review conversation is resolved before merge</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-git-016">KB-GIT-016</a> Approvals follow the organisation's review mode</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-git-017">KB-GIT-017</a> Review starts with architecture and layering, then the details</td>
+<td>should</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-git-018">KB-GIT-018</a> Contributions come in under the repository's licence, with no CLA</td>
+<td>guide</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-git-019">KB-GIT-019</a> Each repository has its own SemVer, starting at 0.1.0</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-020">KB-GIT-020</a> A release tag matches the declared version on a green commit of main</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-021">KB-GIT-021</a> A release is a <code>Release vX.Y.Z</code> pull request</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-022">KB-GIT-022</a> Release notes are the changelog section and state the bench status</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-023">KB-GIT-023</a> A product release attaches its binaries, checksums and effective sdkconfig</td>
+<td>must</td>
+<td>firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-024">KB-GIT-024</a> Releases at high level carry checksums, provenance and an SBOM</td>
+<td>must</td>
+<td>driver, library, hal, firmware (high level and above)</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-025">KB-GIT-025</a> At safety level, release tags and the evidence package are signed</td>
+<td>must</td>
+<td>driver, library, hal, firmware (safety level and above)</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-026">KB-GIT-026</a> Safety issues come first, and no release ships with one open against it</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-027">KB-GIT-027</a> At safety level, a release lists its known anomalies</td>
+<td>must</td>
+<td>driver, library, hal, firmware (safety level and above)</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-028">KB-GIT-028</a> Submodules pin release-tag commits, and code is never edited inside one</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-029">KB-GIT-029</a> A pin bump is its own pull request, opened by the bump bot or by hand</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-git-030">KB-GIT-030</a> Changes and releases travel up the stack one layer at a time</td>
+<td>should</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-git-031">KB-GIT-031</a> A release wave stabilises through release candidates</td>
+<td>guide</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-git-032">KB-GIT-032</a> A release train names one kb-core release and the drivers it pins</td>
+<td>should</td>
+<td>library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-git-033">KB-GIT-033</a> A change of decision comes with its decision record, in the same pull request</td>
+<td>should</td>
+<td>docs</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-git-034">KB-GIT-034</a> When a repository and the handbook disagree, the handbook wins</td>
+<td>guide</td>
+<td>all</td>
+<td>review</td>
+</tr>
+</tbody>
+</table>
+<h2 id="kb-git-001">KB-GIT-001: Every commit is signed off (DCO)<a class="headerlink" href="#kb-git-001" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>Every commit in a pull request carries a <code>Signed-off-by:</code> line that matches its author.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>dco</code> (implemented): every commit of a pull request has a Signed-off-by line matching its author</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-002">KB-GIT-002: Changes reach main only through a pull request that passes the CI gate<a class="headerlink" href="#kb-git-002" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>main accepts squash merges of pull requests whose single required check, <code>CI gate / gate</code>, passed; no direct pushes, no
+force-pushes, linear history.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>ci-gate</code> (implemented): one required check that passes only when every job of the workflow passed</li>
+<li><code>rulesets</code> (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0015-solo-maintainer-governance/">ADR-0015</a>; IEC 62304:2006+A1:2015 8.2 (change control)</p>
+<h2 id="kb-git-003">KB-GIT-003: Release tags are immutable<a class="headerlink" href="#kb-git-003" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>A <code>vX.Y.Z</code> tag is never moved or deleted; a mistake gets a new version.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>rulesets</code> (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 8.1.1 (identification of configuration items)</p>
+<h2 id="kb-git-004">KB-GIT-004: The changelog names every release<a class="headerlink" href="#kb-git-004" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Enforced in ci-tools today; the reusable check for every repository is planned.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-01-15</p>
+<p>CHANGELOG.md follows Keep a Changelog; a release is cut by adding its dated <code>[X.Y.Z]</code> section, the next SemVer step, in
+the pull request that releases it.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>changelog</code> (planned): CHANGELOG.md follows Keep a Changelog; a new version section is the next SemVer step, dated,
+  not empty</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-005">KB-GIT-005: main is the only long-lived branch; work branches name their kind<a class="headerlink" href="#kb-git-005" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Work happens on short-lived branches named <code>feat/</code>, <code>fix/</code>, <code>docs/</code>, <code>ci/</code> or <code>chore/</code> plus a kebab-case topic. There is
+no <code>develop</code>, <code>hotfix/</code> or long-lived feature branch.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>branch-name</code> (planned): the pull request's head branch matches ^(feat|fix|docs|ci|chore)/[a-z0-9-]+$ or
+  release/&lt;x&gt;.&lt;y&gt;</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0015-solo-maintainer-governance/">ADR-0015</a></p>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-006">KB-GIT-006: A maintenance branch is cut from its release tag and changed only by pull request<a class="headerlink" href="#kb-git-006" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The org rulesets protect the default branch only; a ruleset for <code>release/*</code> does
+not exist yet.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>A <code>release/x.y</code> branch is created by a maintainer from the <code>vX.Y.0</code> tag when an older line needs a fix. It takes <code>fix/</code>
+pull requests under the same rules as main and is never merged back.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>release-branch-protection</code> (planned): a ruleset on release/* allows changes only by pull request, squash, linear
+  history and no deletion</li>
+<li>review: The branch was created from its release tag and every change on it came through a pull request.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0015-solo-maintainer-governance/">ADR-0015</a>; IEC 62304:2006+A1:2015 8.2 (change control)</p>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-007">KB-GIT-007: Commits on main are signed; work-branch commits need not be<a class="headerlink" href="#kb-git-007" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>The main-integrity ruleset requires signed commits on main. GitHub signs the squash commit it creates, so contributors
+do not have to sign the commits on their work branch.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>rulesets</code> (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0015-solo-maintainer-governance/">ADR-0015</a>; IEC 62304:2006+A1:2015 8.1 (identification of each
+change)</p>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-008">KB-GIT-008: Repair a work branch by rebasing it; never rewrite main<a class="headerlink" href="#kb-git-008" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>A missing sign-off or a needed rebase is fixed with <code>git rebase --signoff</code> and a force-push of the work branch.
+Otherwise, during review, push new commits so reviewers see what changed; the squash merge tidies them.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The branch history was rewritten only to repair sign-off or to rebase, not to hide review changes.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-009">KB-GIT-009: Pull request titles are short imperative sentences<a class="headerlink" href="#kb-git-009" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The check covers length, period and prefix; mood is reviewed.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>The title becomes the squash commit's subject, so it reads as a command ("Add FIFO read to the BMP390 driver"), stays
+under 72 characters, has no trailing period and no Conventional Commits prefix.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>pr-title</code> (planned): the pull request title is at most 72 characters, has no trailing period and no Conventional
+  Commits prefix; a release pull request is titled <code>Release vX.Y.Z</code> with the version of the new changelog section</li>
+<li>review: The title says what the change does, in the imperative.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-010">KB-GIT-010: One logical change per pull request<a class="headerlink" href="#kb-git-010" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>A pull request does one thing, ideally in under about 400 changed lines; larger work is split into a series of green
+pull requests. Docs-only pull requests change no code, and reformatting or fixing old findings goes in its own pull
+request.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The pull request has one purpose, and mechanical clean-ups are not mixed into it.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-011">KB-GIT-011: The pull request template is filled in<a class="headerlink" href="#kb-git-011" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The org template exists in kokeb-labs/.github; nothing checks it.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Every pull request states what changed, why, and how it was verified (CI, host tests, MCU and board, or not verified on
+hardware), and ticks or marks not applicable each item of the template's checklist.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>pr-template</code> (planned): the pull request body keeps the template's summary, why and verification headings, each
+  non-empty, and every checklist box is ticked or marked not applicable</li>
+<li>review: The verification section says what was actually run.</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 8.2 (change requests are documented)</p>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-012">KB-GIT-012: Every change in behaviour adds a changelog entry under Unreleased<a class="headerlink" href="#kb-git-012" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. ci-tools' changelog.py checks its own changelog only; the reusable check is not
+built.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>A pull request that changes what a user of the repository sees adds an entry under <code>## [Unreleased]</code> in CHANGELOG.md,
+written for that user. A pull request with nothing to record says so with the <code>no-changelog</code> label.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>changelog-entry</code> (planned): a pull request that changes files outside docs/ and .github/ changes CHANGELOG.md under
+  [Unreleased], unless it carries the no-changelog label</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 8.3 (configuration status accounting)</p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-013">KB-GIT-013: Every breaking change is listed under Breaking with what a caller must change<a class="headerlink" href="#kb-git-013" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>A breaking change, including a change to a stored settings layout such as NVS, gets a <code>### Breaking</code> entry that tells a
+caller what to change. A pull request labelled <code>breaking</code> without one is not merged.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>changelog-breaking</code> (planned): a pull request labelled breaking adds an entry under</li>
+<li>review: Public API, build-setting and stored-layout changes are either absent or listed under Breaking.</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 8.2 (impact of a change is recorded)</p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-014">KB-GIT-014: A pull request names every rule it does not follow<a class="headerlink" href="#kb-git-014" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>Not following a <code>should</code> rule is stated in the pull request with the rule ID and the reason. A <code>must</code> rule is set aside
+only by a waiver (KB-REPO-003) linked from the pull request with its tracking issue.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Every rule the change does not follow is named with its ID, and each <code>must</code> has a waiver.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../deviations/">deviations.md</a></p>
+<h2 id="kb-git-015">KB-GIT-015: Every review conversation is resolved before merge<a class="headerlink" href="#kb-git-015" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>The main-review ruleset blocks the merge while a review thread is open.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>rulesets</code> (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0015-solo-maintainer-governance/">ADR-0015</a></p>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-016">KB-GIT-016: Approvals follow the organisation's review mode<a class="headerlink" href="#kb-git-016" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>In solo mode the owner merges their own pull requests with no approval once the gate is green. With two or more
+maintainers, one code-owner approval is required and a new push dismisses it. Auto-merge is allowed.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>rulesets</code> (implemented): branch and tag rulesets as declared in .github/org/rulesets (PR only, linear history, tags
+  kept)</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0015-solo-maintainer-governance/">ADR-0015</a>; IEC 62304:2006+A1:2015 8.2 (approval of changes)</p>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-017">KB-GIT-017: Review starts with architecture and layering, then the details<a class="headerlink" href="#kb-git-017" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · all · since 1.0</p>
+<p>A reviewer first checks that the change sits in the right layer and obeys the include table and the kind's checklist,
+and asks for changes if it does not. A design that is wrong at the root is closed and redone, not patched in review.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The layer, include and checklist questions were answered before line-level comments.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/layers/">standards/layers.md</a></p>
+<h2 id="kb-git-018">KB-GIT-018: Contributions come in under the repository's licence, with no CLA<a class="headerlink" href="#kb-git-018" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>The DCO sign-off (KB-GIT-001) is the only contributor agreement. Kokeb Labs asks for no CLA and no copyright assignment.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: No contributor was asked to sign anything beyond the DCO.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0009-licensing/">ADR-0009</a>; <a href="../../adr/0015-solo-maintainer-governance/">ADR-0015</a></p>
+<p><em>Explained in:</em> <a href="../../standards/repo-governance/">standards/repo-governance.md</a></p>
+<h2 id="kb-git-019">KB-GIT-019: Each repository has its own SemVer, starting at 0.1.0<a class="headerlink" href="#kb-git-019" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. ci-tools is the exception, at 1.x (KB-CI-003).</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Versions are independent per repository. While at 0.x a breaking change bumps the minor and anything else the patch;
+1.0.0 is declared by decision record when the API is meant to hold.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>changelog</code> (planned): CHANGELOG.md follows Keep a Changelog; a new version section is the next SemVer step, dated,
+  not empty</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a>; IEC 62304:2006+A1:2015 8.1 (version identification)</p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-020">KB-GIT-020: A release tag matches the declared version on a green commit of main<a class="headerlink" href="#kb-git-020" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The standard describes release.yml failing on a version mismatch or a commit off
+main; ru-release-with-artifacts has neither check yet.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p><code>vX.Y.Z</code> (or <code>vX.Y.Z-rc.N</code>) tags a commit on main or <code>release/x.y</code> whose CI gate passed and whose declared version is
+X.Y.Z. A release candidate is promoted by tagging the same commit; any change makes the next rc.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>release-tag</code> (planned): on a v* tag: the tag matches the declared version, the commit is on main or release/*, its
+  CI gate passed, and a final tag points at the same commit as the latest rc of that version</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 5.8 (software release); IEC 62304:2006+A1:2015 8.1</p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-021">KB-GIT-021: A release is a <code>Release vX.Y.Z</code> pull request<a class="headerlink" href="#kb-git-021" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The prepare-release workflow the standard names is not built; until it is, the
+maintainer does each step by hand (ci-tools uses <code>changelog.py bump</code>).</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>The release pull request rolls <code>[Unreleased]</code> into the dated <code>[X.Y.Z]</code> section, bumps every version declaration, is
+signed off, passes the gate and is squash-merged; merging it tags the commit.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>pr-title</code> (planned): the pull request title is at most 72 characters, has no trailing period and no Conventional
+  Commits prefix; a release pull request is titled <code>Release vX.Y.Z</code> with the version of the new changelog section</li>
+<li>review: Every version declaration in the repository names the new version.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-022">KB-GIT-022: Release notes are the changelog section and state the bench status<a class="headerlink" href="#kb-git-022" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. ci-tools' own release.yml publishes the changelog section;
+ru-release-with-artifacts, which other repositories call, still generates notes.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>The GitHub Release body is the version's changelog section, not generated notes, and says where it ran: MCU, board and
+tests, or CI-only. A repository no board has run yet releases as CI-only.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>release-notes</code> (planned): the GitHub Release body equals the version's changelog section and has a <code>Bench status:</code>
+  line</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 5.8 (documented release)</p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-023">KB-GIT-023: A product release attaches its binaries, checksums and effective sdkconfig<a class="headerlink" href="#kb-git-023" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. ru-release-with-artifacts has <code>fail_on_no_artifacts</code>, but it defaults to false.</p>
+</div>
+<p><strong>MUST</strong> · firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>A product release tag builds the firmware and attaches <code>.bin</code>, <code>.elf</code>, their SHA-256 and the effective sdkconfig; a
+missing artifact fails the release. A release that changes NVS or partitions states the erase or migration step.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>release-artifacts</code> (planned): a product release has .bin, .elf, SHA-256 sums and the effective sdkconfig attached, or
+  fails</li>
+<li>review: A release that changes NVS or the partition table states the erase or migration step.</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 5.8 (archived release artifacts)</p>
+<p><em>Explained in:</em> <a href="../../standards/product/">standards/product.md</a></p>
+<h2 id="kb-git-024">KB-GIT-024: Releases at high level carry checksums, provenance and an SBOM<a class="headerlink" href="#kb-git-024" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware (high level and above) · since 1.0 · enforced from 2027-03-01</p>
+<p>Each release of a high or safety component attaches <code>SHA256SUMS</code>, build provenance and an SPDX SBOM of everything it
+contains or pulls in, all produced by the release workflow.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>release-evidence</code> (planned): a release carries SHA256SUMS, an SBOM and build provenance; at safety level the evidence
+  package too</li>
+<li><code>sbom</code> (planned): the release attaches an SPDX SBOM listing every component and submodule the build contains</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 5.8; IEC 62304:2006+A1:2015 8.1 (SOUP and configuration items)</p>
+<p><em>Explained in:</em> <a href="../../evidence/">evidence.md</a></p>
+<h2 id="kb-git-025">KB-GIT-025: At safety level, release tags and the evidence package are signed<a class="headerlink" href="#kb-git-025" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware (safety level and above) · since 1.0 · enforced from 2027-03-01</p>
+<p>A safety component's release tag is a signed annotated tag, and its evidence package carries a signature over the whole
+package that a manufacturer can verify.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>signed-tags</code> (planned): the release tag is a signed annotated tag and the evidence package has a valid signature
+  (safety level)</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 5.8; IEC 62304:2006+A1:2015 8.1</p>
+<p><em>Explained in:</em> <a href="../../evidence/">evidence.md</a></p>
+<h2 id="kb-git-026">KB-GIT-026: Safety issues come first, and no release ships with one open against it<a class="headerlink" href="#kb-git-026" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>An issue labelled <code>safety</code> is fixed before other work. A version is not released while a <code>safety</code> issue is open against
+it.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>open-safety-issues</code> (planned): the release workflow fails while an open issue labelled safety names the version or
+  its milestone</li>
+<li>review: Open safety issues were triaged before any other work in the release.</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 9 (problem resolution); IEC 62304:2006+A1:2015 5.8</p>
+<p><em>Explained in:</em> <a href="../../checklists/release/">checklists/release.md</a></p>
+<h2 id="kb-git-027">KB-GIT-027: At safety level, a release lists its known anomalies<a class="headerlink" href="#kb-git-027" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware (safety level and above) · since 1.0 · enforced from 2027-03-01</p>
+<p>A safety release exports every open defect that affects the released code, with its impact and workaround, into its
+evidence package.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>anomaly-list</code> (planned): the evidence package lists every open bug affecting the release, with impact and workaround</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 5.8 (known residual anomalies); IEC 62304:2006+A1:2015 9</p>
+<p><em>Explained in:</em> <a href="../../evidence/">evidence.md</a></p>
+<h2 id="kb-git-028">KB-GIT-028: Submodules pin release-tag commits, and code is never edited inside one<a class="headerlink" href="#kb-git-028" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The standard lists a pin-check workflow in ci-tools; it does not exist yet.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Every submodule points at a commit that carries a release tag on the submodule's main, never at a branch or an untagged
+commit. A fix to a submodule is made in its own repository first.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>pin-check</code> (planned): every submodule points at a commit tagged v*.*.* on its own main and matching the manifest
+  or catalog/compat.yml; warns on pull requests to main, fails on release/* and tag pushes</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a>; IEC 62304:2006+A1:2015 8.1 (identification of
+configuration items)</p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-029">KB-GIT-029: A pin bump is its own pull request, opened by the bump bot or by hand<a class="headerlink" href="#kb-git-029" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The bump bot that opens these pull requests after a release is not built; until
+it is, the maintainer opens them.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>A pull request that moves a submodule changes nothing else except the lock or compatibility files, links the release it
+pulls in and notes its API and build-setting changes. Dependabot never bumps submodules.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>pin-bump-isolated</code> (planned): a pull request that moves a gitlink changes nothing else except version_lock.txt,
+  compat.yml and CHANGELOG</li>
+<li>review: The pull request links the release it pulls in and lists what callers must change.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a>; IEC 62304:2006+A1:2015 8.2</p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-030">KB-GIT-030: Changes and releases travel up the stack one layer at a time<a class="headerlink" href="#kb-git-030" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · all · since 1.0</p>
+<p>A change across layers is one pull request per repository, merged bottom-up: ci-tools, drivers, kb-core, kb-hal-common,
+board HALs, products. Each layer re-pins and releases before the one above it.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Every repository below this one is merged, released and re-pinned first.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a></p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-031">KB-GIT-031: A release wave stabilises through release candidates<a class="headerlink" href="#kb-git-031" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>Drivers a board uses get an rc in each wave; the wave tags rc.1 bottom-up, runs the bench, then promotes the same
+commits or cuts rc.2. Drivers only CI has run may skip the rc.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Each benched driver in the wave was released from a promoted release candidate.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-032">KB-GIT-032: A release train names one kb-core release and the drivers it pins<a class="headerlink" href="#kb-git-032" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · library · since 1.0</p>
+<p>A train is called <code>kb YYYY.N</code> and is cut from that kb-core release's <code>catalog/compat.yml</code>. Trains are never patched: a
+fix makes a new kb-core release and a new train.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The train name and its driver list come from the tagged compat.yml.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a>; <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a>; IEC
+62304:2006+A1:2015 8.1</p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-git-033">KB-GIT-033: A change of decision comes with its decision record, in the same pull request<a class="headerlink" href="#kb-git-033" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · docs · since 1.0</p>
+<p>A handbook change that alters a decision adds a new or superseding ADR, updates every page, checklist and config it
+touches, and stays open for comment at least seven days unless it fixes a defect.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The ADR, pages, checklists and configs agree, and the comment period was kept or waived as a defect.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../adr/">adr/index.md</a></p>
+<h2 id="kb-git-034">KB-GIT-034: When a repository and the handbook disagree, the handbook wins<a class="headerlink" href="#kb-git-034" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>New code follows the handbook at once. An existing repository that does not yet comply gets an issue that tracks the
+gap; it is not silently exempted.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Each known gap between the repository and the handbook has an open issue or a waiver.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../how-rules-work/">how-rules-work.md</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../repo/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Repository">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Repository
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../ci/" class="md-footer__link md-footer__link--next" aria-label="Next: CI and supply chain">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                CI and supply chain
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      
+<div class="md-copyright kb-footer">
+  <nav class="kb-footer__links" aria-label="Kokeb Labs">
+    <a href="https://kokeb-labs.github.io/">Kokeb Labs docs</a>
+    <a href="https://github.com/kokeb-labs">GitHub organisation</a>
+    
+      <a href="https://github.com/kokeb-labs/handbook">Source</a>
+      <a href="https://github.com/kokeb-labs/handbook/issues">Report an issue</a>
+      <a href="https://github.com/kokeb-labs/handbook/blob/main/LICENSE">License</a>
+    
+  </nav>
+  
+    <div class="md-copyright__highlight">Copyright &copy; Kokeb Labs contributors</div>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/kokeb-labs" target="_blank" rel="noopener" title="Kokeb Labs on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "navigation.instant", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>

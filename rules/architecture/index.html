@@ -1,0 +1,3289 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+      
+      
+      
+        <link rel="canonical" href="https://kokeb-labs.github.io/handbook/rules/architecture/">
+      
+      
+        <link rel="prev" href="../../assurance-levels/">
+      
+      
+        <link rel="next" href="../cpp/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/kokeb/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Architecture - Kokeb Labs handbook</title>
+      
+    
+    
+  
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8%201.5c-2.363%200-4%201.69-4%203.75%200%20.984.424%201.625.984%202.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621%201.49a.75.75%200%200%201-1.484.211c-.04-.282-.163-.547-.37-.847a9%209%200%200%200-.542-.68q-.126-.149-.268-.32C3.201%207.75%202.5%206.766%202.5%205.25%202.5%202.31%204.863%200%208%200s5.5%202.31%205.5%205.25c0%201.516-.701%202.5-1.328%203.259q-.142.172-.268.319c-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751%200%200%201-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848q.113-.133.213-.253c.561-.679.985-1.32.985-2.304%200-2.06-1.637-3.75-4-3.75M5.75%2012h4.5a.75.75%200%200%201%200%201.5h-4.5a.75.75%200%200%201%200-1.5M6%2015.25a.75.75%200%200%201%20.75-.75h2.5a.75.75%200%200%201%200%201.5h-2.5a.75.75%200%200%201-.75-.75%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+  <link rel="stylesheet" href="../../assets/kokeb/kokeb.css">
+
+    
+      
+    
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="../../assets/kokeb/fonts.css">
+  <noscript><link rel="stylesheet" href="../../assets/kokeb/fonts.css"></noscript>
+
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+  
+  <meta name="theme-color" content="#0e1726" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b2140" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Kokeb Labs">
+  <meta property="og:title" content="Architecture - Kokeb Labs handbook">
+  <meta property="og:description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+  <meta property="og:url" content="https://kokeb-labs.github.io/handbook/rules/architecture/">
+  <meta name="twitter:card" content="summary">
+  <script>
+(function () {
+  if (typeof mermaid != "undefined" && !(mermaid instanceof Element)) return;
+  var SRC = "https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js",
+      SRI = "sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2", config = {}, real, loading;
+  var waiting = [], io = null, ahead = false, ENGAGE = ["scroll", "keydown", "pointerdown", "touchstart"];
+  var stub = {
+    initialize: function (c) { config = c || {}; if (real) real.initialize(config); },
+    render: function (id, text) {
+      var el = null, pres = document.querySelectorAll("pre.mermaid:not([data-kb-mermaid])");
+      for (var i = 0; i < pres.length && !el; i++) if (pres[i].textContent === text) el = pres[i];
+      if (el) el.setAttribute("data-kb-mermaid", "");
+      return near(el).then(load).then(function (m) { return m.render(id, text); });
+    }
+  };
+  function load() {
+    return loading || (loading = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = SRC;
+      s.integrity = SRI;
+      s.crossOrigin = "anonymous";
+      s.onload = function () {
+        real = window.mermaid;
+        window.mermaid = stub;
+        real.initialize(config);
+        resolve(real);
+      };
+      s.onerror = function () { loading = null; reject(new Error("Mermaid did not load")); };
+      document.head.appendChild(s);
+    }));
+  }
+  // One observer for the diagrams still waiting: on the screen only until the reader engages, then a screen ahead.
+  function watch() {
+    if (io) io.disconnect();
+    io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) release(function (w) { return w.el === e.target; });
+      });
+    }, { rootMargin: ahead ? "100% 0px" : "0px" });
+    waiting.forEach(function (w) { io.observe(w.el); });
+  }
+  function release(which) {
+    waiting = waiting.filter(function (w) {
+      if (!which(w)) return true;
+      io.unobserve(w.el);
+      w.go();
+      return false;
+    });
+  }
+  function near(el) {
+    if (real || !el || !("IntersectionObserver" in window)) return Promise.resolve();
+    return new Promise(function (resolve) {
+      waiting.push({ el: el, go: resolve });
+      if (io) io.observe(el); else watch();
+    });
+  }
+  function engaged() {
+    ENGAGE.forEach(function (t) { window.removeEventListener(t, engaged, true); });
+    ahead = true;
+    if (io) watch();
+  }
+  ENGAGE.forEach(function (t) { window.addEventListener(t, engaged, { capture: true, passive: true }); });
+  window.addEventListener("beforeprint", function () { if (io) release(function () { return true; }); });
+  window.mermaid = stub;
+})();
+</script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#architecture" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kokeb Labs handbook" class="md-header__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          
+          <a class="kb-org" href="https://kokeb-labs.github.io/" title="All Kokeb Labs documentation">Kokeb Labs</a>
+          <span class="kb-org__sep" aria-hidden="true">/</span>
+          <span class="md-ellipsis">
+            Kokeb Labs handbook
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Architecture
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Follow the system theme"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Follow the system theme" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../how-rules-work/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  How rules work
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../assurance-levels/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Assurance levels
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Rules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../deviations/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deviations and waivers
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../coding-standards/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Coding standards
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../evidence/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Regulated products
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../adr/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Decision records
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../checklists/migrate-driver/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Checklists
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kokeb Labs handbook" class="md-nav__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    Kokeb Labs handbook
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-rules-work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How rules work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assurance-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assurance levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-001: Dependencies point down the stack only
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-002: A layer skip is a defect even when it works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-003: The submodule graph is acyclic and points down
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-004: Inside kb-core: utils, then rtos, then interfaces, then handlers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-005: Drivers and kb-core meet only in the handler adapter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-006: Port hooks move raw bytes; the driver never configures the bus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-007: Drivers never lock, sleep or call an RTOS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-008: Only a chip's driver and handler know its registers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-009: MCU-specific code lives only in the selected family's folders
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-010: Product-specific needs reach kb-core and drivers only as generic extension points
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-011: Virtual functions only at the three run-time boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-012: A peripheral only one MCU family has gets a Base* interface and a gate row
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-013: A protocol client follows the driver contract except the chip rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-014: Split a large chip into sub-object facades that share the driver
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-015: utils take locks and clocks as arguments; CANopen frames are values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-016: The kb-core logger is the one logging API above the bind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-017: Raw pin numbers appear only in the board's pin table and its bind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-018: Adapters are mechanical and build on the shared adapter bases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-019: A driver feature reached through VisitDriver in two places becomes a typed method
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-020: A board HAL never copies kb-hal-common; shared managers move there
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-021: Common managers take board specifics as configuration and never name a board
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-022: One manager per board function, owning its handlers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-023: The facade starts managers in a fixed, documented order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-024: Start-up fails closed and leaves every actuator safe
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-025: The facade is the product's only way into the board
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-026: The bind is the only HAL code that names the MCU family
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-027: A board function the facade lacks is added to the HAL first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-028: Application logic lives in the application, not in platform/ or the HAL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-029: Run-time faults follow the fault catalogue's reaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-030: A safety-classified product records its classification and what it implies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-031: Only kb-core rtos includes RTOS headers; everything above uses kb::rtos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-032" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-032: Only the product or a HAL manager creates tasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-033" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-033: Core affinity is the product's decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-034" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-034: Handler callbacks run in the caller's task
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-035" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-035: kb-core pins each driver to a release tag, with its handler and catalogue entry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-036" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-036: The compatibility catalogue is generated from the pinned drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-037" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-037: Extend what exists before adding a new entity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-038" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-038: Design for bounded memory and cheap bus traffic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-039" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-039: Real-time paths have bounded latency and named priorities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-040: Review architecture before details
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-041" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-041: Extra read-back and verification are chosen per call, off by default
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware and porting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build and CMake
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../docs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../git/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git, review and release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI and supply chain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deviations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deviations and waivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../coding-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../evidence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulated products
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../standards/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../adr/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision records
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../checklists/migrate-driver/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Checklists
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-001: Dependencies point down the stack only
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-002: A layer skip is a defect even when it works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-003: The submodule graph is acyclic and points down
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-004: Inside kb-core: utils, then rtos, then interfaces, then handlers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-005: Drivers and kb-core meet only in the handler adapter
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-006: Port hooks move raw bytes; the driver never configures the bus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-007: Drivers never lock, sleep or call an RTOS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-008: Only a chip's driver and handler know its registers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-009: MCU-specific code lives only in the selected family's folders
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-010: Product-specific needs reach kb-core and drivers only as generic extension points
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-011: Virtual functions only at the three run-time boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-012: A peripheral only one MCU family has gets a Base* interface and a gate row
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-013: A protocol client follows the driver contract except the chip rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-014: Split a large chip into sub-object facades that share the driver
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-015: utils take locks and clocks as arguments; CANopen frames are values
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-016: The kb-core logger is the one logging API above the bind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-017: Raw pin numbers appear only in the board's pin table and its bind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-018: Adapters are mechanical and build on the shared adapter bases
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-019: A driver feature reached through VisitDriver in two places becomes a typed method
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-020: A board HAL never copies kb-hal-common; shared managers move there
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-021: Common managers take board specifics as configuration and never name a board
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-022: One manager per board function, owning its handlers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-023: The facade starts managers in a fixed, documented order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-024: Start-up fails closed and leaves every actuator safe
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-025: The facade is the product's only way into the board
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-026: The bind is the only HAL code that names the MCU family
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-027: A board function the facade lacks is added to the HAL first
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-028: Application logic lives in the application, not in platform/ or the HAL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-029: Run-time faults follow the fault catalogue's reaction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-030: A safety-classified product records its classification and what it implies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-031: Only kb-core rtos includes RTOS headers; everything above uses kb::rtos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-032" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-032: Only the product or a HAL manager creates tasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-033" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-033: Core affinity is the product's decision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-034" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-034: Handler callbacks run in the caller's task
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-035" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-035: kb-core pins each driver to a release tag, with its handler and catalogue entry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-036" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-036: The compatibility catalogue is generated from the pinned drivers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-037" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-037: Extend what exists before adding a new entity
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-038" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-038: Design for bounded memory and cheap bus traffic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-039" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-039: Real-time paths have bounded latency and named priorities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-040: Review architecture before details
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-041" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-041: Extra read-back and verification are chosen per call, off by default
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/kokeb-labs/handbook/edit/main/rules/architecture.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<!-- generated by checks/handbook.py from rules/*.yml: edit those, then run `python checks/handbook.py gen` -->
+<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
+<p>How the stack is put together: which layer may depend on which, where chip-, MCU- and product-specific code lives, and
+what drivers, kb-core, kb-hal-common, board HALs and products each own. The include tables are on Layers; the per-layer
+pages under Standards hold the detail. Rules marked guide are design advice for review.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Level</th>
+<th>Applies to</th>
+<th>Verified</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#kb-arch-001">KB-ARCH-001</a> Dependencies point down the stack only</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-002">KB-ARCH-002</a> A layer skip is a defect even when it works</td>
+<td>must</td>
+<td>library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-003">KB-ARCH-003</a> The submodule graph is acyclic and points down</td>
+<td>must</td>
+<td>driver, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-004">KB-ARCH-004</a> Inside kb-core: utils, then rtos, then interfaces, then handlers</td>
+<td>must</td>
+<td>library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-005">KB-ARCH-005</a> Drivers and kb-core meet only in the handler adapter</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-006">KB-ARCH-006</a> Port hooks move raw bytes; the driver never configures the bus</td>
+<td>must</td>
+<td>driver, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-007">KB-ARCH-007</a> Drivers never lock, sleep or call an RTOS</td>
+<td>must</td>
+<td>driver, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-008">KB-ARCH-008</a> Only a chip's driver and handler know its registers</td>
+<td>must</td>
+<td>library, hal, firmware</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-009">KB-ARCH-009</a> MCU-specific code lives only in the selected family's folders</td>
+<td>must</td>
+<td>driver, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-010">KB-ARCH-010</a> Product-specific needs reach kb-core and drivers only as generic extension points</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-011">KB-ARCH-011</a> Virtual functions only at the three run-time boundaries</td>
+<td>must</td>
+<td>driver, library, hal, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-012">KB-ARCH-012</a> A peripheral only one MCU family has gets a Base* interface and a gate row</td>
+<td>must</td>
+<td>driver, library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-013">KB-ARCH-013</a> A protocol client follows the driver contract except the chip rules</td>
+<td>should</td>
+<td>driver</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-014">KB-ARCH-014</a> Split a large chip into sub-object facades that share the driver</td>
+<td>guide</td>
+<td>driver</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-015">KB-ARCH-015</a> utils take locks and clocks as arguments; CANopen frames are values</td>
+<td>must</td>
+<td>library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-016">KB-ARCH-016</a> The kb-core logger is the one logging API above the bind</td>
+<td>must</td>
+<td>driver, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-017">KB-ARCH-017</a> Raw pin numbers appear only in the board's pin table and its bind</td>
+<td>must</td>
+<td>library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-018">KB-ARCH-018</a> Adapters are mechanical and build on the shared adapter bases</td>
+<td>should</td>
+<td>library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-019">KB-ARCH-019</a> A driver feature reached through VisitDriver in two places becomes a typed method</td>
+<td>should</td>
+<td>library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-020">KB-ARCH-020</a> A board HAL never copies kb-hal-common; shared managers move there</td>
+<td>must</td>
+<td>hal</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-021">KB-ARCH-021</a> Common managers take board specifics as configuration and never name a board</td>
+<td>must</td>
+<td>hal, library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-022">KB-ARCH-022</a> One manager per board function, owning its handlers</td>
+<td>must</td>
+<td>hal</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-023">KB-ARCH-023</a> The facade starts managers in a fixed, documented order</td>
+<td>must</td>
+<td>hal</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-024">KB-ARCH-024</a> Start-up fails closed and leaves every actuator safe</td>
+<td>must</td>
+<td>hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-025">KB-ARCH-025</a> The facade is the product's only way into the board</td>
+<td>must</td>
+<td>hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-026">KB-ARCH-026</a> The bind is the only HAL code that names the MCU family</td>
+<td>must</td>
+<td>hal</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-027">KB-ARCH-027</a> A board function the facade lacks is added to the HAL first</td>
+<td>should</td>
+<td>firmware, hal</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-028">KB-ARCH-028</a> Application logic lives in the application, not in platform/ or the HAL</td>
+<td>must</td>
+<td>firmware, hal</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-029">KB-ARCH-029</a> Run-time faults follow the fault catalogue's reaction</td>
+<td>guide</td>
+<td>hal, firmware</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-030">KB-ARCH-030</a> A safety-classified product records its classification and what it implies</td>
+<td>should</td>
+<td>firmware (safety level and above)</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-031">KB-ARCH-031</a> Only kb-core rtos includes RTOS headers; everything above uses kb::rtos</td>
+<td>must</td>
+<td>driver, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-032">KB-ARCH-032</a> Only the product or a HAL manager creates tasks</td>
+<td>must</td>
+<td>driver, library, hal, firmware</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-033">KB-ARCH-033</a> Core affinity is the product's decision</td>
+<td>should</td>
+<td>hal, firmware</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-034">KB-ARCH-034</a> Handler callbacks run in the caller's task</td>
+<td>should</td>
+<td>library, hal, firmware</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-035">KB-ARCH-035</a> kb-core pins each driver to a release tag, with its handler and catalogue entry</td>
+<td>must</td>
+<td>library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-036">KB-ARCH-036</a> The compatibility catalogue is generated from the pinned drivers</td>
+<td>must</td>
+<td>library</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-037">KB-ARCH-037</a> Extend what exists before adding a new entity</td>
+<td>guide</td>
+<td>library, hal</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-038">KB-ARCH-038</a> Design for bounded memory and cheap bus traffic</td>
+<td>guide</td>
+<td>driver, library, hal, firmware</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-039">KB-ARCH-039</a> Real-time paths have bounded latency and named priorities</td>
+<td>guide</td>
+<td>hal, firmware</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-040">KB-ARCH-040</a> Review architecture before details</td>
+<td>guide</td>
+<td>driver, library, hal, firmware</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-041">KB-ARCH-041</a> Extra read-back and verification are chosen per call, off by default</td>
+<td>must</td>
+<td>driver, template</td>
+<td>review</td>
+</tr>
+</tbody>
+</table>
+<h2 id="kb-arch-001">KB-ARCH-001: Dependencies point down the stack only<a class="headerlink" href="#kb-arch-001" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0</p>
+<p>No layer includes, links or calls anything above it in the stack on Layers (product, board HAL with its bind, kb-core
+handlers, interfaces, rtos, utils, drivers). Each file includes only what the Layers include table allows for its
+folder.</p>
+<p><em>Why:</em> An upward dependency makes a lower layer untestable without the one above and lets lock, lifecycle and error
+mapping be bypassed. Downward-only dependencies let any driver sit under any product.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>include-graph/all</code> (planned): every #include in library code is allowed by the Layers include table for its folder;
+  the parameter names the layer (driver, utils, rtos, interfaces, mcu, handlers, hal, product) or <code>all</code></li>
+<li>review: Every new include is allowed by the Layers include table for the folder it is in.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a>; IEC 62304:2006+A1:2015 5.3.2 (interfaces between software
+items)</p>
+<p><em>Explained in:</em> <a href="../../standards/layers/#includes">standards/layers.md</a></p>
+<h2 id="kb-arch-002">KB-ARCH-002: A layer skip is a defect even when it works<a class="headerlink" href="#kb-arch-002" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · library, hal, firmware · since 1.0</p>
+<p>Code that reaches past the layer directly below it (a manager calling a driver through a handler's driver pointer, an
+application calling an <code>Esp*</code> class or raw FreeRTOS, middleware including a handler) is fixed by adding the missing call
+to the skipped layer, not by allowing the skip.</p>
+<p><em>Why:</em> The skipped layer's lock, lifecycle and error mapping silently stop applying.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>hal-lint/driver-access</code> (planned): the kb-hal-common lints run in a board HAL's or product's CI; the parameter names
+  the lint (boundary, driver-access, allocation, lock)</li>
+<li>review: No call reaches past the layer below it; a missing feature is added to the skipped layer.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/layers/#layer-skips-are-defects">standards/layers.md</a></p>
+<h2 id="kb-arch-003">KB-ARCH-003: The submodule graph is acyclic and points down<a class="headerlink" href="#kb-arch-003" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware · since 1.0 · enforced from 2027-03-01</p>
+<p>Submodules point only down the stack: a product pins its board HAL, a board HAL pins kb-hal-common and kb-core, and
+kb-core pins drivers. No repository pins one above it or forms a cycle.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>submodule-graph</code> (planned): walking .gitmodules across the org's repositories finds no cycle and no submodule that
+  points up the stack (product -&gt; board HAL -&gt; kb-hal-common and kb-core -&gt; drivers)</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a>; <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a></p>
+<p><em>Explained in:</em> <a href="../../standards/layers/#the-stack">standards/layers.md</a></p>
+<h2 id="kb-arch-004">KB-ARCH-004: Inside kb-core: utils, then rtos, then interfaces, then handlers<a class="headerlink" href="#kb-arch-004" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · library · since 1.0 · enforced from 2027-03-01</p>
+<p>kb-core's parts are the separate CMake targets <code>kb::utils</code>, <code>kb::rtos</code>, <code>kb::interfaces</code> and <code>kb::handlers</code>, and each
+links only the targets before it in that order, so an upward include fails to build.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>layer-deps</code> (planned): kb-core's CMake targets link only downward (kb::utils &lt;- kb::rtos &lt;- kb::interfaces
+  &lt;- kb::handlers), read from the CMake file API, and each builds alone with KB_MCU=NONE and KB_MCU=HOST</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a></p>
+<p><em>Explained in:</em> <a href="../../standards/library/#every-part-of-kb-core">standards/library.md</a></p>
+<h2 id="kb-arch-005">KB-ARCH-005: Drivers and kb-core meet only in the handler adapter<a class="headerlink" href="#kb-arch-005" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, template · since 1.0</p>
+<p>A driver depends on nothing in kb-core or any other Kokeb Labs repository; <code>kb_core_min</code> in <code>driver.yml</code> is its only
+mention of kb-core. kb-core's utils, rtos and interfaces never depend on a driver. The handler's adapter, which
+implements the driver's port with <code>Base*</code> calls, is the one place they meet.</p>
+<p><em>Why:</em> A driver must be usable and forkable without anything else from the org, and the core must not change when a chip
+is added.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>host-tests</code> (implemented): the unit tests build and pass on the host with gcc and clang</li>
+<li><code>include-graph/driver</code> (planned): every #include in library code is allowed by the Layers include table for its
+  folder; the parameter names the layer (driver, utils, rtos, interfaces, mcu, handlers, hal, product) or <code>all</code></li>
+<li>review: Driver code names nothing from kb-core; kb-core code outside handlers/ includes no driver header.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0012-unbranded-drivers/">ADR-0012</a>; <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a></p>
+<p><em>Explained in:</em> <a href="../../standards/layers/#the-stack">standards/layers.md</a></p>
+<h2 id="kb-arch-006">KB-ARCH-006: Port hooks move raw bytes; the driver never configures the bus<a class="headerlink" href="#kb-arch-006" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, template · since 1.0</p>
+<p>Port hooks transfer bytes and nothing else; register addresses travel in the payload. The driver does not set bus speed,
+mode or pins: the port or the board does.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: No driver code or hook argument configures bus speed, mode or pins.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0003-crtp-ports/">ADR-0003</a></p>
+<p><em>Explained in:</em> <a href="../../standards/driver/">standards/driver.md</a></p>
+<h2 id="kb-arch-007">KB-ARCH-007: Drivers never lock, sleep or call an RTOS<a class="headerlink" href="#kb-arch-007" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, template · since 1.0</p>
+<p>A driver is not thread-safe: it takes no lock, creates no task and calls no RTOS (waiting is KB-CPP-041). The kb-core
+handler that owns it does the locking.</p>
+<p><em>Why:</em> One owner for locking avoids double locks and lets the same driver run bare-metal or on any RTOS.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>host-tests</code> (implemented): the unit tests build and pass on the host with gcc and clang</li>
+<li><code>include-graph/driver</code> (planned): every #include in library code is allowed by the Layers include table for its
+  folder; the parameter names the layer (driver, utils, rtos, interfaces, mcu, handlers, hal, product) or <code>all</code></li>
+<li>review: The driver has no lock, task or RTOS call.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0003-crtp-ports/">ADR-0003</a></p>
+<p><em>Explained in:</em> <a href="../../standards/driver/#memory-and-threads">standards/driver.md</a></p>
+<h2 id="kb-arch-008">KB-ARCH-008: Only a chip's driver and handler know its registers<a class="headerlink" href="#kb-arch-008" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · library, hal, firmware · since 1.0</p>
+<p>A chip's register map, start-up sequence and quirks live in its driver and its handler only. Managers, HALs and products
+use the handler's typed API or <code>VisitDriver()</code> and never name a register.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: No code outside the chip's driver and handler names its registers or bit fields.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0014-three-kinds-of-specific/">ADR-0014</a></p>
+<p><em>Explained in:</em> <a href="../../standards/layers/#three-kinds-of-specific">standards/layers.md</a></p>
+<h2 id="kb-arch-009">KB-ARCH-009: MCU-specific code lives only in the selected family's folders<a class="headerlink" href="#kb-arch-009" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware · since 1.0</p>
+<p>Code that knows an MCU family lives only in kb-core's <code>interfaces/mcu/&lt;family&gt;/</code>, a board HAL's <code>bsp_bind/&lt;family&gt;/</code> and
+a product's <code>platform/</code>. The build compiles only the selected family's folders, and every other folder compiles for
+every family and on the host.</p>
+<p><em>Why:</em> KB-CPP-016 bans the platform macros that would let MCU code hide elsewhere; this rule says where it goes.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>include-graph/mcu</code> (planned): every #include in library code is allowed by the Layers include table for its folder;
+  the parameter names the layer (driver, utils, rtos, interfaces, mcu, handlers, hal, product) or <code>all</code></li>
+<li>review: New MCU-specific code is in an <code>mcu/&lt;family&gt;/</code>, <code>bsp_bind/&lt;family&gt;/</code> or <code>platform/</code> folder.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0014-three-kinds-of-specific/">ADR-0014</a></p>
+<p><em>Explained in:</em> <a href="../../standards/layers/#mcu-specific-code">standards/layers.md</a></p>
+<h2 id="kb-arch-010">KB-ARCH-010: Product-specific needs reach kb-core and drivers only as generic extension points<a class="headerlink" href="#kb-arch-010" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, template · since 1.0</p>
+<p>Nothing in kb-core or a driver is specific to one product: no product macro, pin, channel choice, limit, profile table
+or fault catalogue. A product need becomes a config mask, a table passed in as <code>std::span</code>, a <code>Base*</code> backend interface
+or an injected logger, or it stays in the product's board HAL.</p>
+<p><em>Why:</em> Whatever one product puts in the core, every other product carries. The second-product test catches it before
+merge.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: A second, made-up product with a different board could use this change to kb-core or the driver without
+  editing it.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0014-three-kinds-of-specific/">ADR-0014</a></p>
+<p><em>Explained in:</em> <a href="../../standards/layers/#product-specific-code">standards/layers.md</a></p>
+<h2 id="kb-arch-011">KB-ARCH-011: Virtual functions only at the three run-time boundaries<a class="headerlink" href="#kb-arch-011" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, template · since 1.0</p>
+<p>Virtual functions appear only in kb-core's <code>Base*</code> peripheral interfaces, kb-hal-common's <code>ManagerBase</code>, <code>FacadeBase</code>
+and their sink interfaces, and kb-core's <code>BaseThread</code> and <code>BaseThreadsManager</code>. Drivers, ports, handlers and utilities
+have none; code above the bind holds a <code>Base*&amp;</code>.</p>
+<p><em>Why:</em> Static dispatch keeps drivers and handlers inlined and checkable at compile time; the two run-time boundaries are
+where the concrete type is not known until the board is built (the MCU object, the board's managers).</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/virtual-outside-interfaces</code> (implemented): a source scan for a construct the handbook bans; the
+  parameter names the pattern set</li>
+<li>review: A new virtual function is in one of the three boundaries of ADR-0016, nowhere else.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0016-virtual-functions/">ADR-0016</a>; <a href="../../adr/0003-crtp-ports/">ADR-0003</a>;
+<a href="../../adr/0005-kb-hal-common/">ADR-0005</a></p>
+<p><em>Explained in:</em> <a href="../../standards/library/#interfaces">standards/library.md</a></p>
+<h2 id="kb-arch-012">KB-ARCH-012: A peripheral only one MCU family has gets a Base* interface and a gate row<a class="headerlink" href="#kb-arch-012" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library · since 1.0</p>
+<p>A peripheral that only one family has (the ESP32 RMT) gets a <code>Base*</code> interface in <code>interfaces/base/</code> and an
+implementation in that family's folder only. A driver that needs it stays platform-free, names the family and peripheral
+in <code>driver.yml</code>, says it is MCU-bound in its README and Contract page, and becomes a row in the MCU gate table.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The peripheral has a <code>Base*</code> interface, one family implementation, a <code>driver.yml</code> entry and an MCU gate row;
+  the driver's <code>inc/</code> and <code>src/</code> include no vendor SDK.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0014-three-kinds-of-specific/">ADR-0014</a>; <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a></p>
+<p><em>Explained in:</em> <a href="../../standards/driver/#mcu-bound-drivers">standards/driver.md</a></p>
+<h2 id="kb-arch-013">KB-ARCH-013: A protocol client follows the driver contract except the chip rules<a class="headerlink" href="#kb-arch-013" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver · since 1.0</p>
+<p>A driver for a device reached over a protocol (a CANopen node) skips the chip-ID check, register model, datasheet
+defaults and register mock, and follows the rest of the driver contract. Its <code>Initialize()</code> checks the remote identity
+(device type, vendor ID).</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The client checks the remote identity in Initialize() and otherwise follows the driver contract.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/#protocol-clients">standards/driver.md</a></p>
+<h2 id="kb-arch-014">KB-ARCH-014: Split a large chip into sub-object facades that share the driver<a class="headerlink" href="#kb-arch-014" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · driver · since 1.0</p>
+<p>A chip with many subsystems may expose them as sub-object facades held by the driver
+(<code>driver.telemetry().ReadSupplyMv()</code>). Each facade follows the driver contract and shares the driver's port, lifecycle
+and <code>Error</code>.</p>
+<p><em>Explained in:</em> <a href="../../standards/driver/#large-chips">standards/driver.md</a></p>
+<h2 id="kb-arch-015">KB-ARCH-015: utils take locks and clocks as arguments; CANopen frames are values<a class="headerlink" href="#kb-arch-015" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · library · since 1.0</p>
+<p>A kb-core <code>utils</code> helper that needs a lock or a clock takes it as a parameter or template argument instead of reaching
+up to <code>kb/rtos/</code> or the interfaces. <code>utils/canopen</code> depends on no CAN interface or driver, does not allocate, and builds
+frames as values the caller sends.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>include-graph/utils</code> (planned): every #include in library code is allowed by the Layers include table for its folder;
+  the parameter names the layer (driver, utils, rtos, interfaces, mcu, handlers, hal, product) or <code>all</code></li>
+<li>review: A new utils helper takes its lock or clock as an argument; CANopen helpers return frames by value.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/library/#utils">standards/library.md</a></p>
+<h2 id="kb-arch-016">KB-ARCH-016: The kb-core logger is the one logging API above the bind<a class="headerlink" href="#kb-arch-016" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware · since 1.0</p>
+<p>Code above the bind logs only through the kb-core logger, whose sink the board HAL injects at start-up. kb-core prints
+nothing on its own and carries no product's log format; drivers do not format log text.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/direct-logging</code> (planned): a source scan for a construct the handbook bans; the parameter names
+  the pattern set</li>
+<li>review: No <code>printf</code>, <code>ESP_LOG*</code> or vendor logging call above the bind; logging goes through the kb-core logger.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/library/#handlers">standards/library.md</a></p>
+<h2 id="kb-arch-017">KB-ARCH-017: Raw pin numbers appear only in the board's pin table and its bind<a class="headerlink" href="#kb-arch-017" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · library, hal, firmware · since 1.0</p>
+<p>The <code>pincfg</code> framework holds no board's pins. MCU pin numbers appear only in a board HAL's pin table under
+<code>board/&lt;board&gt;/</code> and in its bind; managers and everything above use functional pin names.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/raw-pins</code> (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set</li>
+<li>review: No <code>GPIO_NUM_*</code> or literal pin number outside the board pin table and <code>bsp_bind/</code>.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/hal/#board-config">standards/hal.md</a></p>
+<h2 id="kb-arch-018">KB-ARCH-018: Adapters are mechanical and build on the shared adapter bases<a class="headerlink" href="#kb-arch-018" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · library · since 1.0</p>
+<p>A handler's adapter derives from the shared base in <code>handlers/common/</code> for its bus (<code>HalSpiCommBase</code>, <code>HalI2cCommBase</code>,
+<code>HalUartCommBase</code>), which holds the bus reference, pin mapping and delay and log hooks, and adds only what is
+chip-specific. Retry policy and other decisions live in the handler, not the adapter.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The adapter uses the shared base for its bus and contains translation only.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/handler/#the-adapter">standards/handler.md</a></p>
+<h2 id="kb-arch-019">KB-ARCH-019: A driver feature reached through VisitDriver in two places becomes a typed method<a class="headerlink" href="#kb-arch-019" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · library · since 1.0</p>
+<p>When the same driver feature is used through <code>VisitDriver()</code> in more than one place, the handler gains a typed method
+for it.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: No driver feature is reached through VisitDriver() in two places without a typed handler method.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/handler/#driver-access">standards/handler.md</a></p>
+<h2 id="kb-arch-020">KB-ARCH-020: A board HAL never copies kb-hal-common; shared managers move there<a class="headerlink" href="#kb-arch-020" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · hal · since 1.0</p>
+<p>kb-hal-common holds the manager and facade bases, the bind interface, the common managers and the lints; a board HAL
+holds only its board config, pin table, bind and board-specific managers. A board HAL carries no copy of kb-hal-common
+code, and a manager two boards need moves to kb-hal-common.</p>
+<p><em>Why:</em> Copied managers drift; the review behind ADR-0005 found six near-copies.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>duplicate-code</code> (planned): jscpd finds no block in a board HAL that duplicates kb-hal-common code above the
+  configured threshold</li>
+<li>review: The HAL adds no copy of a kb-hal-common class; a manager a second board needs is moved there.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0005-kb-hal-common/">ADR-0005</a></p>
+<p><em>Explained in:</em> <a href="../../standards/hal/#what-lives-where">standards/hal.md</a></p>
+<h2 id="kb-arch-021">KB-ARCH-021: Common managers take board specifics as configuration and never name a board<a class="headerlink" href="#kb-arch-021" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · hal, library · since 1.0</p>
+<p>The managers in kb-hal-common receive everything board-specific (channels, LEDs, NVS namespaces) as configuration and
+contain no board or product name.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/board-names</code> (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set</li>
+<li>review: No board or product name or board-specific constant in kb-hal-common.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0005-kb-hal-common/">ADR-0005</a></p>
+<p><em>Explained in:</em> <a href="../../standards/hal/#managers">standards/hal.md</a></p>
+<h2 id="kb-arch-022">KB-ARCH-022: One manager per board function, owning its handlers<a class="headerlink" href="#kb-arch-022" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · hal · since 1.0</p>
+<p>A board HAL has one manager per board function; the manager owns that function's handlers and the <code>Base*</code> objects the
+bind created for them. A new chip in an existing category, a board variant or a cross-category feature extends an
+existing manager rather than adding one.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: A new manager covers a board function no existing manager covers.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0005-kb-hal-common/">ADR-0005</a></p>
+<p><em>Explained in:</em> <a href="../../standards/hal/#managers">standards/hal.md</a></p>
+<h2 id="kb-arch-023">KB-ARCH-023: The facade starts managers in a fixed, documented order<a class="headerlink" href="#kb-arch-023" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · hal · since 1.0</p>
+<p>The board facade derives from <code>FacadeBase</code> and passes its managers in a start-up order fixed at compile time. The order,
+and why, is on the HAL's Architecture page; managers do not start each other.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The start order is a compile-time list passed to FacadeBase and matches the Architecture page.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0002-lifecycle/">ADR-0002</a>; <a href="../../adr/0005-kb-hal-common/">ADR-0005</a></p>
+<p><em>Explained in:</em> <a href="../../standards/hal/#facade-and-start-up">standards/hal.md</a></p>
+<h2 id="kb-arch-024">KB-ARCH-024: Start-up fails closed and leaves every actuator safe<a class="headerlink" href="#kb-arch-024" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · hal, firmware · since 1.0</p>
+<p><code>Initialize()</code> stops at the first failing manager, deinitialises the ones already started in reverse order and returns
+the failing manager and its status. Only managers the board can run without are optional, never safety-relevant ones;
+after a failed start-up the product reports the fault and starts no control task.</p>
+<p><em>Why:</em> A half-started board with a live actuator and no supervising task is the dangerous case.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>hal-startup-test</code> (planned): a HAL host test with the host bind injects a failure into each manager in turn and
+  checks that start-up stops, deinitialises the started managers in reverse and reports the failing ManagerId</li>
+<li>review: A host test injects a failure into each manager in turn and checks the reverse deinitialisation; no
+  safety-relevant manager is optional.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0002-lifecycle/">ADR-0002</a></p>
+<p><em>Explained in:</em> <a href="../../standards/hal/#facade-and-start-up">standards/hal.md</a></p>
+<h2 id="kb-arch-025">KB-ARCH-025: The facade is the product's only way into the board<a class="headerlink" href="#kb-arch-025" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · hal, firmware · since 1.0</p>
+<p>The application uses only the HAL facade and its managers' public API, <code>kb::rtos</code> and the kb-core logger. The facade
+exposes managers by reference and nothing below them.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>hal-lint/boundary</code> (planned): the kb-hal-common lints run in a board HAL's or product's CI; the parameter names the
+  lint (boundary, driver-access, allocation, lock)</li>
+<li>review: The application reaches hardware only through the facade and its managers.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0005-kb-hal-common/">ADR-0005</a></p>
+<p><em>Explained in:</em> <a href="../../standards/product/#what-the-application-uses">standards/product.md</a></p>
+<h2 id="kb-arch-026">KB-ARCH-026: The bind is the only HAL code that names the MCU family<a class="headerlink" href="#kb-arch-026" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · hal · since 1.0</p>
+<p>In a board HAL only <code>bsp_bind/&lt;family&gt;/</code> names MCU types. It implements the one bind interface declared in kb-hal-common
+by creating kb-core's <code>interfaces/mcu/&lt;family&gt;/</code> objects; it never reimplements a peripheral, and a peripheral kb-core
+lacks is added to kb-core first.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>hal-lint/boundary</code> (planned): the kb-hal-common lints run in a board HAL's or product's CI; the parameter names the
+  lint (boundary, driver-access, allocation, lock)</li>
+<li>review: The bind creates kb-core MCU objects and contains no peripheral implementation of its own.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0005-kb-hal-common/">ADR-0005</a>; <a href="../../adr/0014-three-kinds-of-specific/">ADR-0014</a></p>
+<p><em>Explained in:</em> <a href="../../standards/hal/#the-platform-bind">standards/hal.md</a></p>
+<h2 id="kb-arch-027">KB-ARCH-027: A board function the facade lacks is added to the HAL first<a class="headerlink" href="#kb-arch-027" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · firmware, hal · since 1.0</p>
+<p>When the application needs a board function the facade does not offer (for example CAN), it is added to the board HAL
+and then used; the application does not reach around the facade for it.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: New board access in the application goes through a facade or manager method.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/product/#what-the-application-uses">standards/product.md</a></p>
+<h2 id="kb-arch-028">KB-ARCH-028: Application logic lives in the application, not in platform/ or the HAL<a class="headerlink" href="#kb-arch-028" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · firmware, hal · since 1.0</p>
+<p>A product's <code>platform/</code> holds <code>app_main()</code>, partitions, OTA and the console. <code>app_main()</code> creates the facade,
+initialises it, reports a failed start-up and starts the tasks. Behaviour (tasks, protocols, state machines, faults)
+lives in the application, never in <code>platform/</code> or the board HAL.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: platform/ and the HAL contain start-up and board code only, no application behaviour.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/product/#platform">standards/product.md</a></p>
+<h2 id="kb-arch-029">KB-ARCH-029: Run-time faults follow the fault catalogue's reaction<a class="headerlink" href="#kb-arch-029" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · hal, firmware · since 1.0</p>
+<p>Detect bus and device faults, and react as the product's fault catalogue says (stop, derate, warn) rather than ad hoc.
+Degraded operation is a designed reaction listed in the catalogue; start-up stays fail-closed.</p>
+<p><em>Explained in:</em> <a href="../../standards/product/#faults">standards/product.md</a></p>
+<h2 id="kb-arch-030">KB-ARCH-030: A safety-classified product records its classification and what it implies<a class="headerlink" href="#kb-arch-030" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · firmware (safety level and above) · since 1.0</p>
+<p>A product meant for a safety-classified use records its software safety class (IEC 62304 class, SIL or ASIL), the
+reasoning, and the verification that class requires, in its own ADRs.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The product's docs/adr/ has a classification record naming the class and the verification it needs.</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 4.3 (software safety classification)</p>
+<p><em>Explained in:</em> <a href="../../assurance-levels/">assurance-levels.md</a></p>
+<h2 id="kb-arch-031">KB-ARCH-031: Only kb-core rtos includes RTOS headers; everything above uses kb::rtos<a class="headerlink" href="#kb-arch-031" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware · since 1.0</p>
+<p>Drivers, utils and pincfg use no RTOS. Only kb-core's <code>rtos/</code> backend folders include RTOS headers; handlers, HALs and
+products use <code>kb::rtos</code> only, and only the bind and a product's <code>platform/</code> may call the SDK or RTOS directly.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>include-graph/rtos</code> (planned): every #include in library code is allowed by the Layers include table for its folder;
+  the parameter names the layer (driver, utils, rtos, interfaces, mcu, handlers, hal, product) or <code>all</code></li>
+<li><code>forbidden-patterns/raw-rtos</code> (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set</li>
+<li>review: No raw RTOS call or header, <code>std::mutex</code> or <code>std::thread</code> above the bind.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a></p>
+<p><em>Explained in:</em> <a href="../../standards/threading-and-timing/#who-may-call-the-rtos">standards/threading-and-timing.md</a></p>
+<h2 id="kb-arch-032">KB-ARCH-032: Only the product or a HAL manager creates tasks<a class="headerlink" href="#kb-arch-032" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware · since 1.0</p>
+<p>Tasks are created through <code>kb::rtos</code> (<code>BaseThread</code>, <code>BaseThreadsManager</code>) by the product or a HAL manager, never by a
+handler or a driver.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/task-creation</code> (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set</li>
+<li>review: No handler or driver creates a task.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/threading-and-timing/#tasks">standards/threading-and-timing.md</a></p>
+<h2 id="kb-arch-033">KB-ARCH-033: Core affinity is the product's decision<a class="headerlink" href="#kb-arch-033" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · hal, firmware · since 1.0</p>
+<p>Which core a task runs on is set in the product's task configuration header. HAL code does not assume a dual-core MCU or
+pin work to a core.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: No core affinity is set or assumed outside the product's task configuration.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/threading-and-timing/#tasks">standards/threading-and-timing.md</a></p>
+<h2 id="kb-arch-034">KB-ARCH-034: Handler callbacks run in the caller's task<a class="headerlink" href="#kb-arch-034" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · library, hal, firmware · since 1.0</p>
+<p>A callback from a handler into the product runs in the task that made the call. A callback that must reach another task
+posts to an <code>OsQueue</code> instead of doing that task's work.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Callbacks that cross tasks post to a queue.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/threading-and-timing/#what-crosses-tasks">standards/threading-and-timing.md</a></p>
+<h2 id="kb-arch-035">KB-ARCH-035: kb-core pins each driver to a release tag, with its handler and catalogue entry<a class="headerlink" href="#kb-arch-035" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · library · since 1.0 · enforced from 2027-03-01</p>
+<p>kb-core includes each driver as the submodule <code>drivers/driver-&lt;chip&gt;/</code> at the commit of a release tag, never through a
+package registry. The driver is released and pinned before its handler lands, and every pinned driver has a handler and
+an entry in <code>catalog/compat.yml</code>.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>kb-core-catalog</code> (planned): every drivers/driver-&lt;chip&gt; gitlink is the commit of a v* release tag, has a
+  handlers/&lt;chip&gt;/ folder and a catalog/compat.yml entry, and regenerating compat.yml and the MCU gate table from
+  the pinned driver.yml files changes nothing</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a>; <a href="../../adr/0013-kb-core-monorepo/">ADR-0013</a></p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-arch-036">KB-ARCH-036: The compatibility catalogue is generated from the pinned drivers<a class="headerlink" href="#kb-arch-036" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · library · since 1.0 · enforced from 2027-03-01</p>
+<p><code>catalog/compat.yml</code> is built from the <code>driver.yml</code> of every pinned driver and generates the MCU gate table in
+<code>cmake/kb_build_settings.cmake</code>. CI regenerates both and fails on any difference, and kb-core's release notes list the
+same driver versions.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>kb-core-catalog</code> (planned): every drivers/driver-&lt;chip&gt; gitlink is the commit of a v* release tag, has a
+  handlers/&lt;chip&gt;/ folder and a catalog/compat.yml entry, and regenerating compat.yml and the MCU gate table from
+  the pinned driver.yml files changes nothing</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0007-submodule-pinning-and-tags/">ADR-0007</a></p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-arch-037">KB-ARCH-037: Extend what exists before adding a new entity<a class="headerlink" href="#kb-arch-037" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · library, hal · since 1.0</p>
+<p>Before adding a handler, manager or interface, check whether an existing one should grow. A new chip gets a handler; a
+new board function gets a manager; a new chip in an existing function does not.</p>
+<p><em>Explained in:</em> <a href="../../standards/hal/#managers">standards/hal.md</a></p>
+<h2 id="kb-arch-038">KB-ARCH-038: Design for bounded memory and cheap bus traffic<a class="headerlink" href="#kb-arch-038" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · driver, library, hal, firmware · since 1.0</p>
+<p>Batch bus transactions, use DMA for large transfers, pick cache-friendly algorithms, and size pools and buffers at
+compile time. Caching is fine; lazy allocation and run-time pools from the heap are not.</p>
+<p><em>See also:</em> <a href="../../adr/0004-no-heap/">ADR-0004</a></p>
+<h2 id="kb-arch-039">KB-ARCH-039: Real-time paths have bounded latency and named priorities<a class="headerlink" href="#kb-arch-039" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · hal, firmware · since 1.0</p>
+<p>Code on a real-time path has a known worst-case time, takes no unbounded wait, and runs at a priority named in the
+product's task configuration. Resources it needs are reserved at start-up.</p>
+<p><em>Explained in:</em> <a href="../../standards/threading-and-timing/#tasks">standards/threading-and-timing.md</a></p>
+<h2 id="kb-arch-040">KB-ARCH-040: Review architecture before details<a class="headerlink" href="#kb-arch-040" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · driver, library, hal, firmware · since 1.0</p>
+<p>A reviewer checks layering, ownership, locking, error mapping, fault reaction and timing before line-level comments, and
+a design problem is raised first.</p>
+<p><em>Explained in:</em> <a href="../../standards/layers/">standards/layers.md</a></p>
+<h2 id="kb-arch-041">KB-ARCH-041: Extra read-back and verification are chosen per call, off by default<a class="headerlink" href="#kb-arch-041" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>The caller decides at the call site where the extra traffic is worth it, for example a factory write, while a control
+loop calling the same driver pays nothing. A per-call argument, not a Config field, so one driver object can serve both.</p>
+</div>
+<p><strong>MUST</strong> · driver, template · since 1.0 · enforced from 2026-12-01</p>
+<p>A driver call sends only the bus traffic the datasheet needs for that operation. A read-back of what was just written, a
+second read to compare, or any other check the datasheet does not require is requested per call with a trailing <code>Verify</code>
+argument that defaults to <code>Verify::None</code>, documented with its cost in transfers and what it catches. Start-up checks
+inside <code>EnsureInitialized()</code> and steps the datasheet requires (an OTP or fuse guard-band read, a busy poll before a
+command) are not extra and stay unconditional.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Every read-back or compare outside EnsureInitialized() runs only when the call passes a Verify value other
+  than None, or is cited to the datasheet step that requires it; a host test shows the default call sends no extra
+  transfer.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/#verification-is-opt-in">standards/driver.md</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../assurance-levels/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Assurance levels">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Assurance levels
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../cpp/" class="md-footer__link md-footer__link--next" aria-label="Next: C++ code">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                C++ code
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      
+<div class="md-copyright kb-footer">
+  <nav class="kb-footer__links" aria-label="Kokeb Labs">
+    <a href="https://kokeb-labs.github.io/">Kokeb Labs docs</a>
+    <a href="https://github.com/kokeb-labs">GitHub organisation</a>
+    
+      <a href="https://github.com/kokeb-labs/handbook">Source</a>
+      <a href="https://github.com/kokeb-labs/handbook/issues">Report an issue</a>
+      <a href="https://github.com/kokeb-labs/handbook/blob/main/LICENSE">License</a>
+    
+  </nav>
+  
+    <div class="md-copyright__highlight">Copyright &copy; Kokeb Labs contributors</div>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/kokeb-labs" target="_blank" rel="noopener" title="Kokeb Labs on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "navigation.instant", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>

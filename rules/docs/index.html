@@ -1,0 +1,4194 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+      
+      
+      
+        <link rel="canonical" href="https://kokeb-labs.github.io/handbook/rules/docs/">
+      
+      
+        <link rel="prev" href="../testing/">
+      
+      
+        <link rel="next" href="../repo/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/kokeb/favicon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+    
+    
+      
+        <title>Documentation - Kokeb Labs handbook</title>
+      
+    
+    
+  
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8%201.5c-2.363%200-4%201.69-4%203.75%200%20.984.424%201.625.984%202.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621%201.49a.75.75%200%200%201-1.484.211c-.04-.282-.163-.547-.37-.847a9%209%200%200%200-.542-.68q-.126-.149-.268-.32C3.201%207.75%202.5%206.766%202.5%205.25%202.5%202.31%204.863%200%208%200s5.5%202.31%205.5%205.25c0%201.516-.701%202.5-1.328%203.259q-.142.172-.268.319c-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751%200%200%201-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848q.113-.133.213-.253c.561-.679.985-1.32.985-2.304%200-2.06-1.637-3.75-4-3.75M5.75%2012h4.5a.75.75%200%200%201%200%201.5h-4.5a.75.75%200%200%201%200-1.5M6%2015.25a.75.75%200%200%201%20.75-.75h2.5a.75.75%200%200%201%200%201.5h-2.5a.75.75%200%200%201-.75-.75%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+  <link rel="stylesheet" href="../../assets/kokeb/kokeb.css">
+
+    
+      
+    
+    <link rel="stylesheet" media="print" onload="this.media='all'" href="../../assets/kokeb/fonts.css">
+  <noscript><link rel="stylesheet" href="../../assets/kokeb/fonts.css"></noscript>
+
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+  
+  
+  <meta name="theme-color" content="#0e1726" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1b2140" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Kokeb Labs">
+  <meta property="og:title" content="Documentation - Kokeb Labs handbook">
+  <meta property="og:description" content="How every Kokeb Labs repository is designed, written, tested, documented and released, with the check that verifies each rule.">
+  <meta property="og:url" content="https://kokeb-labs.github.io/handbook/rules/docs/">
+  <meta name="twitter:card" content="summary">
+  <script>
+(function () {
+  if (typeof mermaid != "undefined" && !(mermaid instanceof Element)) return;
+  var SRC = "https://unpkg.com/mermaid@11.17.2/dist/mermaid.min.js",
+      SRI = "sha384-EOXBFmc3gx5mb+vn0vPvvGqACToJD24hhacX5Yx+8NUUQrHIle/Qi5Bg9o3zKwW2", config = {}, real, loading;
+  var waiting = [], io = null, ahead = false, ENGAGE = ["scroll", "keydown", "pointerdown", "touchstart"];
+  var stub = {
+    initialize: function (c) { config = c || {}; if (real) real.initialize(config); },
+    render: function (id, text) {
+      var el = null, pres = document.querySelectorAll("pre.mermaid:not([data-kb-mermaid])");
+      for (var i = 0; i < pres.length && !el; i++) if (pres[i].textContent === text) el = pres[i];
+      if (el) el.setAttribute("data-kb-mermaid", "");
+      return near(el).then(load).then(function (m) { return m.render(id, text); });
+    }
+  };
+  function load() {
+    return loading || (loading = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = SRC;
+      s.integrity = SRI;
+      s.crossOrigin = "anonymous";
+      s.onload = function () {
+        real = window.mermaid;
+        window.mermaid = stub;
+        real.initialize(config);
+        resolve(real);
+      };
+      s.onerror = function () { loading = null; reject(new Error("Mermaid did not load")); };
+      document.head.appendChild(s);
+    }));
+  }
+  // One observer for the diagrams still waiting: on the screen only until the reader engages, then a screen ahead.
+  function watch() {
+    if (io) io.disconnect();
+    io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) release(function (w) { return w.el === e.target; });
+      });
+    }, { rootMargin: ahead ? "100% 0px" : "0px" });
+    waiting.forEach(function (w) { io.observe(w.el); });
+  }
+  function release(which) {
+    waiting = waiting.filter(function (w) {
+      if (!which(w)) return true;
+      io.unobserve(w.el);
+      w.go();
+      return false;
+    });
+  }
+  function near(el) {
+    if (real || !el || !("IntersectionObserver" in window)) return Promise.resolve();
+    return new Promise(function (resolve) {
+      waiting.push({ el: el, go: resolve });
+      if (io) io.observe(el); else watch();
+    });
+  }
+  function engaged() {
+    ENGAGE.forEach(function (t) { window.removeEventListener(t, engaged, true); });
+    ahead = true;
+    if (io) watch();
+  }
+  ENGAGE.forEach(function (t) { window.addEventListener(t, engaged, { capture: true, passive: true }); });
+  window.addEventListener("beforeprint", function () { if (io) release(function () { return true; }); });
+  window.mermaid = stub;
+})();
+</script>
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Kokeb Labs handbook" class="md-header__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          
+          <a class="kb-org" href="https://kokeb-labs.github.io/" title="All Kokeb Labs documentation">Kokeb Labs</a>
+          <span class="kb-org__sep" aria-hidden="true">/</span>
+          <span class="md-ellipsis">
+            Kokeb Labs handbook
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Follow the system theme"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Follow the system theme" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../how-rules-work/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  How rules work
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../assurance-levels/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Assurance levels
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Rules
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../deviations/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Deviations and waivers
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../coding-standards/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Coding standards
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../evidence/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Regulated products
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../standards/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Standards
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../adr/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Decision records
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../checklists/migrate-driver/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Checklists
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Kokeb Labs handbook" class="md-nav__button md-logo" aria-label="Kokeb Labs handbook" data-md-component="logo">
+      
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" class="kb-mark">
+    <g transform="translate(1.28 1.28) scale(0.12000)"><path d="M232,66 Q265.29,246.71 446,280 Q265.29,313.29 232,494 Q198.71,313.29 18,280 Q198.71,246.71 232,66 Z" fill="#F4B942"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#0E1726" stroke="#0E1726" stroke-width="24" stroke-linejoin="round"/><path d="M386,38 Q399.69,112.31 474,126 Q399.69,139.69 386,214 Q372.31,139.69 298,126 Q372.31,112.31 386,38 Z" fill="#D9773B"/></g>
+  </svg>
+
+    </a>
+    Kokeb Labs handbook
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/kokeb-labs/handbook" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    kokeb-labs/handbook
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../how-rules-work/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How rules work
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../assurance-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assurance levels
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rules
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Rules
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cpp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C++ code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hardware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hardware and porting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build and CMake
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../testing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-001: Markdown passes the org lint configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-002: The documentation site builds strictly
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-003: No broken links on the built site
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-004: Every public API is documented and Doxygen is warning-free
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-005: Every public repository publishes a versioned MkDocs site
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-006: Pages live in docs/ and the site config in _config/mkdocs.yml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-007: The navigation has the five standard tabs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-008: The site has the page set for its kind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-009: Every code repository has a Contract page under Concepts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-010: The Contract page has the standard sections in order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-011: The Contract page lists every handbook rule the repository does not meet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-012: Repository docs link the handbook instead of restating it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-013: CONTRIBUTING.md links the handbook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-014: A change to behaviour or API updates its docs in the same pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-015: The README has the standard sections in order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-016: The README is short and leaves the reference to the site
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-017: A driver's README names the chip and the part, not the organisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-018: The README licence line matches LICENSE and the package metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-019: A family driver is named after the member it was written for
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-020: Every C++ block on the site compiles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-021: Examples check every result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-022: Generated regions and figures match the code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-023: The Porting page shows a complete, compiled port for each bus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-024: The API guide lists the errors each call can return
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-025: Every image has alt text
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-026: Figures are generated, themed, and drawn with the right tool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-027: A figure has one reading direction, verbs on its arrows and three tones at most
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-028: The site's changelog page includes CHANGELOG.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-029: The changelog keeps [Unreleased] first and the standard subsections in order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-030: A released changelog section is never edited
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-031: Changelog entries describe what a user sees
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-032" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-032: ADRs use the standard format and are numbered in acceptance order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-033" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-033: An accepted decision is superseded, never rewritten
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-034" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-034: Cross-repository decisions are handbook ADRs; local ones stay in the repository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-035" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-035: Datasheets are referenced by exact revision, never committed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-036" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-036: Markdown wraps at 120 columns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-037" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-037: Every page has one title, a purpose line and sections in reading order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-038" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-038: Headings step one level at a time and code fences name their language
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-039" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-039: Links are relative, by file, with descriptive text
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-040: Documentation is Markdown
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-041" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-041: No Jekyll front matter or Liquid; front matter only for hide
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-042" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-042: Page file names are lower-case kebab-case
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-043" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-043: Write in the second person, present tense and active voice
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-044" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-044: No hype or filler words
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-045" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-045: No emoji, exclamation marks or walls of bold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-046" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-046: Titles and headings are in sentence case
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-047" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-047: Pages never mention how they were produced
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-048" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-048: Spelling is correct and one variant is used per repository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-049" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-049: Every name and number on a page is checked against its source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-050: Use a table for three or more like items, with units in the header
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-051" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-051: Use the theme's components instead of inventing markup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-052" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-052: Guides teach a task with complete examples and say why
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-053" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-053: No undated future-plans sections
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-054" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-054: The site meets the Lighthouse accessibility budget
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-055" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-055: Interrupt wiring is documented
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-056" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-056: kb-core has one page per handler
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-057" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-057: A utility collection has one guide page per utility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-058" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-058: A product documents its fault catalogue on the Operation page
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-059" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-059: Release trains are announced with their bench status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-060" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-060: Patches to vendor-generated code are listed in PATCHES.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-061" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-061: The Doxyfile lives in _config/ and Doxygen runs from the root
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-062" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-062: Doxygen reads only the public headers and keeps private members out
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-063" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-063: A public function's comment gives units, errors and whether it blocks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-064" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-064: Each test says what it verifies, with its data and expected result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-065" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-065: A driver's docs trace each part of the driver to its datasheet section
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../git/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Git, review and release
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ci/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CI and supply chain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../coverage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coverage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deviations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deviations and waivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../coding-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coding standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../evidence/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regulated products
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../standards/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standards
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../adr/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decision records
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+  
+    <a href="../../checklists/migrate-driver/" class="md-nav__link">
+      
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Checklists
+  
+
+    
+  </span>
+  
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-001" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-001: Markdown passes the org lint configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-002" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-002: The documentation site builds strictly
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-003" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-003: No broken links on the built site
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-004" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-004: Every public API is documented and Doxygen is warning-free
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-005" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-005: Every public repository publishes a versioned MkDocs site
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-006: Pages live in docs/ and the site config in _config/mkdocs.yml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-007: The navigation has the five standard tabs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-008: The site has the page set for its kind
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-009" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-009: Every code repository has a Contract page under Concepts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-010" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-010: The Contract page has the standard sections in order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-011" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-011: The Contract page lists every handbook rule the repository does not meet
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-012" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-012: Repository docs link the handbook instead of restating it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-013: CONTRIBUTING.md links the handbook
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-014: A change to behaviour or API updates its docs in the same pull request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-015" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-015: The README has the standard sections in order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-016" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-016: The README is short and leaves the reference to the site
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-017" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-017: A driver's README names the chip and the part, not the organisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-018: The README licence line matches LICENSE and the package metadata
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-019: A family driver is named after the member it was written for
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-020: Every C++ block on the site compiles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-021" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-021: Examples check every result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-022" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-022: Generated regions and figures match the code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-023" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-023: The Porting page shows a complete, compiled port for each bus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-024: The API guide lists the errors each call can return
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-025" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-025: Every image has alt text
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-026: Figures are generated, themed, and drawn with the right tool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-027" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-027: A figure has one reading direction, verbs on its arrows and three tones at most
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-028" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-028: The site's changelog page includes CHANGELOG.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-029" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-029: The changelog keeps [Unreleased] first and the standard subsections in order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-030: A released changelog section is never edited
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-031" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-031: Changelog entries describe what a user sees
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-032" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-032: ADRs use the standard format and are numbered in acceptance order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-033" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-033: An accepted decision is superseded, never rewritten
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-034" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-034: Cross-repository decisions are handbook ADRs; local ones stay in the repository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-035" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-035: Datasheets are referenced by exact revision, never committed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-036" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-036: Markdown wraps at 120 columns
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-037" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-037: Every page has one title, a purpose line and sections in reading order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-038" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-038: Headings step one level at a time and code fences name their language
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-039" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-039: Links are relative, by file, with descriptive text
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-040" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-040: Documentation is Markdown
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-041" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-041: No Jekyll front matter or Liquid; front matter only for hide
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-042" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-042: Page file names are lower-case kebab-case
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-043" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-043: Write in the second person, present tense and active voice
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-044" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-044: No hype or filler words
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-045" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-045: No emoji, exclamation marks or walls of bold
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-046" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-046: Titles and headings are in sentence case
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-047" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-047: Pages never mention how they were produced
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-048" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-048: Spelling is correct and one variant is used per repository
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-049" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-049: Every name and number on a page is checked against its source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-050" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-050: Use a table for three or more like items, with units in the header
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-051" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-051: Use the theme's components instead of inventing markup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-052" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-052: Guides teach a task with complete examples and say why
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-053" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-053: No undated future-plans sections
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-054" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-054: The site meets the Lighthouse accessibility budget
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-055" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-055: Interrupt wiring is documented
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-056" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-056: kb-core has one page per handler
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-057" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-057: A utility collection has one guide page per utility
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-058" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-058: A product documents its fault catalogue on the Operation page
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-059" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-059: Release trains are announced with their bench status
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-060" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-060: Patches to vendor-generated code are listed in PATCHES.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-061" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-061: The Doxyfile lives in _config/ and Doxygen runs from the root
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-062" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-062: Doxygen reads only the public headers and keeps private members out
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-063" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-063: A public function's comment gives units, errors and whether it blocks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-064" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-064: Each test says what it verifies, with its data and expected result
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-doc-065" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-DOC-065: A driver's docs trace each part of the driver to its datasheet section
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/kokeb-labs/handbook/edit/main/rules/docs.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+<!-- generated by checks/handbook.py from rules/*.yml: edit those, then run `python checks/handbook.py gen` -->
+<h1 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h1>
+<p>How documentation is written, built and checked.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Level</th>
+<th>Applies to</th>
+<th>Verified</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="#kb-doc-001">KB-DOC-001</a> Markdown passes the org lint configuration</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-002">KB-DOC-002</a> The documentation site builds strictly</td>
+<td>must</td>
+<td>driver, library, hal, tooling, docs, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-003">KB-DOC-003</a> No broken links on the built site</td>
+<td>must</td>
+<td>driver, library, hal, tooling, docs, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-004">KB-DOC-004</a> Every public API is documented and Doxygen is warning-free</td>
+<td>must</td>
+<td>driver, library, hal, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-005">KB-DOC-005</a> Every public repository publishes a versioned MkDocs site</td>
+<td>must</td>
+<td>driver, library, hal, firmware, tooling, docs, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-006">KB-DOC-006</a> Pages live in docs/ and the site config in _config/mkdocs.yml</td>
+<td>must</td>
+<td>driver, library, hal, firmware, tooling, docs, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-007">KB-DOC-007</a> The navigation has the five standard tabs</td>
+<td>must</td>
+<td>driver, library, hal, firmware, tooling, docs, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-008">KB-DOC-008</a> The site has the page set for its kind</td>
+<td>must</td>
+<td>driver, library, hal, firmware, tooling, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-009">KB-DOC-009</a> Every code repository has a Contract page under Concepts</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-010">KB-DOC-010</a> The Contract page has the standard sections in order</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-011">KB-DOC-011</a> The Contract page lists every handbook rule the repository does not meet</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-012">KB-DOC-012</a> Repository docs link the handbook instead of restating it</td>
+<td>should</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-013">KB-DOC-013</a> CONTRIBUTING.md links the handbook</td>
+<td>should</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-014">KB-DOC-014</a> A change to behaviour or API updates its docs in the same pull request</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-015">KB-DOC-015</a> The README has the standard sections in order</td>
+<td>should</td>
+<td>driver, library, hal, firmware, tooling, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-016">KB-DOC-016</a> The README is short and leaves the reference to the site</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-017">KB-DOC-017</a> A driver's README names the chip and the part, not the organisation</td>
+<td>must</td>
+<td>driver, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-018">KB-DOC-018</a> The README licence line matches LICENSE and the package metadata</td>
+<td>must</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-019">KB-DOC-019</a> A family driver is named after the member it was written for</td>
+<td>should</td>
+<td>driver</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-020">KB-DOC-020</a> Every C++ block on the site compiles</td>
+<td>must</td>
+<td>driver, library, hal, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-021">KB-DOC-021</a> Examples check every result</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-022">KB-DOC-022</a> Generated regions and figures match the code</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-023">KB-DOC-023</a> The Porting page shows a complete, compiled port for each bus</td>
+<td>must</td>
+<td>driver, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-024">KB-DOC-024</a> The API guide lists the errors each call can return</td>
+<td>should</td>
+<td>driver, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-025">KB-DOC-025</a> Every image has alt text</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-026">KB-DOC-026</a> Figures are generated, themed, and drawn with the right tool</td>
+<td>should</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-027">KB-DOC-027</a> A figure has one reading direction, verbs on its arrows and three tones at most</td>
+<td>guide</td>
+<td>all</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-028">KB-DOC-028</a> The site's changelog page includes CHANGELOG.md</td>
+<td>must</td>
+<td>driver, library, hal, firmware, tooling, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-029">KB-DOC-029</a> The changelog keeps [Unreleased] first and the standard subsections in order</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-030">KB-DOC-030</a> A released changelog section is never edited</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-031">KB-DOC-031</a> Changelog entries describe what a user sees</td>
+<td>guide</td>
+<td>all</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-032">KB-DOC-032</a> ADRs use the standard format and are numbered in acceptance order</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-033">KB-DOC-033</a> An accepted decision is superseded, never rewritten</td>
+<td>must</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-034">KB-DOC-034</a> Cross-repository decisions are handbook ADRs; local ones stay in the repository</td>
+<td>should</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-035">KB-DOC-035</a> Datasheets are referenced by exact revision, never committed</td>
+<td>must</td>
+<td>driver, hal, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-036">KB-DOC-036</a> Markdown wraps at 120 columns</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-037">KB-DOC-037</a> Every page has one title, a purpose line and sections in reading order</td>
+<td>should</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-038">KB-DOC-038</a> Headings step one level at a time and code fences name their language</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-039">KB-DOC-039</a> Links are relative, by file, with descriptive text</td>
+<td>should</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-040">KB-DOC-040</a> Documentation is Markdown</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-041">KB-DOC-041</a> No Jekyll front matter or Liquid; front matter only for hide</td>
+<td>must</td>
+<td>all</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-042">KB-DOC-042</a> Page file names are lower-case kebab-case</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-043">KB-DOC-043</a> Write in the second person, present tense and active voice</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-044">KB-DOC-044</a> No hype or filler words</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-045">KB-DOC-045</a> No emoji, exclamation marks or walls of bold</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-046">KB-DOC-046</a> Titles and headings are in sentence case</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-047">KB-DOC-047</a> Pages never mention how they were produced</td>
+<td>must</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-048">KB-DOC-048</a> Spelling is correct and one variant is used per repository</td>
+<td>should</td>
+<td>all</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-049">KB-DOC-049</a> Every name and number on a page is checked against its source</td>
+<td>must</td>
+<td>all</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-050">KB-DOC-050</a> Use a table for three or more like items, with units in the header</td>
+<td>guide</td>
+<td>all</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-051">KB-DOC-051</a> Use the theme's components instead of inventing markup</td>
+<td>guide</td>
+<td>all</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-052">KB-DOC-052</a> Guides teach a task with complete examples and say why</td>
+<td>guide</td>
+<td>all</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-053">KB-DOC-053</a> No undated future-plans sections</td>
+<td>guide</td>
+<td>all</td>
+<td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-054">KB-DOC-054</a> The site meets the Lighthouse accessibility budget</td>
+<td>should</td>
+<td>driver, library, hal, firmware, tooling, docs, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-055">KB-DOC-055</a> Interrupt wiring is documented</td>
+<td>should</td>
+<td>driver, hal, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-056">KB-DOC-056</a> kb-core has one page per handler</td>
+<td>must</td>
+<td>library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-057">KB-DOC-057</a> A utility collection has one guide page per utility</td>
+<td>should</td>
+<td>library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-058">KB-DOC-058</a> A product documents its fault catalogue on the Operation page</td>
+<td>must</td>
+<td>firmware</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-059">KB-DOC-059</a> Release trains are announced with their bench status</td>
+<td>should</td>
+<td>library</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-060">KB-DOC-060</a> Patches to vendor-generated code are listed in PATCHES.md</td>
+<td>should</td>
+<td>hal</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-061">KB-DOC-061</a> The Doxyfile lives in _config/ and Doxygen runs from the root</td>
+<td>must</td>
+<td>driver, library, hal, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-062">KB-DOC-062</a> Doxygen reads only the public headers and keeps private members out</td>
+<td>must</td>
+<td>driver, library, hal, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-063">KB-DOC-063</a> A public function's comment gives units, errors and whether it blocks</td>
+<td>must</td>
+<td>driver, library, hal, template</td>
+<td>checked</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-064">KB-DOC-064</a> Each test says what it verifies, with its data and expected result</td>
+<td>should</td>
+<td>driver, library, hal, firmware, template (safety level and above)</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-doc-065">KB-DOC-065</a> A driver's docs trace each part of the driver to its datasheet section</td>
+<td>must</td>
+<td>driver, template</td>
+<td>planned</td>
+</tr>
+</tbody>
+</table>
+<h2 id="kb-doc-001">KB-DOC-001: Markdown passes the org lint configuration<a class="headerlink" href="#kb-doc-001" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>Every Markdown file passes markdownlint-cli2 with the org configuration.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>markdownlint/all</code> (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)</li>
+</ul>
+<h2 id="kb-doc-002">KB-DOC-002: The documentation site builds strictly<a class="headerlink" href="#kb-doc-002" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, tooling, docs, template · since 1.0</p>
+<p>A repository with a documentation site builds it with <code>mkdocs --strict</code>: no broken internal link, no page left out of
+the navigation.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>mkdocs-strict</code> (implemented): the documentation site builds with mkdocs --strict (no broken internal link, every page
+  in the nav)</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/">standards/docs.md</a></p>
+<h2 id="kb-doc-003">KB-DOC-003: No broken links on the built site<a class="headerlink" href="#kb-doc-003" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, tooling, docs, template · since 1.0</p>
+<p>Every link on the built site resolves, internal and external.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>link-check</code> (implemented): lychee finds no broken link on the built site</li>
+</ul>
+<h2 id="kb-doc-004">KB-DOC-004: Every public API is documented and Doxygen is warning-free<a class="headerlink" href="#kb-doc-004" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, template · since 1.0</p>
+<p>Every public type, function and parameter in <code>inc/</code> has a Doxygen comment; Doxygen runs with <code>WARN_IF_UNDOCUMENTED =
+YES</code> and <code>WARN_AS_ERROR = FAIL_ON_WARNINGS</code>.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>doxygen-warnings</code> (implemented): Doxygen with WARN_AS_ERROR = FAIL_ON_WARNINGS and WARN_IF_UNDOCUMENTED reports
+  nothing</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/">standards/docs.md</a></p>
+<h2 id="kb-doc-005">KB-DOC-005: Every public repository publishes a versioned MkDocs site<a class="headerlink" href="#kb-doc-005" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware, tooling, docs, template · since 1.0</p>
+<p>Every public repository publishes its documentation at <code>https://kokeb-labs.github.io/&lt;repo&gt;/</code> through
+<code>ru-mkdocs-publish</code>, built with <code>kokeb-mkdocs-theme</code> and versioned per <code>v*</code> tag; a code repository merges its Doxygen
+reference under <code>api/</code>. A <code>-rc</code> tag publishes its version without moving the <code>latest</code> alias.</p>
+<p><em>Why:</em> One platform and one theme mean a reader finds the same layout on every site, and a pinned version per tag means
+the page a user reads matches the code they built.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>mkdocs-strict</code> (implemented): the documentation site builds with mkdocs --strict (no broken internal link, every page
+  in the nav)</li>
+<li>review: The docs workflow calls ru-mkdocs-publish and the site is live at kokeb-labs.github.io/&lt;repo&gt;/.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/">standards/docs.md</a></p>
+<h2 id="kb-doc-006">KB-DOC-006: Pages live in docs/ and the site config in _config/mkdocs.yml<a class="headerlink" href="#kb-doc-006" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware, tooling, docs, template · since 1.0</p>
+<p>Pages live in <code>docs/</code>. The site configuration is <code>_config/mkdocs.yml</code> with <code>docs_dir: ../docs</code>, and the docs workflow is
+passed <code>mkdocs_config: _config/mkdocs.yml</code> and, in a code repository, <code>doxygen_config: _config/Doxyfile</code>.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>mkdocs-strict</code> (implemented): the documentation site builds with mkdocs --strict (no broken internal link, every page
+  in the nav)</li>
+<li>review: The docs workflow passes mkdocs_config and doxygen_config with the _config/ paths.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0011-repository-root-layout/">ADR-0011</a></p>
+<p><em>Explained in:</em> <a href="../../standards/docs/">standards/docs.md</a></p>
+<h2 id="kb-doc-007">KB-DOC-007: The navigation has the five standard tabs<a class="headerlink" href="#kb-doc-007" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware, tooling, docs, template · since 1.0 · enforced from 2027-03-01</p>
+<p><code>docs/.nav.yml</code> has exactly five top-level tabs, in this order: Home, Get started, Concepts, Guides, Reference. Deep
+dives go under Concepts and configuration references under Guides.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>docs-nav</code> (planned): docs/.nav.yml has exactly the five tabs Home, Get started, Concepts, Guides, Reference in order,
+  and contract.md sits under Concepts right after Architecture</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/">standards/docs.md</a></p>
+<h2 id="kb-doc-008">KB-DOC-008: The site has the page set for its kind<a class="headerlink" href="#kb-doc-008" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware, tooling, template · since 1.0 · enforced from 2027-03-01</p>
+<p><code>docs/</code> holds every page the documentation standard lists for the repository's kind (driver, standalone library,
+kb-core, HAL, product, CI and tools). A page that cannot apply, such as Configuration for a driver with no <code>Config</code>, is
+left out rather than kept empty.</p>
+<p><em>Why:</em> A fixed page set lets a reader move between repositories without relearning where things are, and lets a check
+say what is missing.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>docs-page-set</code> (planned): docs/ has every page the documentation standard requires for the repository's declared
+  kind, and each is in the navigation</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/">standards/docs.md</a></p>
+<h2 id="kb-doc-009">KB-DOC-009: Every code repository has a Contract page under Concepts<a class="headerlink" href="#kb-doc-009" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01</p>
+<p>Every driver, library, kb-core, HAL and product has <code>docs/contract.md</code>, listed under Concepts right after Architecture.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>docs-page-set</code> (planned): docs/ has every page the documentation standard requires for the repository's declared
+  kind, and each is in the navigation</li>
+<li><code>docs-nav</code> (planned): docs/.nav.yml has exactly the five tabs Home, Get started, Concepts, Guides, Reference in order,
+  and contract.md sits under Concepts right after Architecture</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#the-contract-page">standards/docs.md</a></p>
+<h2 id="kb-doc-010">KB-DOC-010: The Contract page has the standard sections in order<a class="headerlink" href="#kb-doc-010" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01</p>
+<p><code>docs/contract.md</code> has the sections Promises, Depends on, Threading, Errors, Memory, Platform and Deviations from the
+standard, in that order, after a one-line purpose.</p>
+<p><em>Why:</em> The Contract is the short normative summary a caller or an auditor reads first; fixed sections make a missing
+promise visible.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>heading-skeleton/contract</code> (planned): a Markdown file's headings match a required skeleton in order (parameter:
+  contract, readme, adr, hf-hal-readme, hf-board-spec, hf-protocol-spec)</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 5.4.3 (detailed design of software unit interfaces)</p>
+<p><em>Explained in:</em> <a href="../../standards/docs/#the-contract-page">standards/docs.md</a></p>
+<h2 id="kb-doc-011">KB-DOC-011: The Contract page lists every handbook rule the repository does not meet<a class="headerlink" href="#kb-doc-011" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0</p>
+<p>The Deviations section names, by rule ID, each handbook rule the repository does not meet yet, with its issue or waiver.
+An empty section says "None".</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Every waiver in .kokeb/handbook.yml and every known unmet rule appears in the Deviations section with its
+  issue.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../deviations/">deviations.md</a></p>
+<h2 id="kb-doc-012">KB-DOC-012: Repository docs link the handbook instead of restating it<a class="headerlink" href="#kb-doc-012" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · all · since 1.0</p>
+<p>The handbook is the single source of the rules. A repository's docs, Contract page, templates and CI link the rule they
+follow and state only what is specific to the repository; no repository keeps a copy of the handbook or of its pages.</p>
+<p><em>Why:</em> A copied rule drifts from the original the first time either is edited.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: No page restates a handbook rule that it could link; no vendored copy of handbook pages.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#the-contract-page">standards/docs.md</a></p>
+<h2 id="kb-doc-013">KB-DOC-013: CONTRIBUTING.md links the handbook<a class="headerlink" href="#kb-doc-013" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · all · since 1.0</p>
+<p>A repository's CONTRIBUTING.md, or the organisation default it inherits, links the handbook. AGENTS.md links it as
+KB-AGT-005 requires.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: CONTRIBUTING.md (own or the org default) links kokeb-labs.github.io/handbook.</li>
+</ul>
+<h2 id="kb-doc-014">KB-DOC-014: A change to behaviour or API updates its docs in the same pull request<a class="headerlink" href="#kb-doc-014" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · all · since 1.0</p>
+<p>A pull request that changes behaviour, the public API, a pin, a default or a build option updates the README, the pages
+under <code>docs/</code> and the CHANGELOG entry that describe it, in the same pull request.</p>
+<p><em>Why:</em> Docs updated later are docs that are wrong in between, and usually stay wrong.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>docs-touched</code> (planned): warns when a pull request changes inc/, a Kconfig or a CMake option without touching
+  README.md, docs/ or CHANGELOG.md</li>
+<li>review: Every page that describes the changed behaviour is updated in this pull request.</li>
+</ul>
+<h2 id="kb-doc-015">KB-DOC-015: The README has the standard sections in order<a class="headerlink" href="#kb-doc-015" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · driver, library, hal, firmware, tooling, template · since 1.0 · enforced from 2027-03-01</p>
+<p>The README has, in order and only where they apply: title and hero line, true badges, the bold docs link, a
+plain-language paragraph, one figure, At a glance (with the status), Datasheet, Try it on your PC, Use it on your MCU,
+What it does, Install, Documentation (with "Read it when you want to"), Tests and quality, License.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>heading-skeleton/readme</code> (planned): a Markdown file's headings match a required skeleton in order (parameter:
+  contract, readme, adr, hf-hal-readme, hf-board-spec, hf-protocol-spec)</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#readme">standards/docs.md</a></p>
+<h2 id="kb-doc-016">KB-DOC-016: The README is short and leaves the reference to the site<a class="headerlink" href="#kb-doc-016" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · all · since 1.0</p>
+<p>A README has no table of contents, no emoji walls, no check-mark feature lists, no badge that links nowhere or states
+something untrue, and no API tables that duplicate the site.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>prose-style/emoji</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+<li>review: The README has none of the banned elements and every badge is live and true.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#readme">standards/docs.md</a></p>
+<h2 id="kb-doc-017">KB-DOC-017: A driver's README names the chip and the part, not the organisation<a class="headerlink" href="#kb-doc-017" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, template · since 1.0</p>
+<p>A driver's README and site name the chip and part it drives; the organisation appears only in links and the licence
+line, so the driver reads as usable on its own.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/readme-org-name</code> (planned): a source scan for a construct the handbook bans; the parameter names
+  the pattern set</li>
+<li>review: The README names the chip and part; no Kokeb Labs or HardFOC branding outside links.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0012-unbranded-drivers/">ADR-0012</a></p>
+<p><em>Explained in:</em> <a href="../../standards/docs/#readme">standards/docs.md</a></p>
+<h2 id="kb-doc-018">KB-DOC-018: The README licence line matches LICENSE and the package metadata<a class="headerlink" href="#kb-doc-018" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>The README's License line, LICENSE and every package manifest (<code>idf_component.yml</code>, <code>library.json</code> and the like) name
+the same licence: MIT for code, CERN-OHL-P-2.0 for a hardware design.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: README License line, LICENSE and package manifests name the same licence.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0009-licensing/">ADR-0009</a></p>
+<h2 id="kb-doc-019">KB-DOC-019: A family driver is named after the member it was written for<a class="headerlink" href="#kb-doc-019" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver · since 1.0</p>
+<p>A driver that covers a chip family is named after the part it was written and tested for; the README lists the other
+members it supports and how far each is tested.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The repository name is the tested part; the README lists the other family members and their status.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/">standards/driver.md</a></p>
+<h2 id="kb-doc-020">KB-DOC-020: Every C++ block on the site compiles<a class="headerlink" href="#kb-doc-020" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, template · since 1.0</p>
+<p>A C++ snippet longer than one line lives in <code>tests/docs/*.cpp</code> between <code>--8&lt;--</code> section markers, is built by the host
+build with warnings on, and is included in the page; it is never pasted inline.</p>
+<p><em>Why:</em> An example that does not compile teaches the wrong API, and nobody notices until a user pastes it.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>host-tests</code> (implemented): the unit tests build and pass on the host with gcc and clang</li>
+<li><code>docs-inline-code</code> (planned): no C++ fence longer than one line in docs/ or README.md is written inline; each comes
+  from tests/docs via a --8&lt;-- include or a generated region</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#code-on-the-site">standards/docs.md</a></p>
+<h2 id="kb-doc-021">KB-DOC-021: Examples check every result<a class="headerlink" href="#kb-doc-021" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0</p>
+<p>Every example on the site and in the README checks each <code>Result</code> and <code>Status</code> it gets and shows what to do with an
+error; no example ignores a return value or elides code with <code>// ...</code>.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>compiler-warnings/-Wunused-result</code> (implemented): the build is warning-free with the named flag and -Werror</li>
+<li>review: Each example handles every returned Result or Status.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#code-on-the-site">standards/docs.md</a></p>
+<h2 id="kb-doc-022">KB-DOC-022: Generated regions and figures match the code<a class="headerlink" href="#kb-doc-022" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. ru-mkdocs-publish runs the drift check today; once its job is named in the
+registry the check is implemented and this rule can be active.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01</p>
+<p>The README quickstart, examples lists and figures are generated regions (<code>kokeb-docs</code>), and CI fails when one no longer
+matches the code it is generated from. <code>kokeb-docs check</code> runs the same check locally.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>docs-drift</code> (planned): kokeb-docs check finds no generated region (README quickstart, examples list) or figure that
+  differs from what the code generates</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#the-site">standards/docs.md</a></p>
+<h2 id="kb-doc-023">KB-DOC-023: The Porting page shows a complete, compiled port for each bus<a class="headerlink" href="#kb-doc-023" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, template · since 1.0</p>
+<p>A driver's Porting page shows the full port for every bus it supports, compiled from <code>tests/docs/</code>, and lists every
+extra protocol hook with the same contract as the core interface methods.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>host-tests</code> (implemented): the unit tests build and pass on the host with gcc and clang</li>
+<li>review: Each supported bus has a compiled port on the Porting page; every extra hook is listed.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/">standards/driver.md</a></p>
+<h2 id="kb-doc-024">KB-DOC-024: The API guide lists the errors each call can return<a class="headerlink" href="#kb-doc-024" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, template · since 1.0</p>
+<p>A driver's API guide lists, for each call, the error values it can return and what each means, matching the <code>@retval</code>
+lines in the headers.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The API guide's error table matches the @return/@retval documentation in inc/.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/">standards/driver.md</a></p>
+<h2 id="kb-doc-025">KB-DOC-025: Every image has alt text<a class="headerlink" href="#kb-doc-025" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>Every image and figure has alt text: one sentence saying what it shows, never just "diagram" or "image".</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>markdownlint/MD045</code> (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)</li>
+<li>review: Alt text says what the figure shows.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#code-on-the-site">standards/docs.md</a></p>
+<h2 id="kb-doc-026">KB-DOC-026: Figures are generated, themed, and drawn with the right tool<a class="headerlink" href="#kb-doc-026" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · all · since 1.0</p>
+<p>Architecture and code-derived figures are figkit figures with light and dark variants; sequences and state machines are
+Mermaid. A vendor image is an SVG or compressed PNG on a <code>.kb-plate</code>, never a screenshot of a PDF.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: New figures use figkit or Mermaid; vendor images are SVG/PNG with .kb-plate.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#code-on-the-site">standards/docs.md</a></p>
+<h2 id="kb-doc-027">KB-DOC-027: A figure has one reading direction, verbs on its arrows and three tones at most<a class="headerlink" href="#kb-doc-027" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>A figure reads in one direction, stated in its subtitle; solid arrows call, dashed arrows carry data, and an arrow is
+labelled when its verb is not obvious. Colour shows ownership in at most three tones, with about eight cards at most.</p>
+<h2 id="kb-doc-028">KB-DOC-028: The site's changelog page includes CHANGELOG.md<a class="headerlink" href="#kb-doc-028" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, firmware, tooling, template · since 1.0</p>
+<p><code>docs/changelog.md</code> has a title and purpose line and pulls in <code>CHANGELOG.md</code> with a snippet include; it never holds a
+copy.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: docs/changelog.md uses --8&lt;-- "CHANGELOG.md" and has no copied entries.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#changelog-and-decisions">standards/docs.md</a></p>
+<h2 id="kb-doc-029">KB-DOC-029: The changelog keeps [Unreleased] first and the standard subsections in order<a class="headerlink" href="#kb-doc-029" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The planned changelog check must cover the [Unreleased]-first and
+subsection-order rules (Breaking is not a Keep a Changelog heading).</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p><code>## [Unreleased]</code> is always the first section. Within a section the subsections are Breaking, Added, Changed,
+Deprecated, Removed, Fixed and Security, in that order, each only when it has an entry.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>changelog</code> (planned): CHANGELOG.md follows Keep a Changelog; a new version section is the next SemVer step, dated,
+  not empty</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-doc-030">KB-DOC-030: A released changelog section is never edited<a class="headerlink" href="#kb-doc-030" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>A released section <code>## [X.Y.Z] - YYYY-MM-DD</code> is not edited after its release, except for its link lines; a correction
+goes in the next release's entry.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>changelog-frozen</code> (planned): a pull request's diff of CHANGELOG.md changes only the [Unreleased] section, a new
+  release section and link lines</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-doc-031">KB-DOC-031: Changelog entries describe what a user sees<a class="headerlink" href="#kb-doc-031" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>A changelog entry says what changes for the user of the release (an API, a behaviour, a default, a fix to a symptom),
+not which commits went in.</p>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-doc-032">KB-DOC-032: ADRs use the standard format and are numbered in acceptance order<a class="headerlink" href="#kb-doc-032" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>A decision record has a Status line and the sections Context, Decision and Consequences, and is numbered
+<code>NNNN-&lt;slug&gt;.md</code> in the order decisions are accepted.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>heading-skeleton/adr</code> (planned): a Markdown file's headings match a required skeleton in order (parameter: contract,
+  readme, adr, hf-hal-readme, hf-board-spec, hf-protocol-spec)</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#changelog-and-decisions">standards/docs.md</a></p>
+<h2 id="kb-doc-033">KB-DOC-033: An accepted decision is superseded, never rewritten<a class="headerlink" href="#kb-doc-033" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>Once an ADR is accepted its Decision is not edited to change it; a new ADR supersedes it, and the old one's Status links
+its successor.</p>
+<p><em>Why:</em> The record is only useful if it shows what was decided at the time, and why.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: A pull request that edits an accepted ADR changes only its Status, links or typos.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#changelog-and-decisions">standards/docs.md</a></p>
+<h2 id="kb-doc-034">KB-DOC-034: Cross-repository decisions are handbook ADRs; local ones stay in the repository<a class="headerlink" href="#kb-doc-034" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · all · since 1.0</p>
+<p>A decision that affects more than one repository is an ADR in the handbook's <code>docs/adr/</code>. A decision local to one
+repository, including a product's, is an ADR in its own <code>docs/adr/</code> in the same format.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: A new ADR is in the handbook when it binds other repositories.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#changelog-and-decisions">standards/docs.md</a></p>
+<h2 id="kb-doc-035">KB-DOC-035: Datasheets are referenced by exact revision, never committed<a class="headerlink" href="#kb-doc-035" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, hal, template · since 1.0</p>
+<p>No datasheet, reference manual or application note is committed. <code>docs/datasheets.yml</code> lists each document the code was
+written against: vendor, title, document number, revision, date, URL and the SHA-256 of the PDF that was used.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>tracked-files/datasheets</code> (implemented): git tracks no file of a banned kind; the parameter names it
+  (tracked-files/symlinks, tracked-files/sdkconfig, tracked-files/idf-component)</li>
+<li>review: docs/datasheets.yml names the document number, revision and SHA-256 of every datasheet the code cites.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0019-datasheets/">ADR-0019</a></p>
+<h2 id="kb-doc-036">KB-DOC-036: Markdown wraps at 120 columns<a class="headerlink" href="#kb-doc-036" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>Prose lines in Markdown are at most 120 characters; tables and code blocks are exempt.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>markdownlint/MD013</code> (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/naming-and-style/">standards/naming-and-style.md</a></p>
+<h2 id="kb-doc-037">KB-DOC-037: Every page has one title, a purpose line and sections in reading order<a class="headerlink" href="#kb-doc-037" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. config/.markdownlint.json must enable MD025 and MD041 (MD041 with front matter
+allowed, for <code>hide:</code>).</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>A page starts with exactly one <code>#</code> title matching its navigation entry, then a one-sentence purpose line, then <code>##</code>
+sections in the order a reader needs them, ending with a next step when there is an obvious one.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>markdownlint/MD025</code> (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)</li>
+<li><code>markdownlint/MD041</code> (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)</li>
+<li>review: The page has a purpose line under its title.</li>
+</ul>
+<h2 id="kb-doc-038">KB-DOC-038: Headings step one level at a time and code fences name their language<a class="headerlink" href="#kb-doc-038" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. config/.markdownlint.json must enable MD040.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Heading levels go down one at a time and use <code>#</code> style throughout. Every fenced code block names its language (<code>cpp</code>,
+<code>yaml</code>, <code>mermaid</code>, <code>text</code>).</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>markdownlint/MD001</code> (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)</li>
+<li><code>markdownlint/MD003</code> (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)</li>
+<li><code>markdownlint/MD040</code> (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)</li>
+</ul>
+<h2 id="kb-doc-039">KB-DOC-039: Links are relative, by file, with descriptive text<a class="headerlink" href="#kb-doc-039" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · all · since 1.0</p>
+<p>Pages link other pages by file (<code>porting.md#threads</code>), repository files relatively, and the API reference by
+<code>api/...html</code>; no page links its own site or repository by absolute URL. Link text says where it goes, and external
+links go to the primary source.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>markdownlint/MD059</code> (implemented): markdownlint-cli2 with the org config; the parameter names the rule
+  (markdownlint/MD040)</li>
+<li><code>forbidden-patterns/absolute-self-links</code> (planned): a source scan for a construct the handbook bans; the parameter
+  names the pattern set</li>
+<li>review: External links point at the primary source (vendor, datasheet, specification).</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/">standards/docs.md</a></p>
+<h2 id="kb-doc-040">KB-DOC-040: Documentation is Markdown<a class="headerlink" href="#kb-doc-040" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Documentation is written in Markdown in the repository; no Word, PDF or slide files stand in for pages. Vendor
+datasheets (KB-DOC-035) are the only exception.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>forbidden-patterns/office-docs</code> (planned): a source scan for a construct the handbook bans; the parameter names the
+  pattern set</li>
+</ul>
+<h2 id="kb-doc-041">KB-DOC-041: No Jekyll front matter or Liquid; front matter only for hide<a class="headerlink" href="#kb-doc-041" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>Pages have no Jekyll front matter and no Liquid tags. Material front matter is used only for <code>hide:</code>, for example on the
+home page.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>mkdocs-strict</code> (implemented): the documentation site builds with mkdocs --strict (no broken internal link, every page
+  in the nav)</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/">standards/docs.md</a></p>
+<h2 id="kb-doc-042">KB-DOC-042: Page file names are lower-case kebab-case<a class="headerlink" href="#kb-doc-042" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Files under <code>docs/</code> are named in lower-case kebab-case (<code>api-guide.md</code>, <code>contract.md</code>). The conventional root files
+(README.md, CHANGELOG.md, CONTRIBUTING.md, AGENTS.md, CLAUDE.md, LICENSE) keep their upper-case names.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>doc-file-names</code> (planned): every file under docs/ is lower-case kebab-case; root README, CHANGELOG, CONTRIBUTING,
+  AGENTS, CLAUDE and LICENSE are exempt</li>
+</ul>
+<h2 id="kb-doc-043">KB-DOC-043: Write in the second person, present tense and active voice<a class="headerlink" href="#kb-doc-043" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The Vale rules report at warning level for passive voice.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Pages address the reader as "you", in the present tense and active voice, in short sentences of one idea each. A page
+does not describe itself ("this document describes").</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>prose-style/passive-voice</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+<li><code>prose-style/future-tense</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+<li><code>prose-style/self-reference</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/">standards/docs.md</a></p>
+<h2 id="kb-doc-044">KB-DOC-044: No hype or filler words<a class="headerlink" href="#kb-doc-044" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Pages are plain and specific: numbers, names and units instead of "simply", "just", "easily", "powerful",
+"comprehensive", "seamless" or "robust".</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>prose-style/hype-words</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+</ul>
+<h2 id="kb-doc-045">KB-DOC-045: No emoji, exclamation marks or walls of bold<a class="headerlink" href="#kb-doc-045" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Headings, lists and tables carry no emoji; prose has no exclamation marks and no runs of bold text.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>prose-style/emoji</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+<li><code>prose-style/exclamation</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+</ul>
+<h2 id="kb-doc-046">KB-DOC-046: Titles and headings are in sentence case<a class="headerlink" href="#kb-doc-046" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Every title and heading, the page title included, is in sentence case ("Bus settings").</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>prose-style/sentence-case</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+</ul>
+<h2 id="kb-doc-047">KB-DOC-047: Pages never mention how they were produced<a class="headerlink" href="#kb-doc-047" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>No page says it was generated or written by a tool or an assistant, and no page names one as its author.
+Generated-region markers are comments, not prose.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>prose-style/provenance</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+</ul>
+<h2 id="kb-doc-048">KB-DOC-048: Spelling is correct and one variant is used per repository<a class="headerlink" href="#kb-doc-048" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · all · since 1.0 · enforced from 2027-03-01</p>
+<p>Pages have no misspellings, and a repository uses British or American spelling consistently; project words are listed in
+<code>config/typos.toml</code>.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>spelling</code> (planned): typos finds no misspelling (project words in config/typos.toml)</li>
+<li><code>prose-style/spelling-variant</code> (planned): Vale with the Kokeb style; the parameter names the style rule</li>
+</ul>
+<h2 id="kb-doc-049">KB-DOC-049: Every name and number on a page is checked against its source<a class="headerlink" href="#kb-doc-049" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · all · since 1.0</p>
+<p>Every API name, signature, pin, register and number is checked against the headers or the datasheet. A timing or
+performance figure is measured, with its conditions, or says that it is derived.</p>
+<p><em>Why:</em> A plausible wrong number costs a user more than a missing one.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Numbers and names on changed pages match the headers or datasheet; derived figures say so.</li>
+</ul>
+<h2 id="kb-doc-050">KB-DOC-050: Use a table for three or more like items, with units in the header<a class="headerlink" href="#kb-doc-050" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>Pins, registers, parameters, options, commands and error codes go in a table once there are three or more, with units in
+the header (<code>Range (V)</code>), names in code font and long prose below the table.</p>
+<h2 id="kb-doc-051">KB-DOC-051: Use the theme's components instead of inventing markup<a class="headerlink" href="#kb-doc-051" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>Admonitions, tabs, chip cards, steps and API links use the theme's components. A page has at most two <code>warning</code> or
+<code>danger</code> admonitions, kept for damage or lost hours.</p>
+<h2 id="kb-doc-052">KB-DOC-052: Guides teach a task with complete examples and say why<a class="headerlink" href="#kb-doc-052" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>A guide page is organised by task, gives the smallest complete example for each step, and says why a step is needed as
+well as how.</p>
+<h2 id="kb-doc-053">KB-DOC-053: No undated future-plans sections<a class="headerlink" href="#kb-doc-053" title="Permanent link">&para;</a></h2>
+<p><strong>GUIDE</strong> · all · since 1.0</p>
+<p>Pages describe what exists. Plans go in issues or discussions, not in "future work" or "roadmap" sections of the docs.</p>
+<h2 id="kb-doc-054">KB-DOC-054: The site meets the Lighthouse accessibility budget<a class="headerlink" href="#kb-doc-054" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>SHOULD</strong> · driver, library, hal, firmware, tooling, docs, template · since 1.0 · enforced from 2027-03-01</p>
+<p>The built site scores at or above the org Lighthouse budget for accessibility, performance, best practices and SEO.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>lighthouse</code> (planned): Lighthouse scores of the built site meet the org budget for accessibility, performance, best
+  practices and SEO (ru-mkdocs-publish runs Lighthouse; register it as implemented once its failing job is confirmed)</li>
+</ul>
+<h2 id="kb-doc-055">KB-DOC-055: Interrupt wiring is documented<a class="headerlink" href="#kb-doc-055" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, hal, template · since 1.0</p>
+<p>When a driver or HAL needs an interrupt, its docs say which callback or vector handler the user wires, which context it
+runs in, and what it may call.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The Porting or Contract page names the ISR hook, its context and what it may call.</li>
+</ul>
+<h2 id="kb-doc-056">KB-DOC-056: kb-core has one page per handler<a class="headerlink" href="#kb-doc-056" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · library · since 1.0</p>
+<p>kb-core documents each handler on its own page under <code>docs/handlers/</code>, with its API, error mapping, locking and
+diagnostics.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Every handlers/&lt;chip&gt; folder has a docs/handlers/ page with the four sections.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/handler/">standards/handler.md</a></p>
+<h2 id="kb-doc-057">KB-DOC-057: A utility collection has one guide page per utility<a class="headerlink" href="#kb-doc-057" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · library · since 1.0</p>
+<p>A library that is a collection of utilities has one guide page per utility, with its purpose, a compiled example and its
+complexity and memory use.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Each public utility header has a guide page with purpose, example, complexity and memory.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/library/">standards/library.md</a></p>
+<h2 id="kb-doc-058">KB-DOC-058: A product documents its fault catalogue on the Operation page<a class="headerlink" href="#kb-doc-058" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · firmware · since 1.0</p>
+<p>A product keeps one fault catalogue (ID, protocol code, severity, reaction) and documents it on its Operation page.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The Operation page lists every fault in the catalogue with its code, severity and reaction.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/product/">standards/product.md</a></p>
+<h2 id="kb-doc-059">KB-DOC-059: Release trains are announced with their bench status<a class="headerlink" href="#kb-doc-059" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · library · since 1.0</p>
+<p>A kb-core release train is announced in its release notes and on the Release trains page, with the bench status of each
+member.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: The release notes and Release trains page list the train's members and bench status.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/release/">standards/release.md</a></p>
+<h2 id="kb-doc-060">KB-DOC-060: Patches to vendor-generated code are listed in PATCHES.md<a class="headerlink" href="#kb-doc-060" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · hal · since 1.0</p>
+<p>Any edit to vendor-generated code (STM32Cube and the like) after generation is listed in <code>PATCHES.md</code> beside it, with
+why; the aim is none.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: A diff against the regenerated output matches what PATCHES.md lists.</li>
+</ul>
+<h2 id="kb-doc-061">KB-DOC-061: The Doxyfile lives in _config/ and Doxygen runs from the root<a class="headerlink" href="#kb-doc-061" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, template · since 1.0</p>
+<p>Each code repository keeps its Doxyfile at <code>_config/Doxyfile</code>, derived from the shared settings in ci-tools, and runs
+<code>doxygen _config/Doxyfile</code> from the repository root so its paths are root-relative.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>doxyfile-baseline</code> (planned): _config/Doxyfile exists and sets INPUT to the public headers, EXTRACT_ALL and
+  EXTRACT_PRIVATE to NO, WARN_NO_PARAMDOC to YES and the org mainpage, compared with the ci-tools baseline</li>
+<li>review: _config/Doxyfile exists and its paths are relative to the root.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0011-repository-root-layout/">ADR-0011</a></p>
+<p><em>Explained in:</em> <a href="../../standards/docs/#doxygen">standards/docs.md</a></p>
+<h2 id="kb-doc-062">KB-DOC-062: Doxygen reads only the public headers and keeps private members out<a class="headerlink" href="#kb-doc-062" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. driver-template matches; ci-tools' shared Doxyfile uses INPUT = README.md ...
+with RECURSIVE = YES and must be brought in line.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, template · since 1.0 · enforced from 2027-03-01</p>
+<p>The Doxyfile sets <code>INPUT</code> to the public headers only (<code>inc/</code> for a driver), <code>EXTRACT_ALL = NO</code>, <code>EXTRACT_PRIVATE = NO</code>,
+<code>WARN_NO_PARAMDOC = YES</code>, <code>USE_MDFILE_AS_MAINPAGE = docs/_doxygen/mainpage.md</code>, and generates HTML that is merged into
+the site under <code>api/</code>.</p>
+<p><em>Why:</em> With EXTRACT_ALL off, an undocumented symbol is a warning instead of an empty entry, so KB-DOC-004 can fail on
+it.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>doxyfile-baseline</code> (planned): _config/Doxyfile exists and sets INPUT to the public headers, EXTRACT_ALL and
+  EXTRACT_PRIVATE to NO, WARN_NO_PARAMDOC to YES and the org mainpage, compared with the ci-tools baseline</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/docs/#doxygen">standards/docs.md</a></p>
+<h2 id="kb-doc-063">KB-DOC-063: A public function's comment gives units, errors and whether it blocks<a class="headerlink" href="#kb-doc-063" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, library, hal, template · since 1.0</p>
+<p>Each public symbol has a brief description. Each public function documents every parameter with its unit, its return
+value and the error values it can return, and whether it does I/O or blocks.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>doxygen-warnings</code> (implemented): Doxygen with WARN_AS_ERROR = FAIL_ON_WARNINGS and WARN_IF_UNDOCUMENTED reports
+  nothing</li>
+<li>review: Changed public functions document units, error values and whether they do I/O or block.</li>
+</ul>
+<p><em>See also:</em> IEC 62304:2006+A1:2015 5.4.2 (detailed design of each software unit)</p>
+<p><em>Explained in:</em> <a href="../../standards/docs/#doxygen">standards/docs.md</a></p>
+<h2 id="kb-doc-064">KB-DOC-064: Each test says what it verifies, with its data and expected result<a class="headerlink" href="#kb-doc-064" title="Permanent link">&para;</a></h2>
+<p><strong>SHOULD</strong> · driver, library, hal, firmware, template (safety level and above) · since 1.0</p>
+<p>At safety level each test case has a Doxygen comment naming the requirement or behaviour it verifies, the input data and
+the expected result.</p>
+<p><em>Why:</em> The comment is the trace from a requirement to its test that an assessor reads.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Each new or changed test has a comment naming what it verifies, its data and expected result.</li>
+</ul>
+<h2 id="kb-doc-065">KB-DOC-065: A driver's docs trace each part of the driver to its datasheet section<a class="headerlink" href="#kb-doc-065" title="Permanent link">&para;</a></h2>
+<p><strong>MUST</strong> · driver, template · since 1.0</p>
+<p><code>docs/datasheets.yml</code> lists, besides the documents, one topic per thing the driver takes from them: the datasheet's
+section and printed page, the driver API and the docs pages that explain it. The README and home page carry the
+generated datasheet card, <code>docs/datasheet.md</code> the generated map, and each page a topic names the generated box of the
+sections it relies on.</p>
+<p><em>Why:</em> A reader, a reviewer or an assessor can check any behaviour against the source document in one step, and a new
+datasheet revision shows exactly which parts of the driver to re-check.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>docs-drift</code> (planned): kokeb-docs check finds no generated region (README quickstart, examples list) or figure that
+  differs from what the code generates</li>
+<li>review: Each topic names the right section and page; every docs page that rests on the datasheet has its box.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0019-datasheets/">ADR-0019</a></p>
+<p><em>Explained in:</em> <a href="../../standards/docs/#the-datasheet-trail">standards/docs.md</a></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../testing/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Testing">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Testing
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../repo/" class="md-footer__link md-footer__link--next" aria-label="Next: Repository">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Repository
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      
+<div class="md-copyright kb-footer">
+  <nav class="kb-footer__links" aria-label="Kokeb Labs">
+    <a href="https://kokeb-labs.github.io/">Kokeb Labs docs</a>
+    <a href="https://github.com/kokeb-labs">GitHub organisation</a>
+    
+      <a href="https://github.com/kokeb-labs/handbook">Source</a>
+      <a href="https://github.com/kokeb-labs/handbook/issues">Report an issue</a>
+      <a href="https://github.com/kokeb-labs/handbook/blob/main/LICENSE">License</a>
+    
+  </nav>
+  
+    <div class="md-copyright__highlight">Copyright &copy; Kokeb Labs contributors</div>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/kokeb-labs" target="_blank" rel="noopener" title="Kokeb Labs on GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "navigation.prune", "navigation.top", "navigation.footer", "navigation.tracking", "navigation.instant", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.action.edit", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      
+        <script src="../../search/main.js"></script>
+      
+    
+  </body>
+</html>
