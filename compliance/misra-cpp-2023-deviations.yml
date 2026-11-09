@@ -12,24 +12,50 @@ deviations:
   - id: MD-CPP-001
     guideline: Rule 4.1.1
     scope: >-
-      All C++ in drivers, libraries, HALs and firmware: the code is ISO C++20, not the C++17 the edition is written
-      for. The C++20 features in use are concepts and requires-clauses (port concepts such as SpiPort, optional
-      hooks detected with requires-expressions), std::span, designated initialisers, defaulted comparison
-      operators and the <concepts> library (std::same_as, std::derived_from). Any other C++20 feature is added to
-      this list in the pull request that first uses it.
+      All C++ in drivers, libraries, HALs and firmware is ISO C++20 instead of the C++17 the edition is written for.
+      The deviation covers exactly the C++17 and C++20 language and library features that the C++20 profile
+      (docs/standards/cpp20-profile.md, guidelines KB-CPP20-001 to KB-CPP20-058 in rules/cpp20.yml) marks "Use" or
+      "Use with rules", each only under the guidelines the profile attaches to it. The C++20 features in that set
+      are: concepts, requires-clauses and requires-expressions; the <concepts> library; std::span with fixed and
+      dynamic extent; designated initialisers; defaulted operator==; consteval; constinit; using enum at block
+      scope; std::bit_cast, the <bit> operations and std::endian; std::in_range and the std::cmp_ functions;
+      <numbers>; abbreviated function templates with a type-constraint; class types as non-type template
+      arguments; the std::ranges algorithms of <algorithm>; std::source_location (above the drivers); std::atomic_ref
+      (HALs); [[nodiscard]] on types and [[maybe_unused]]. Every feature the profile marks "Forbid" (coroutines,
+      modules, range views, <format> and std::print, <=> in drivers, char8_t, parenthesised aggregate
+      initialisation, lambdas in unevaluated operands, [[fallthrough]], [[no_unique_address]] in drivers,
+      [[likely]] and [[unlikely]] without a measurement, std::is_constant_evaluated, constexpr allocation), every
+      construct C++20 deprecates, and every feature of C++23 or later is outside this deviation: using one is a
+      violation of Rule 4.1.1 with no deviation, even in a build whose dialect (for example ESP-IDF's gnu++23 or
+      gnu++26) accepts it. A feature joins the covered set only by a change to the profile and to this record in
+      the same pull request.
     justification: >-
-      ADR-0010 fixes C++20 for the whole stack. Concepts state each port's contract at compile time, which is what
-      keeps drivers free of virtual dispatch (ADR-0003, ADR-0016); std::span replaces pointer-and-length pairs and
-      the pointer arithmetic MISRA restricts; designated initialisers make every Config field explicit. Each
-      feature removes a class of defect the guidelines exist to prevent.
+      ADR-0010 fixes C++20 for the whole stack. Concepts state each port's contract at compile time, which keeps
+      drivers free of virtual dispatch (ADR-0003, ADR-0016); std::span replaces pointer-and-length pairs and the
+      pointer arithmetic MISRA restricts; designated initialisers make every Config field explicit; constexpr,
+      consteval and static_assert move register and configuration checks to build time; <bit> and std::in_range
+      give unsigned-only bit operations and checked narrowing. Each covered feature removes a class of defect the
+      guidelines exist to prevent, and the profile states for each how the edition's guidelines apply to it.
     mitigation: >-
-      No compiler extensions: -std=c++20 -Wpedantic with CMAKE_CXX_EXTENSIONS OFF (KB-CPP-001), and the code
-      builds warning-free with GCC and Clang and every supported cross toolchain. Every guideline of the edition is
-      applied to C++20 constructs by analogy: a concept is a template (rules on templates apply to its
-      instantiations); a requires-expression's parameters are not function parameters (Rule 0.2.2 does not
-      apply to them); a designated initialiser is a converting transfer (Rule 7.0.6); std::span indexing is an
-      array access (Rule 8.7.1). The commercial checker runs in C++20 mode and any C++20-specific finding is
-      triaged against this record.
+      (1) Conformance build: every target a repository builds itself compiles with -std=c++20, extensions off and
+      -pedantic-errors; the handbook source check cpp20-profile/cmake-extensions requires CMAKE_CXX_EXTENSIONS OFF
+      in every CMakeLists.txt that builds a target, and ci-tools' forbidden-patterns/cmake-cxx-standard rejects ON.
+      The strict-dialect build compiles every public header alone at -std=c++20 -pedantic-errors with host GCC and
+      Clang, Arm GCC and the ESP-IDF toolchain of the example's target (KB-CPP20-001). (2) The source check
+      cpp20-profile/forbidden-features rejects every forbidden feature and C++23 construct it can recognise, and
+      include-allowlist keeps the libraries to the ADR-0017 subset (KB-CPP20-002). (3) -Wdeprecated and the C++20
+      deprecation warnings are errors (KB-CPP20-003). (4) Every guideline of the edition is applied to C++20
+      constructs by the analogies on the profile page: a concept is a template and its instantiations follow the
+      template rules; a requires-expression's parameters are not function parameters (Rule 0.2.2 does not apply);
+      a designated initialiser is an initialisation (Rule 7.0.6 applies per designator); std::span indexing is an
+      array access (Rule 8.7.1) and a span is a reference-like object for Rules 6.8.1 to 6.8.4; a defaulted
+      operator== is covered by MD-CPP-002 and KB-CPP20-033; a lambda in a template argument is a function object
+      for Rules 8.1.1 and 8.1.2; std::bit_cast is the permitted alternative to the casts Rules 8.2.5 and 8.2.6
+      forbid and is never applied to pointers; a constinit object is still a mutable static for Rule 6.7.2
+      (MD-CPP-005 scope); a discarded if constexpr branch that no instantiation keeps is unreachable code for Rule
+      0.0.1. (5) The commercial checker runs in C++20 mode at the safety level; each C++20-specific finding is
+      triaged against this record and the profile, and a finding on a construct outside the covered set is fixed,
+      not deviated.
     approved_by: maintainer
     date: 2026-11-08
     review_by: 2027-11-08

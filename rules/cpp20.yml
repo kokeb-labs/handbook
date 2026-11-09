@@ -1,0 +1,1344 @@
+---
+area: cpp20
+prefix: KB-CPP20
+title: C++20 profile
+intro: >-
+  The C++20 language and library features Kokeb Labs code may use, the rules each one comes with, and the ones it
+  may not use, as numbered guidelines. They extend MISRA C++:2023, which is written for C++17, to the C++20 our
+  code is written in, and they define exactly what deviation MD-CPP-001 covers. The C++20 profile page explains
+  each feature's verdict; categories follow MISRA's model (mandatory and required guidelines are `must`, advisory
+  ones `should`).
+rules:
+  - id: KB-CPP20-001
+    title: "Strict ISO C++20, with a conformance build on every target compiler"
+    statement: >-
+      Every target a repository builds itself (library, tests, fuzzers, host examples, install consumer)
+      compiles as ISO C++20 with `CMAKE_CXX_EXTENSIONS OFF` and `-pedantic-errors`. Every public header also
+      compiles on its own at `-std=c++20 -pedantic-errors` with each compiler the repository ships for: host
+      GCC and Clang, Arm GCC in the cross-build, and the ESP-IDF toolchain, whose own default dialect is newer
+      (a header self-check compiled at `-std=c++20` inside the ESP-IDF build).
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/cmake-extensions
+      - check: forbidden-patterns/cmake-cxx-standard
+      - check: compiler-warnings/-pedantic-errors
+      - check: strict-dialect
+    rationale: >-
+      MD-CPP-001 deviates Rule 4.1.1 for C++20, not for whatever a framework enables. CMake's default leaves
+      extensions on (`-std=gnu++20`), and ESP-IDF builds as `gnu++23` or `gnu++26`, so without a strict build
+      a GNU extension or a C++23 feature compiles on one toolchain and breaks on another.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.2"}
+    page: standards/cpp20-profile.md#part-a
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-002
+    title: "Only profile features; nothing from C++23 or later"
+    statement: >-
+      Target code uses only the language and library features this profile marks *Use* or *Use with rules*,
+      under the guidelines attached to them, and library headers only from the layer's ADR-0017 subset. No
+      feature of C++23 or later is used, even where a framework's dialect accepts it (`std::to_underlying`,
+      `std::byteswap`, `std::expected`, `if consteval`, `[[assume]]`, deducing `this`, the `uz` literal
+      suffix).
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+      - check: strict-dialect
+      - check: include-allowlist/driver
+      - check: include-allowlist/target
+      - review: "A C++20 feature not in the profile joins it and MD-CPP-001 in one pull request, or is not used."
+    rationale: >-
+      MD-CPP-001 must name what it covers, and a feature that enters without review enters the safety case
+      unexamined. Our own `detail::ToUnderlying` replaces the C++23 helper at no cost.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.2"}
+    page: standards/cpp20-profile.md#part-a
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-003
+    title: "Nothing C++20 deprecates"
+    statement: >-
+      No construct deprecated by C++20: compound assignment or `++`/`--` on a `volatile` object, `volatile`
+      parameters and return types, implicit capture of `this` through `[=]`, a comma expression in a
+      subscript, arithmetic or comparison between two different enumeration types or between an enumeration
+      and a floating-point type.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: compiler-warnings/-Wdeprecated
+      - check: compiler-warnings/-Wdeprecated-enum-enum-conversion
+      - check: compiler-warnings/-Wdeprecated-enum-float-conversion
+      - check: clang-tidy/cppcoreguidelines-misleading-capture-default-by-value
+    rationale: >-
+      Deprecated features are candidates for removal and are deprecated because they mislead: a `volatile`
+      read-modify-write is not atomic, and `[=]` does not copy the object.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.2"}
+      - {std: MISRA-CPP-2023, id: "Rule 10.1.2"}
+    page: standards/cpp20-profile.md#part-a
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-004
+    title: "No feature-test macros to choose behaviour"
+    statement: >-
+      Shared code does not test `__cpp_` or `__cpp_lib_` macros or include `<version>` to pick an
+      implementation. There is one language level; a missing feature is a toolchain problem, not a branch.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+    rationale: >-
+      Two code paths per feature means one of them is untested on any given CI matrix.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 19.0.1"}
+    page: standards/cpp20-profile.md#part-a
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-005
+    title: "Every template parameter is constrained by a named concept"
+    statement: >-
+      Each type template parameter in target code has a constraint: a named concept in the template head
+      (`template <SpiPort Port>`) or a `requires` clause. A callable parameter is constrained with
+      `std::invocable` and its result type.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: codeql/unconstrained-template
+      - review: "Every new template parameter names its concept."
+    rationale: >-
+      An unconstrained parameter accepts anything; misuse is reported deep inside the body, or compiles.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 17.8.1"}
+      - {std: MISRA-CPP-2023, id: "Dir 0.3.2"}
+    page: standards/cpp20-profile.md#part-b
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-006
+    title: "Port concepts check the exact hook signature and `noexcept`"
+    statement: >-
+      A port concept accepts only hooks with exactly the signature on the driver's Porting page: each argument
+      is probed with a type that converts to the documented parameter type and to nothing else, each compound
+      requirement states `noexcept`, and each result type is checked with `std::same_as`. Compile-fail tests
+      prove that a narrowed parameter and a missing `noexcept` are rejected.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: compile-fail-tests
+      - check: codeql/port-hook-signature
+      - review: "Each port concept probes with `detail::Exactly<T>` and states `noexcept` on every hook."
+    rationale: >-
+      A concept that probes with plain values is satisfied by `Transfer(..., uint16_t len)`, so the driver's
+      length is truncated at every call without a diagnostic; KB-CPP-035 asks for `noexcept`, and the concept
+      is where it can be proved.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.6"}
+      - {std: MISRA-CPP-2023, id: "Rule 0.1.2"}
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.3"}
+    page: standards/cpp20-profile.md#part-b
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-007
+    title: "Optional hooks use named detection concepts; a misdeclared hook is an error"
+    statement: >-
+      Each optional hook has a named concept `Has<Hook>` in `<chip>::detail` that checks argument types
+      exactly, the result type and `noexcept`, and a `Declares<Hook>` concept that only tests the name; the
+      driver `static_assert`s `!Declares<Hook> || Has<Hook>`. No anonymous requires-expression appears in an
+      `if constexpr` condition.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: cpp20-profile/inline-requires
+      - check: compile-fail-tests
+    rationale: >-
+      Detection that silently falls back when a hook is misdeclared turns a wiring mistake into a missing
+      delay or a dropped GPIO error; one named concept is also what KB-CPP-036 asks for.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 0.1.2"}
+      - {std: MISRA-CPP-2023, id: "Rule 9.6.5"}
+    page: standards/cpp20-profile.md#part-b
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-008
+    title: "One dependent-false helper"
+    statement: >-
+      A branch that must never be instantiated fails with `static_assert(detail::kAlwaysFalse<T>, "...")`,
+      from one `template <typename> inline constexpr bool kAlwaysFalse = false;` per repository, not with ad
+      hoc spellings such as `sizeof(T) == 0`.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - review: "Discarded branches use `detail::kAlwaysFalse`."
+    rationale: >-
+      C++20 does not allow `static_assert(false)` in a discarded template branch; one named helper states the
+      intent.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 0.0.1"}
+    page: standards/cpp20-profile.md#part-b
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-009
+    title: "Code that does not depend on the port lives outside the class template"
+    statement: >-
+      Register encoders and decoders, validation, CRC, unit conversion and error text are namespace-scope
+      `constexpr` functions, not members of the driver's class template.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: codeql/port-independent-member
+      - review: "A static member that never names the port moves out."
+    rationale: >-
+      A member of `Driver<Port>` is emitted once per port type; a free `constexpr` function is emitted once or
+      folded away, and can be proved with `static_assert`.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 6.2.3"}
+    page: standards/cpp20-profile.md#part-b
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-010
+    title: "Abbreviated function templates are constrained and stay out of the public API"
+    statement: >-
+      A function parameter declared `auto` has a type-constraint (`std::unsigned_integral auto`), and public
+      driver member functions have no `auto` parameters.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: codeql/unconstrained-auto-parameter
+      - review: "No `auto` parameter in public driver API."
+    rationale: >-
+      `void f(auto x)` is a template that instantiates for every argument type, `bool` and `char` included,
+      and hides that from the reader and the code-size budget.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 17.8.1"}
+    page: standards/cpp20-profile.md#part-b
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-011
+    title: "Concepts carry meaning; overloads are not chosen by subsumption"
+    statement: >-
+      A concept names a contract a reader can state in one sentence. Driver code does not build overload sets
+      chosen by concept subsumption, and does not define concepts that every type satisfies; a choice between
+      behaviours is an `if constexpr` on a named concept.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - review: "No two overloads differ only in one being more constrained."
+    rationale: >-
+      Subsumption depends on the exact spelling of atomic constraints, so a harmless edit can switch the
+      chosen overload without a diagnostic.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 17.8.1"}
+    page: standards/cpp20-profile.md#part-b
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-012
+    title: "Pure computations are `constexpr` and proved with `static_assert`"
+    statement: >-
+      A function that computes only from its arguments (register encoder or decoder, frame builder, CRC, unit
+      conversion, `Validate`) is `constexpr`. Each such function in a `_registers` or `_types` header is named
+      in at least one `static_assert` with a datasheet value; an encode and decode pair has a round-trip
+      `static_assert`; each preset asserts `Validate(preset) == Error::Ok`; and an array whose size mirrors a
+      register count uses the named constant.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: codeql/unasserted-constexpr
+      - review: "Every new pure function has a datasheet `static_assert`; encode and decode pairs a round trip."
+    rationale: >-
+      A `static_assert` is evidence that costs nothing at run time and runs on every compiler, and undefined
+      behaviour inside a constant evaluation is a compile error, so the vectors are also proved free of it.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 0.0.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.3"}
+    page: standards/cpp20-profile.md#part-c
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-013
+    title: "`consteval` only for build-time construction"
+    statement: >-
+      `consteval` is used for what must never run at run time: checked configuration values, generated tables,
+      validated constants. A failed check calls a declared but undefined function whose name states the error.
+      A `consteval` check never replaces the run-time validation of a value that can come from outside the
+      build.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - review: "The run-time `Validate()` call stays in the start-up path."
+    rationale: >-
+      A board's configuration is usually a constant, and rejecting a bad one at build time is better than at
+      boot; the run-time `Validate()` stays for everything else.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 0.1.2"}
+      - {std: MISRA-CPP-2023, id: "Dir 0.3.2"}
+    page: standards/cpp20-profile.md#part-c
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-014
+    title: "`constinit` on every mutable static"
+    statement: >-
+      Every object with static storage duration that is not `constexpr` (the cases MD-CPP-005 allows) is
+      declared `constinit`. Drivers have no such objects (KB-CPP-040).
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [library, hal, firmware]}
+    verify:
+      - check: clang-tidy/cppcoreguidelines-avoid-non-const-global-variables
+      - check: codeql/constinit
+      - review: "Every mutable static is `constinit`."
+    rationale: >-
+      `constinit` turns constant initialisation from a review claim into a compiler error and closes the
+      static initialisation order hazard.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 6.7.2"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.7.1"}
+    page: standards/cpp20-profile.md#part-c
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-015
+    title: "`if constexpr` only on compile-time facts, each branch instantiated by a test"
+    statement: >-
+      The condition of `if constexpr` depends on a template parameter or a build-configuration constant, and
+      each branch of a hook dispatch is instantiated by at least one host test (a minimal port and a full
+      port).
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: coverage-floor/level
+      - review: "The tests have a minimal and a full port, so both branches compile."
+    rationale: >-
+      A discarded branch is not compiled for that instantiation, so a branch no test instantiates is
+      unverified code.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 0.0.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 0.0.2"}
+    page: standards/cpp20-profile.md#part-c
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-016
+    title: "No `std::is_constant_evaluated`"
+    statement: >-
+      Code does not branch on `std::is_constant_evaluated()`.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+    rationale: >-
+      Inside `if constexpr` it is always true, a classic mistake; outside it, two implementations of one
+      function have to be kept equivalent, and the clean form is C++23.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 0.0.2"}
+    page: standards/cpp20-profile.md#part-c
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-017
+    title: "Header-scope variables are `constexpr`"
+    statement: >-
+      A variable defined in a header at namespace scope is `inline constexpr`; a static data member of a class
+      template is `static constexpr`. No mutable `inline` variable exists.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/cppcoreguidelines-avoid-non-const-global-variables
+      - check: codeql/mutable-inline-variable
+    rationale: >-
+      An `inline` variable is one object for the whole program, so a mutable one is a global by another name.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 6.2.4"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.2.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.7.2"}
+    page: standards/cpp20-profile.md#part-c
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-018
+    title: "Configuration-dependent inline code: one configuration per program"
+    statement: >-
+      A header whose inline function bodies depend on configuration macros (`<chip>_kconfig.hpp`, or anything
+      that uses `__has_include` for configuration) is a leaf: no other library header includes it, every
+      translation unit of one program sees the same configuration, and its file comment says so.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: cpp20-profile/kconfig-leaf
+      - review: "The Kconfig header's comment states one configuration per program."
+    rationale: >-
+      Different macro values in two translation units give two definitions of one inline function: an ODR
+      violation with no diagnostic.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 6.2.1"}
+    page: standards/cpp20-profile.md#part-c
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-019
+    title: "No allocation and no virtual functions in constant evaluation"
+    statement: >-
+      `constexpr` code does not use `new`, `std::allocator` or an allocating container, and no function is
+      `constexpr virtual`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: forbidden-patterns/heap
+      - check: include-allowlist/driver
+    rationale: >-
+      C++20 allows transient allocation during constant evaluation, but the headers that offer it are outside
+      the target subset, and the same code would run with the heap at run time.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 21.6.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 21.6.2"}
+    page: standards/cpp20-profile.md#part-c
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-020
+    title: "Every shift count is provably below the operand width"
+    statement: >-
+      A shift whose count is not a constant is preceded, in the same function, by a check or a mask that
+      bounds the count below the width of the promoted left operand. A public helper that shifts by an
+      enumeration or an integer argument masks the count itself.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/clang-analyzer-core.BitwiseShift
+      - check: sanitizers
+      - check: codeql/shift-range
+      - review: "Every run-time shift count is masked or checked in the same function."
+    rationale: >-
+      A shift by the width or more is undefined behaviour, and an `enum class` with a `uint8_t` base can hold
+      any value from 0 to 255, so being an enumeration proves nothing.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.4"}
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.3"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category mandatory; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-021
+    title: "Bit work in `uint32_t`; no promoted narrow operands; no platform-width types"
+    statement: >-
+      Operands of `~`, `<<`, `>>`, `&`, `|`, `^` and arithmetic on register values are `uint32_t` (or
+      `uint64_t`) before the operator; `uint8_t` and `uint16_t` values are cast up first. `unsigned`,
+      `unsigned long`, `int` and the `UL` suffix never set a width: literals are `uint32_t{1}`, or `1U` when
+      the other operand is already `uint32_t`. A loop counter used as a shift count is unsigned.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/hicpp-signed-bitwise
+      - check: codeql/narrow-bitwise-operand
+      - review: "Narrow operands are widened to `uint32_t` before bit operations; no `UL` widths."
+    rationale: >-
+      Narrow unsigned values promote to signed `int`, and `unsigned long` is 32 bits on our targets but 64
+      bits on the host, so host tests cannot show a width bug.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.5"}
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.4"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.9.2"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-022
+    title: "Narrowing is explicit, compound assignment included"
+    statement: >-
+      Every conversion to a narrower or differently signed integer type is a `static_cast` where it happens,
+      including the hidden one in `|=`, `&=`, `+=`, in initialisation, argument passing and return. A value
+      whose range is not proved by a mask or a preceding check is tested with `std::in_range<T>` first.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: compiler-warnings/-Wconversion
+      - check: clang-tidy/bugprone-narrowing-conversions
+      - check: codeql/compound-narrowing
+      - review: "No `uint8_t |= unsigned` style compound assignment."
+    rationale: >-
+      `-Wconversion` is silent when it can prove the value fits, so the conversion stays unseen until the
+      commercial checker runs; an explicit cast is also where a reviewer looks for the range argument.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.6"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-023
+    title: "Mixed-sign comparison through `std::cmp_less` and its siblings"
+    statement: >-
+      When a signed and an unsigned value must be compared, the code uses `std::cmp_less` (or `cmp_equal`,
+      `cmp_greater`, ...) instead of a cast.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: compiler-warnings/-Wsign-compare
+    rationale: >-
+      A cast picks a direction and can wrap; the C++20 functions compare the mathematical values.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.5"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-024
+    title: "Signed reinterpretation of wire values through a named helper"
+    statement: >-
+      A same-width signed value read from a wire or register comes from `std::bit_cast<intN_t>` or
+      `static_cast<intN_t>` (both defined in C++20) inside a named helper whose comment states the encoding;
+      an N-bit field narrower than its container is sign-extended by a named helper in `int32_t` arithmetic.
+      Never through a union, `memcpy` or a pointer cast.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - check: clang-tidy/cppcoreguidelines-pro-type-union-access
+      - check: clang-tidy/cppcoreguidelines-pro-type-reinterpret-cast
+    rationale: >-
+      C++20 fixed two's complement and made the conversion modular, but the encoding should be named once.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 12.3.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.8.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 8.2.5"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-025
+    title: "Integer-to-enum conversion only for proven enumerators"
+    statement: >-
+      `static_cast<E>(x)` from a non-constant integer is allowed only when every value `x` can take is an
+      enumerator: the mask's range equals the contiguous enumerator set, stated by a `static_assert` next to
+      the enumeration, or the value is checked first and a non-enumerator becomes an `Error`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: codeql/enum-from-integer
+      - review: "Each integer-to-enum cast is preceded by a range check or proof."
+    rationale: >-
+      A non-enumerator in an enumeration defeats every `switch` and every `==` test that follows.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.3"}
+      - {std: MISRA-CPP-2023, id: "Rule 10.2.1"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category mandatory; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-026
+    title: "One enumeration utility layer"
+    statement: >-
+      Conversion to the underlying type goes through one `detail::ToUnderlying` function template, and range
+      checks through one `detail::IsEnumerator` with an `EnumLast<E>` class template specialised next to each
+      contiguous enumeration. Function templates are never explicitly specialised.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - review: "Enumeration range checks use `detail::IsEnumerator`."
+    rationale: >-
+      Hand-written `static_cast<uint8_t>(x) > static_cast<uint8_t>(Last)` checks must each be updated when an
+      enumerator is added.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 17.8.1"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-027
+    title: "`using enum` only at block scope"
+    statement: >-
+      `using enum E;` appears only inside a function body, never at namespace or class scope in a header.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: codeql/using-enum-scope
+      - review: "`using enum` only inside function bodies."
+    rationale: >-
+      At namespace scope it exports every enumerator into the enclosing namespace and undoes the scoping that
+      scoped enumerations exist for.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 6.4.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 10.2.2"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-028
+    title: "`<bit>` for counting and rotation instead of hand-written loops"
+    statement: >-
+      Population count, leading and trailing zero counts, single-bit tests and rotations use `std::popcount`,
+      `std::countl_zero`, `std::countr_zero`, `std::has_single_bit`, `std::bit_width`, `std::rotl` and
+      `std::rotr`. On a timing-critical path the generated code is checked once per target.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - review: "Bit counting uses `<bit>`."
+    rationale: >-
+      They accept only unsigned types, are `constexpr` and are simpler to review than a loop.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.4"}
+      - {std: MISRA-CPP-2023, id: "Rule 9.5.1"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-029
+    title: "`std::bit_cast` between equal-size values, never for byte order"
+    statement: >-
+      `std::bit_cast` is used only between trivially copyable value types of the same size, never to or from a
+      pointer, and never to read a multi-byte wire value: byte order is always explicit shifts. `std::endian`
+      appears only in a `static_assert` or in MCU port code.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/bugprone-bitwise-pointer-cast
+      - check: codeql/bit-cast-byte-order
+      - review: "No `bit_cast` from a byte array."
+    rationale: >-
+      A `bit_cast` of a 4-byte buffer to `uint32_t` silently assumes the host byte order (KB-CPP-106).
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 8.2.5"}
+      - {std: MISRA-CPP-2023, id: "Rule 8.2.4"}
+      - {std: MISRA-CPP-2023, id: "Rule 8.2.6"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.8.1"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-030
+    title: "Strong types for units and easily swapped parameters"
+    statement: >-
+      A public function with two or more adjacent parameters of the same arithmetic type but different
+      meanings, or a physical quantity whose unit is easy to confuse, takes single-member strong types
+      (`Milliamps`, `Microseconds`, `I2cAddress7`): trivially copyable aggregates of one integer with only the
+      operations the unit supports.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - review: "Adjacent same-typed parameters with different units use strong types."
+    rationale: >-
+      `CurrentCode(uint32_t ma, uint32_t rref_ohm)` compiles with the arguments swapped; a one-member struct
+      is passed in a register on the Arm and Xtensa ABIs, so the safety costs nothing.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.6"}
+    page: standards/cpp20-profile.md#part-d
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-031
+    title: "Designated initialisers for configuration; every member has a default"
+    statement: >-
+      Every member of a configuration or value aggregate has a default member initialiser. Code that sets more
+      than one member of such an aggregate in one expression uses designated initialisers; positional brace
+      initialisation of a multi-member aggregate is used only inside the type's own header.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/modernize-use-designated-initializers
+      - check: clang-tidy/cppcoreguidelines-pro-type-member-init
+    rationale: >-
+      C++20 already orders designators and forbids mixing; the defaults make an omitted designator mean the
+      datasheet default, and designators keep a call site right when a field is inserted.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 11.6.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 15.1.4"}
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.6"}
+    page: standards/cpp20-profile.md#part-e
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-032
+    title: "No parenthesised aggregate initialisation"
+    statement: >-
+      Aggregates are never initialised with parentheses (`Config(a, b)`).
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: codeql/paren-aggregate-init
+      - review: "Aggregates use braces."
+    rationale: >-
+      The C++20 parenthesised form is positional and, unlike braces, allows narrowing, so `Config(1000, 2.5)`
+      compiles; it also reads like a constructor that does not exist.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.6"}
+    page: standards/cpp20-profile.md#part-e
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-033
+    title: "Defaulted `operator==` only on exactly comparable members"
+    statement: >-
+      `operator==` of a value type is defaulted, never hand-written, and only when every member is an integer,
+      `bool`, enumeration, `std::array` of those, or a type that itself follows this guideline. Types with
+      floating-point or pointer members have no `operator==`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: codeql/float-defaulted-equality
+      - review: "No defaulted `==` on a type with a float or pointer member."
+    rationale: >-
+      A defaulted `==` compares floats exactly and pointers by address, which is rarely what the same
+      configuration means.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 16.6.1"}
+      - {std: MISRA-CPP-2023, id: "Dir 0.3.1"}
+    page: standards/cpp20-profile.md#part-e
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-034
+    title: "No three-way comparison in drivers"
+    statement: >-
+      Drivers do not declare or use `operator<=>` and do not include `<compare>`. Libraries may default `<=>`
+      for a type with a genuine total order, under KB-CPP20-033's member rules.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+      - check: include-allowlist/driver
+    rationale: >-
+      Driver configurations, statuses and errors have no order, and `<compare>` is outside the driver subset.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 16.6.1"}
+    page: standards/cpp20-profile.md#part-e
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-035
+    title: "Structured bindings test the error before the value"
+    statement: >-
+      Structured bindings may decompose an aggregate returned by value. When it is a `Result`, the error
+      binding is tested before the value binding is read. Bindings are by value, or `const auto&` to a named
+      object.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: codeql/structured-binding-order
+      - review: "The error binding is tested first."
+    rationale: >-
+      `[[nodiscard]]` is satisfied by the binding, so the compiler no longer helps when the value is used
+      first.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 0.1.2"}
+      - {std: MISRA-CPP-2023, id: "Rule 11.6.2"}
+    page: standards/cpp20-profile.md#part-e
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-036
+    title: "Class-type template arguments are structural and integral"
+    statement: >-
+      A class type used as a non-type template parameter has only public integral, `bool` and enumeration
+      members: no floating-point members, no pointers.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library]}
+    verify:
+      - review: "Class NTTPs have integral members only."
+    rationale: >-
+      Integral members keep instantiation identity obvious and portable across our compilers.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 17.8.1"}
+    page: standards/cpp20-profile.md#part-e
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-037
+    title: "`[[nodiscard]]` on every error-carrying type"
+    statement: >-
+      `Result<T>`, `Result<void>`, every `Error` enumeration and every status type are declared
+      `[[nodiscard]]` on the type, and every `const` query member function is `[[nodiscard]]`. A deliberate
+      discard is a `(void)` cast with a comment saying why.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/nodiscard-error
+      - check: compiler-warnings/-Wunused-result
+      - check: clang-tidy/bugprone-unused-return-value
+    rationale: >-
+      With the attribute on the type, every function returning it is covered, `Validate()` and bus helpers
+      included, and the compiler proves what review used to.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 0.1.2"}
+    page: standards/cpp20-profile.md#part-f
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-038
+    title: "`[[maybe_unused]]` instead of `(void)` for conditionally used names"
+    statement: >-
+      A parameter or variable used only in some `if constexpr` branches is declared `[[maybe_unused]]`; a
+      `(void)x;` statement is kept for discarding a result.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: compiler-warnings/-Wunused-parameter
+    rationale: >-
+      It keeps `(void)` meaning one thing: an explicit discard.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 0.2.2"}
+    page: standards/cpp20-profile.md#part-f
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-039
+    title: "No `[[fallthrough]]`"
+    statement: >-
+      Every non-empty `switch` clause ends with `break`, `return` or a `[[noreturn]]` call; `[[fallthrough]]`
+      is not used.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+      - check: compiler-warnings/-Wimplicit-fallthrough
+    rationale: >-
+      The attribute documents a fall-through our switch layout does not allow at all; adjacent case labels
+      already cover several values with one action.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 9.4.2"}
+    page: standards/cpp20-profile.md#part-f
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-040
+    title: "`[[likely]]` and `[[unlikely]]` only with a measurement"
+    statement: >-
+      These attributes are added only with a recorded measurement on the target (KB-CPP-074), named in a
+      comment on the same line that contains the word `measured`.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+    rationale: >-
+      Their effect depends on the compiler and target; a wrong hint slows the path it was meant to speed up.
+    page: standards/cpp20-profile.md#part-f
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-041
+    title: "No `[[no_unique_address]]` in drivers"
+    statement: >-
+      Drivers do not use `[[no_unique_address]]`, and no type whose layout is asserted (KB-CPP-009) uses it
+      anywhere.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+    rationale: >-
+      It lets members overlap, which changes size and offsets differently per compiler, so layout assertions
+      pass on one and fail on another.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 12.2.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 21.2.4"}
+    page: standards/cpp20-profile.md#part-f
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-042
+    title: "Caller buffers are spans, with a fixed extent when the size is known"
+    statement: >-
+      A function in target code that takes a buffer takes `std::span<T>` or `std::span<const T>`, with a fixed
+      extent when the size is a property of the chip or the frame, and a dynamic extent only when the caller
+      chooses the count. Pointer-and-length pairs exist only in the port hook signatures (KB-CPP-035), where
+      the driver passes `.data()` and `.size()` of an array or span it owns.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: codeql/pointer-length-parameter
+      - review: "No pointer-and-length parameter outside port hooks."
+    rationale: >-
+      The size travels with the pointer, so the callee can check it, and a fixed extent turns the check into a
+      compile error. MD-CPP-001's justification relies on it.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.11.2"}
+      - {std: MISRA-CPP-2023, id: "Rule 8.7.1"}
+    page: standards/cpp20-profile.md#part-g
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-043
+    title: "A dynamic span is checked before it is indexed, wherever it is indexed"
+    statement: >-
+      Before the first element access, a function that receives a dynamic-extent span checks its size against
+      the contract (not empty, not above the documented maximum, the output at least as large as the input). A
+      helper that copies into a fixed buffer checks the length itself instead of trusting its callers.
+      `first`, `last` and `subspan` take only counts proved in range. Host tests and fuzzers build with the
+      standard library's assertions, so an out-of-range access traps.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: library-hardening
+      - check: sanitizers
+      - check: codeql/unchecked-span-index
+      - review: "Every dynamic span is size-checked before its first access."
+    rationale: >-
+      C++20 `std::span` has no checked `at()`; an out-of-range `operator[]`, `first(n)` or `subspan` is
+      undefined.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 8.7.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.3"}
+    page: standards/cpp20-profile.md#part-g
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-044
+    title: "Views and references never outlive what they refer to"
+    statement: >-
+      A `std::span` (and above the drivers a `std::string_view`) is never a data member, never returned when
+      it refers to a local or a temporary, and never built from a temporary container. A lambda that captures
+      by reference is never stored or returned. A member function that returns a reference into `*this` is
+      `&`-qualified, with the rvalue overload deleted.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/bugprone-dangling-handle
+      - check: codeql/span-member
+      - review: "No span member; reference accessors are `&`-qualified."
+    rationale: >-
+      Dangling access is undefined behaviour that tests reusing the stack the same way never show, and since
+      C++17 a non-copyable driver can be a temporary.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 6.8.2"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.8.3"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.8.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.8.4"}
+    page: standards/cpp20-profile.md#part-g
+    notes: "Category mandatory; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-045
+    title: "Lambdas: explicit captures, local use, no state"
+    statement: >-
+      Lambdas in target code list every capture (`[this, address]`, never `[=]` or `[&]`), are not `mutable`,
+      are called within the full expression or passed down the stack to a constrained template, and are never
+      stored beyond the enclosing function. No lambda calls itself.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/cppcoreguidelines-misleading-capture-default-by-value
+      - check: codeql/lambda-capture
+      - review: "Every lambda capture is explicit."
+    rationale: >-
+      A default capture hides what a closure depends on, a stored closure is a lifetime hazard, and recursion
+      breaks the stack bound.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 8.1.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 8.1.2"}
+      - {std: MISRA-CPP-2023, id: "Rule 7.11.3"}
+    page: standards/cpp20-profile.md#part-h
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-046
+    title: "No lambdas in unevaluated operands or at namespace scope in headers"
+    statement: >-
+      No lambda appears in `decltype`, `sizeof`, a template argument or a default template argument, and no
+      header defines a namespace-scope variable initialised with a lambda.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: codeql/lambda-unevaluated
+      - review: "No lambda in an unevaluated operand."
+    rationale: >-
+      Every lambda expression has its own type, so the same declaration in two translation units names
+      different types: an ODR trap with no diagnostic.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 6.2.1"}
+    page: standards/cpp20-profile.md#part-h
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-047
+    title: "No generic lambdas in drivers"
+    statement: >-
+      Drivers do not use `[]<typename T>(...)` or `auto` lambda parameters; a generic helper is a named,
+      constrained function template in `detail`.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: codeql/generic-lambda
+      - review: "No generic lambda in driver code."
+    rationale: >-
+      A generic lambda is an unconstrained template (KB-CPP20-005) that is harder to read in review.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 17.8.1"}
+    page: standards/cpp20-profile.md#part-h
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-048
+    title: "`std::optional` is read only when engaged, never through `.value()`"
+    statement: >-
+      `*opt` and `opt->` are used only where a test of `opt.has_value()` (or `if (opt)`) dominates them;
+      `.value()` is never called. Failure is modelled with `Result`, not `std::optional`: an optional means
+      may be absent, and that is fine.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/bugprone-unchecked-optional-access
+      - check: clang-tidy/bugprone-optional-value-conversion
+      - review: "No `.value()` on an optional."
+    rationale: >-
+      Dereferencing an empty optional is undefined behaviour, and `.value()` throws, which with
+      `-fno-exceptions` ends the program.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.3"}
+      - {std: MISRA-CPP-2023, id: "Rule 0.1.2"}
+      - {std: MISRA-CPP-2023, id: "Dir 0.3.2"}
+    page: standards/cpp20-profile.md#part-i
+    notes: "Category mandatory; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-049
+    title: "No `variant`, `any`, `function` or `expected` in drivers"
+    statement: >-
+      Drivers do not use `std::variant`, `std::any`, `std::function` or `std::expected`. Libraries may use
+      `std::variant` with `std::get_if` or `std::visit` over an exhaustive overload set, never `std::get`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+      - check: include-allowlist/driver
+    rationale: >-
+      `std::get` and `std::visit` on a valueless variant throw, `std::function` may allocate, `std::any` needs
+      RTTI, and `std::expected` is C++23.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 21.6.1"}
+    page: standards/cpp20-profile.md#part-i
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-050
+    title: "Range algorithms with rules; no views in target code"
+    statement: >-
+      Non-allocating algorithms from `<algorithm>`, the `std::ranges::` overloads included, may be used on
+      named arrays and spans with side-effect-free predicates. `<ranges>` and range views are not used in
+      target code.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+      - check: include-allowlist/driver
+    rationale: >-
+      The algorithms are bounded loops with clear contracts; views evaluate lazily and hold references, so a
+      lifetime error moves away from where it is written, and they are slow in unoptimised debug images.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 28.3.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 9.5.2"}
+      - {std: MISRA-CPP-2023, id: "Rule 6.8.1"}
+    page: standards/cpp20-profile.md#part-i
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-051
+    title: "No `<format>`, `std::format` or `std::print`"
+    statement: >-
+      Target code does not include `<format>` or `<print>` or call their functions. Text above the drivers is
+      formatted with `snprintf` into a caller's buffer (ADR-0017).
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+    rationale: >-
+      `std::format` returns a heap string, throws on a bad format and pulls in locale support.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 21.6.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 21.10.1"}
+    page: standards/cpp20-profile.md#part-i
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-052
+    title: "No `std::source_location` in drivers"
+    statement: >-
+      Drivers do not include `<source_location>`. Above the drivers it is used only as a defaulted parameter
+      of the logging facade, which stores only the line and a file identifier.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+      - check: include-allowlist/driver
+    rationale: >-
+      Drivers never format text (KB-CPP-037), and each use places file and function strings in flash.
+    page: standards/cpp20-profile.md#part-i
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-053
+    title: "No `char8_t` and no `u8` literals in target code"
+    statement: >-
+      `char8_t` and `u8` character and string literals are not used.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+    rationale: >-
+      Drivers move bytes, not text, and C++20 changed the type of `u8` literals, which breaks code moving
+      between dialects.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 7.0.3"}
+    page: standards/cpp20-profile.md#part-i
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-054
+    title: "`<numbers>` for mathematical constants"
+    statement: >-
+      Mathematical constants come from `<numbers>` (`std::numbers::pi_v<float>`) wherever the layer's ADR-0017
+      subset includes it, never as hand-typed digits.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/modernize-use-std-numbers
+    rationale: >-
+      Constants only, no code; it removes hand-typed digits and the suppression that goes with them.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Dir 0.3.1"}
+    page: standards/cpp20-profile.md#part-i
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-055
+    title: "`std::atomic_ref` only for lock-free sharing with an interrupt"
+    statement: >-
+      HAL code may use `std::atomic_ref<T>` for an object shared with an interrupt handler only when
+      `std::atomic_ref<T>::is_always_lock_free` is asserted and every access to the object goes through it.
+    level: should
+    status: active
+    since: "1.0"
+    applies: {profiles: [hal, firmware]}
+    verify:
+      - review: "A `static_assert` of `is_always_lock_free` sits next to each `atomic_ref`."
+    rationale: >-
+      It makes a plain member atomic without changing its type, but mixing atomic and plain access is a data
+      race.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 10.1.2"}
+    page: standards/cpp20-profile.md#part-i
+    notes: "Category advisory."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-056
+    title: "No coroutines"
+    statement: >-
+      No `co_await`, `co_yield` or `co_return`, and no `<coroutine>`.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+      - check: clang-tidy/cppcoreguidelines-avoid-capturing-lambda-coroutines
+    rationale: >-
+      The coroutine frame is heap-allocated unless the optimiser removes it, which is not guaranteed; the
+      generated state machine is hard to bound for stack and timing; and the RTOS task model already gives
+      concurrency.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 21.6.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 8.2.10"}
+    page: standards/cpp20-profile.md#part-j
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-057
+    title: "No modules"
+    statement: >-
+      No `import`, `export module`, module partitions or header units.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: cpp20-profile/forbidden-features
+    rationale: >-
+      ESP-IDF's build does not support them, GCC's support is partial, CMake needs a scanning generator, and
+      the analysis tools lag; header-only drivers gain little.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 4.1.1"}
+    page: standards/cpp20-profile.md#part-j
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]
+
+  - id: KB-CPP20-058
+    title: "Loops are bounded by a validated constant"
+    statement: >-
+      A loop whose bound comes from configuration or input compares its counter with `<` against a bound that
+      `Validate()` or a preceding check limited to a named maximum. `<=` against an unsigned bound that can be
+      the type's maximum is not used, a `for` condition has one counter comparison and no extra error flag,
+      and one index never serves two different arrays.
+    level: must
+    status: proposed
+    since: "1.0"
+    enforce_from: "2027-03-01"
+    applies: {profiles: [driver, template, library, hal, firmware]}
+    verify:
+      - check: clang-tidy/bugprone-too-small-loop-variable
+      - check: codeql/unbounded-loop
+      - review: "Every loop bound from configuration or input is validated against a named maximum."
+    rationale: >-
+      `ms <= timeout` with `timeout == UINT32_MAX` never ends because the counter wraps; a bounded loop is
+      what lets us state the worst-case time of a call.
+    refs:
+      - {std: MISRA-CPP-2023, id: "Rule 9.5.1"}
+      - {std: MISRA-CPP-2023, id: "Rule 0.0.2"}
+    page: standards/cpp20-profile.md#part-j
+    notes: "Category required; warns until 2027-03-01, then fails CI."
+    origin: ["gap: C++20 profile review of the drivers and the template"]

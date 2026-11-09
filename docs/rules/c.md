@@ -8,7 +8,7 @@ The C++ rules on heap, errors, integers and static analysis apply to C as well.
 | Rule | Level | Applies to | Verified |
 | --- | --- | --- | --- |
 | [KB-CC-001](#kb-cc-001) C is C17 without compiler extensions | must | driver, library, hal, firmware, template | planned |
-| [KB-CC-002](#kb-cc-002) C headers work from C++ and expose only C types | must | driver, library, hal, firmware, template | planned |
+| [KB-CC-002](#kb-cc-002) C headers work from C++ and expose only C types | must | driver, library, hal, firmware, template | checked |
 | [KB-CC-003](#kb-cc-003) C names are snake\_case with the repository prefix; file-local functions are static | must | driver, library, hal, firmware, template | planned |
 | [KB-CC-004](#kb-cc-004) C APIs return an error enum whose zero is success, and the result is used | must | driver, library, hal, firmware, template | review |
 | [KB-CC-005](#kb-cc-005) Every C function has a prototype | must | driver, library, hal, firmware, template | checked |
@@ -44,7 +44,8 @@ only C types (`<stdint.h>`, `<stdbool.h>`, plain structs and enums), so C and C+
 
 *Verified by:*
 
-- `header-self-contained` (planned): every public header compiles on its own as the first include of a translation unit
+- `header-self-contained` (implemented): every public header compiles on its own as the first include of a translation
+  unit
 - review: Each C API header has the extern "C" guard and uses only C types in its signatures.
 
 

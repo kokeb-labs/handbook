@@ -39,8 +39,11 @@ guidelines and is equivalent to MISRA C++:2023, but clarifies many of them, so t
 SHA-256 (`licensed_copy_sha256`), so any entry can be traced to the exact edition it was checked against. When MISRA
 publishes a new corrigendum or edition, the matrix is reviewed against it in one pull request that changes the hash.
 
-MISRA C++:2023 targets C++17; our code is C++20 (ADR-0010). Deviation MD-CPP-001 records that, lists the C++20
-features in use, and says how each guideline applies to C++20 constructs.
+MISRA C++:2023 targets C++17; our code is C++20 (ADR-0010). The [C++20 profile](standards/cpp20-profile.md) sorts
+the C++20 features into use, use with rules and forbid, as guidelines KB-CPP20-001 to 058 that extend the edition
+to C++20. Deviation MD-CPP-001 covers exactly the features the profile allows, under its guidelines; a forbidden
+feature, a deprecated one, or anything from C++23 or later is a violation of Rule 4.1.1, even where a toolchain's
+dialect accepts it. The profile page also says how each guideline applies to C++20 constructs.
 
 ## Reading the matrix
 
@@ -65,8 +68,8 @@ The verification methods are:
 - `compiler`: a GCC or Clang flag (with `-Werror`) whose diagnostic decides the guideline;
 - `clang-tidy`: a clang-tidy 20 check, with its options where they matter;
 - `cppcheck`: a cppcheck message id (there is no free MISRA C++ addon; cppcheck's MISRA addon covers MISRA C only);
-- `handbook-check`: one of the handbook's own implemented checks (`checks/source_checks.py` for include guards
-  and pragmas, ci-tools' handbook check for the forbidden patterns);
+- `handbook-check`: one of the handbook's own implemented checks (`checks/source_checks.py` for include guards,
+  pragmas and the C++20 profile checks `cpp20-profile/...`, ci-tools' handbook check for the forbidden patterns);
 - `review`: the step a reviewer checks on the pull request, used where no free tool decides the guideline;
 - `commercial-checker`: the MISRA checker the safety level adds, for every guideline no free tool decides;
 - `not-applicable`: the construct cannot occur in our code, and why.

@@ -38,6 +38,7 @@ tracked by an issue, not exempted.
 | --- | --- |
 | [Errors](errors.md) | `kb::Status`, `kb::Result<T>` and the mapping at each layer boundary |
 | [Threading and timing](threading-and-timing.md) | One lock, one clock, one delay; the 1 kHz FreeRTOS tick |
+| [C++20 profile](cpp20-profile.md) | Which C++20 features we use, use with rules or forbid, as guidelines KB-CPP20-001 to 058 with their enforcement; what MD-CPP-001 covers |
 | [Naming and style](naming-and-style.md) | Names, units, namespaces, include roots, and the org [`.clang-format`][cfg-clang-format] and [`.clang-tidy`][cfg-clang-tidy] |
 
 ### Process

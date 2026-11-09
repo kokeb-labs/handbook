@@ -27,7 +27,7 @@ review hold each change to.
 | [KB-CPP-018](#kb-cpp-018) Includes are quoted from the include root and never climb with ../ | must | driver, library, hal, firmware, template | planned |
 | [KB-CPP-019](#kb-cpp-019) Every header has an #ifndef include guard named after its file; no #pragma | must | driver, library, hal, firmware, template | checked |
 | [KB-CPP-020](#kb-cpp-020) Includes are grouped own header, standard, other repositories, this repository | should | driver, library, hal, firmware, template | review |
-| [KB-CPP-021](#kb-cpp-021) Every header includes what it uses and compiles on its own | must | driver, library, hal, firmware, template | planned |
+| [KB-CPP-021](#kb-cpp-021) Every header includes what it uses and compiles on its own | must | driver, library, hal, firmware, template | checked |
 | [KB-CPP-022](#kb-cpp-022) Drivers carry no organisation brand | must | driver, template | planned |
 | [KB-CPP-023](#kb-cpp-023) Driver names derive from the chip | must | driver, template | planned |
 | [KB-CPP-024](#kb-cpp-024) A driver declares nothing at global scope | must | driver, template | planned |
@@ -145,16 +145,29 @@ Code is written in ISO C++20 and builds with `CMAKE_CXX_STANDARD 20`, `CMAKE_CXX
 `CMAKE_CXX_EXTENSIONS OFF`. Features beyond C++20 are not used.
 
 *Why:* One language level across the stack lets any driver sit under any library. C++20 gives concepts and constexpr
-enough for zero-cost ports without the toolchain lag of C++23 on vendor compilers.
+enough for zero-cost ports without the toolchain lag of C++23 on vendor compilers. Which C++20 features are used, and
+under which rules, is the C++20 profile (KB-CPP20-001 to 058).
 
 *Verified by:*
 
 - `compiler-warnings/-Wpedantic` (implemented): the build is warning-free with the named flag and -Werror
 - `forbidden-patterns/cmake-cxx-standard` (implemented): a source scan for a construct the handbook bans; the parameter
   names the pattern set
+- `cpp20-profile/cmake-extensions` (implemented): a source check of the C++20 profile (rules/cpp20.yml); the parameter
+  names it: forbidden-features (no coroutines, modules, range views, &lt;format&gt;, char8\_t, C++23 features,
+  feature-test macros, [[fallthrough]], and in drivers no &lt;=&gt;, &lt;source\_location&gt;, variant, any, function or
+  [[no\_unique\_address]]), cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE\_CXX\_EXTENSIONS OFF,
+  itself or in a parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]),
+  inline-requires (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig
+  header)
+- `strict-dialect` (implemented): every public header, and through the driver header its src/\*.ipp, compiles as ISO
+  C++20 (-std=c++20 -pedantic-errors, extensions off) with each compiler the repository ships for: host GCC and Clang,
+  Arm GCC in the cross-build, and the ESP-IDF toolchain through a header self-check built at -std=c++20 inside the
+  ESP-IDF build, whose own default dialect is newer
 
 *See also:* [ADR-0010](../adr/0010-cpp20.md); MISRA C++:2023 Rule 4.1.1 (the language standard is fixed)
 
+*Explained in:* [standards/cpp20-profile.md](../standards/cpp20-profile.md)
 
 ## KB-CPP-002: No exceptions and no RTTI { #kb-cpp-002 }
 
@@ -559,7 +572,8 @@ not rely on what its includer happened to include first.
 
 *Verified by:*
 
-- `header-self-contained` (planned): every public header compiles on its own as the first include of a translation unit
+- `header-self-contained` (implemented): every public header compiles on its own as the first include of a translation
+  unit
 
 *See also:* C++ Core Guidelines SF.11
 

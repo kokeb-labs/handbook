@@ -19,10 +19,14 @@ rules:
     verify:
       - check: compiler-warnings/-Wpedantic
       - check: forbidden-patterns/cmake-cxx-standard
+      - check: cpp20-profile/cmake-extensions
+      - check: strict-dialect
     rationale: >-
       One language level across the stack lets any driver sit under any library. C++20 gives concepts and constexpr
-      enough for zero-cost ports without the toolchain lag of C++23 on vendor compilers.
+      enough for zero-cost ports without the toolchain lag of C++23 on vendor compilers. Which C++20 features are
+      used, and under which rules, is the C++20 profile (KB-CPP20-001 to 058).
     refs: [{adr: 10}, {std: MISRA-CPP-2023, id: "Rule 4.1.1", note: "the language standard is fixed"}]
+    page: standards/cpp20-profile.md
     origin: ["kb:standards/adr/0010-cpp20.md", "hf:standards/coding-style.md (C++17; superseded)"]
 
   - id: KB-CPP-002

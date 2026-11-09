@@ -9,6 +9,30 @@ loosened rule is a major release.
 
 ### Added
 
+- The C++20 profile: 58 guidelines KB-CPP20-001 to 058 (`rules/cpp20.yml`; 4 mandatory, 36 required, 18
+  advisory) that extend MISRA C++:2023 to the C++20 we write, and the page Standards > C++20 profile, which sorts
+  59 features into use (17), use with rules (24) and forbid (18), with each guideline's MISRA numbers and
+  enforcement. Required and mandatory guidelines are `proposed` and enforced from 2027-03-01.
+- `checks/source_checks.py`: the C++20 profile checks `cpp20-profile/forbidden-features` (coroutines, modules,
+  range views, `<format>`, C++23 features, feature-test macros, `[[fallthrough]]`, `char8_t`, and in drivers
+  `<=>`, `<source_location>`, `variant`, `any`, `function`), `cmake-extensions` (every CMakeLists.txt that builds a
+  target sets `CMAKE_CXX_EXTENSIONS OFF`, which the ci-tools check only enforced by rejecting `ON`),
+  `nodiscard-error`, `inline-requires` and `kconfig-leaf`, each with seeded breaks in the self-test.
+- Checks `strict-dialect`, `library-hardening` and the planned `codeql` family in the registry;
+  `header-self-contained` is implemented by the driver template's header checks.
+
+### Changed
+
+- MD-CPP-001 now names exactly what it covers: the features the C++20 profile allows, under its guidelines. A
+  forbidden or deprecated feature, or anything from C++23 or later, is a violation of Rule 4.1.1 even where a
+  toolchain's dialect accepts it. Its mitigation adds the strict-dialect build and the profile's source checks.
+- The MISRA matrix's verification of Rules 0.1.2, 4.1.1, 4.1.2, 6.2.1, 7.0.4, 8.7.1, 9.4.2, 9.5.1 and 21.6.1 names
+  the profile's checks and flags. KB-CPP-001 also names `cpp20-profile/cmake-extensions` and `strict-dialect`.
+- `config/.clang-tidy`: `bugprone-dangling-handle` watches `std::span`; `modernize-use-std-format` and
+  `modernize-use-std-print` are off, so the tool never suggests what the profile forbids. The safety profile is
+  regenerated.
+- Rule ids may carry digits in the area (`KB-CPP20-001`).
+
 - 22 rules from testing the migrated drivers on hardware, all `proposed` and enforced from 2027-03-01: replies
   proven before they are decoded (KB-ARCH-042), pipelined exchanges inside one call (KB-ARCH-043), idempotent,
   bounded and counted retries (KB-ARCH-044), line patterns that are never data (KB-CPP-116), an active identity
