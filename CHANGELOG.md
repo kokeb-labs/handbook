@@ -23,6 +23,11 @@ loosened rule is a major release.
 
 ### Changed
 
+- The MISRA matrix names CodeQL (`by: codeql`, a new verification method) for the 168 guidelines whose
+  queries the ci-tools tool validation proves: 73 decided by it (decidable, translation-unit scope, every query
+  passing with no recorded anomaly), 95 partial, each citing its requirement and anomaly ids. Nothing was removed:
+  the review and commercial-checker steps stay. Rule 8.2.3's clang-tidy check is partial (it misses a cast below
+  the first pointer level), so the rule gains a review step.
 - KB-CPP-053: a mapping switch lists every enumerator and ends with `default: break;` before its fallback (MISRA
   C++ Rule 9.4.2 requires the default for a scoped enumeration); `-Wswitch-enum` keeps a new enumerator a warning.
   The matrix's review text of Rule 9.4.2 and Standards > Errors say the same; the old "no default" reading was

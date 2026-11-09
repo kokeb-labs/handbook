@@ -64,7 +64,7 @@ EXPECTED = {
     ("rule", "advisory"): 48,
 }
 RANK = {"advisory": 0, "required": 1, "mandatory": 2}
-TOOLS = ("compiler", "clang-tidy", "cppcheck", "handbook-check")
+TOOLS = ("compiler", "clang-tidy", "cppcheck", "codeql", "handbook-check")
 METHODS = TOOLS + ("review", "commercial-checker", "not-applicable")
 KEYS = {"id", "kind", "category", "decidable", "scope", "summary", "applies", "reason", "our_category",
         "verification", "deviations", "note"}

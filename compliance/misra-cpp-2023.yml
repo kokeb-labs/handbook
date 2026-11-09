@@ -32,6 +32,10 @@ guidelines:
       - {by: cppcheck, how: "unreachableCode", partial: true}
       - {by: review, how: "Every statement can execute; dead branches left by refactoring are removed."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          unreachable-statement (pack 2.62.0; TV-CQL-RULE-0-0-1-01); known anomalies AN-128, AN-133, AN-182
+        partial: true
   - id: Rule 0.0.2
     kind: rule
     category: advisory
@@ -45,6 +49,10 @@ guidelines:
       - {by: compiler, how: "-Wtype-limits (GCC), -Wtautological-compare (GCC and Clang)", partial: true}
       - {by: review, how: "No condition is always true or always false, except a deliberate infinite loop."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          invariant-condition (pack 2.62.0; TV-CQL-RULE-0-0-2-01); known anomalies AN-123, AN-129, AN-156
+        partial: true
   - id: Rule 0.1.1
     kind: rule
     category: advisory
@@ -59,6 +67,10 @@ guidelines:
       - {by: compiler, how: "-Wunused-but-set-variable", partial: true}
       - {by: review, how: "Every write to a local is read later on some path."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          unnecessary-write-to-local-object (pack 2.62.0; TV-CQL-RULE-0-1-1-01); known anomalies AN-082, AN-135, AN-185
+        partial: true
   - id: Rule 0.1.2
     kind: rule
     category: required
@@ -77,6 +89,10 @@ guidelines:
         partial: true
       - {by: review, how: "Each ignored return value is cast to void with a comment saying why."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          unused-return-value-misra-cpp (pack 2.62.0; TV-CQL-RULE-0-1-2-01); known anomalies AN-083, AN-084
+        partial: true
   - id: Rule 0.2.1
     kind: rule
     category: advisory
@@ -90,6 +106,10 @@ guidelines:
       - {by: cppcheck, how: "unusedVariable", partial: true}
       - {by: review, how: "No block-scope or internal-linkage variable is left unused."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          unused-limited-visibility-variable (pack 2.62.0; TV-CQL-RULE-0-2-1-01); known anomalies AN-151, AN-168
+        partial: true
   - id: Rule 0.2.2
     kind: rule
     category: required
@@ -101,6 +121,7 @@ guidelines:
     verification:
       - {by: compiler, how: "-Wunused-parameter (in -Wextra), -Werror"}
       - {by: cppcheck, how: "unusedVariable", partial: true}
+      - {by: codeql, how: "unused-parameter-misra-cpp (pack 2.62.0; TV-CQL-RULE-0-2-2-01)"}
     note: "Parameters of a requires-expression are not function parameters; see MD-CPP-001."
   - id: Rule 0.2.3
     kind: rule
@@ -114,6 +135,10 @@ guidelines:
       - {by: compiler, how: "-Wunused-local-typedefs", partial: true}
       - {by: review, how: "No local or internal type, alias or enum is left unused."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          unused-type-with-limited-visibility (pack 2.62.0; TV-CQL-RULE-0-2-3-01); known anomalies AN-085
+        partial: true
   - id: Rule 0.2.4
     kind: rule
     category: advisory
@@ -127,6 +152,10 @@ guidelines:
       - {by: cppcheck, how: "unusedPrivateFunction", partial: true}
       - {by: review, how: "No internal-linkage or private function is left uncalled."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          unused-limited-visibility-function (pack 2.62.0; TV-CQL-RULE-0-2-4-01); known anomalies AN-138
+        partial: true
   - id: Dir 0.3.1
     kind: directive
     category: advisory
@@ -140,6 +169,11 @@ guidelines:
       - {by: clang-tidy, how: "cert-flp30-c (float loop counters)", partial: true}
       - {by: review, how: "Floating-point use is justified, compares with a tolerance, and handles NaN and infinity."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          possible-misuse-of-infinite-floating-point-value, possible-misuse-of-nan-floating-point-value (pack 2.62.0;
+          TV-CQL-DIR-0-3-1-01, TV-CQL-DIR-0-3-1-02); known anomalies AN-081
+        partial: true
   - id: Dir 0.3.2
     kind: directive
     category: required
@@ -181,6 +215,10 @@ guidelines:
           No extension, attribute or builtin outside ISO C++20; every C++20 feature used is one the C++20 profile
           marks Use or Use with rules (the MD-CPP-001 scope), under its KB-CPP20 guidelines.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          compiler-language-extensions-used (pack 2.62.0; TV-CQL-RULE-4-1-1-01); known anomalies AN-152, AN-159
+        partial: true
     deviations: [MD-CPP-001]
     note: "Deviated project-wide: we target C++20 instead of the C++17 the edition is written for."
   - id: Rule 4.1.2
@@ -199,6 +237,20 @@ guidelines:
         partial: true
       - {by: review, how: "No feature listed as deprecated in C++17 or C++20 is used (KB-CPP20-003)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          implicit-declaration-of-copy-constructor, noexcept-specifier-throw,
+          redeclaration-of-static-constexpr-data-member, use-of-deprecated-allocator-void, use-of-deprecated-c-headers,
+          use-of-deprecated-function-binder-typedef-member, use-of-deprecated-is-literal-type-traits,
+          use-of-deprecated-raw-storage-iterator, use-of-deprecated-shared-ptr-unique,
+          use-of-deprecated-std-allocator-member, use-of-deprecated-std-iterator-base-class,
+          use-of-deprecated-str-stream-class, use-of-deprecated-temporary-buffers,
+          use-of-deprecated-unary-or-binary-negate, use-of-uncaught-exception (pack 2.62.0; TV-CQL-RULE-4-1-2-01,
+          TV-CQL-RULE-4-1-2-02, TV-CQL-RULE-4-1-2-03, TV-CQL-RULE-4-1-2-04, TV-CQL-RULE-4-1-2-05, TV-CQL-RULE-4-1-2-06,
+          TV-CQL-RULE-4-1-2-07, TV-CQL-RULE-4-1-2-08, TV-CQL-RULE-4-1-2-09, TV-CQL-RULE-4-1-2-10, TV-CQL-RULE-4-1-2-11,
+          TV-CQL-RULE-4-1-2-12, TV-CQL-RULE-4-1-2-13, TV-CQL-RULE-4-1-2-14, TV-CQL-RULE-4-1-2-15); known anomalies
+          AN-011, AN-012, AN-013, AN-019, AN-020, AN-045, AN-052, AN-053, AN-054, AN-055, AN-056, AN-196
+        partial: true
   - id: Rule 4.1.3
     kind: rule
     category: required
@@ -213,6 +265,17 @@ guidelines:
       - {by: cppcheck, how: "the default warning and portability checks", partial: true}
       - {by: review, how: "The change relies on no undefined or result-changing unspecified behaviour."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          array-deleted-through-pointer-of-incorrect-type, deallocation-type-mismatch,
+          division-by-zero-undefined-behavior, non-existent-member-access-undefined-behavior,
+          null-pointer-to-member-access-undefined-behavior, out-of-range-enum-cast-critical-unspecified-behavior,
+          possible-data-race-between-threads, signed-integer-overflow,
+          uninitialized-static-pointer-to-member-undefined-behavior (pack 2.62.0; TV-CQL-RULE-4-1-3-01,
+          TV-CQL-RULE-4-1-3-02, TV-CQL-RULE-4-1-3-03, TV-CQL-RULE-4-1-3-04, TV-CQL-RULE-4-1-3-05, TV-CQL-RULE-4-1-3-06,
+          TV-CQL-RULE-4-1-3-07, TV-CQL-RULE-4-1-3-08, TV-CQL-RULE-4-1-3-09); known anomalies AN-025, AN-026, AN-042,
+          AN-162, AN-172, AN-210
+        partial: true
   - id: Rule 4.6.1
     kind: rule
     category: required
@@ -229,6 +292,10 @@ guidelines:
           No expression both modifies an object and reads or modifies it again unordered; volatile reads are one per
           expression.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          memory-usage-not-sequenced (pack 2.62.0; TV-CQL-RULE-4-6-1-01); known anomalies AN-124, AN-130, AN-164
+        partial: true
   - id: Rule 5.0.1
     kind: rule
     category: advisory
@@ -241,6 +308,10 @@ guidelines:
       - {by: compiler, how: "-Wtrigraphs (in -Wall; outside comments only)", partial: true}
       - {by: review, how: "No double question mark followed by a trigraph character, in comments or strings."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          trigraph-like-sequences-should-not-be-used (pack 2.62.0; TV-CQL-RULE-5-0-1-01); known anomalies AN-066
+        partial: true
   - id: Rule 5.7.1
     kind: rule
     category: required
@@ -251,6 +322,7 @@ guidelines:
     our_category: required
     verification:
       - {by: compiler, how: "-Wcomment (in -Wall), -Werror"}
+      - {by: codeql, how: "character-sequence-used-within-ac-style-comment (pack 2.62.0; TV-CQL-RULE-5-7-1-01)"}
   - id: Dir 5.7.2
     kind: directive
     category: advisory
@@ -263,6 +335,10 @@ guidelines:
       - by: review
         how: "No commented-out code or #if 0 block (KB-CPP-112); code samples in comments are fenced documentation."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          sections-of-code-should-not-be-commented-out (pack 2.62.0; TV-CQL-DIR-5-7-2-01)
+        partial: true
     note: "Raised to required: KB-CPP-112 already forbids commented-out code."
   - id: Rule 5.7.3
     kind: rule
@@ -274,6 +350,7 @@ guidelines:
     our_category: required
     verification:
       - {by: compiler, how: "-Wcomment (in -Wall; reports a multi-line // comment), -Werror"}
+      - {by: codeql, how: "line-splicing-used-in-comments (pack 2.62.0; TV-CQL-RULE-5-7-3-01)"}
   - id: Rule 5.10.1
     kind: rule
     category: required
@@ -290,6 +367,10 @@ guidelines:
           No name starts with an underscore and capital, contains a double underscore, or reuses a standard macro or
           library name.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          poorly-formed-identifier (pack 2.62.0; TV-CQL-RULE-5-10-1-01); known anomalies AN-158
+        partial: true
   - id: Rule 5.13.1
     kind: rule
     category: required
@@ -301,6 +382,10 @@ guidelines:
     verification:
       - by: compiler
         how: "unknown escape sequences warn by default (GCC), -Wunknown-escape-sequence (Clang), -Werror"
+      - by: codeql
+        how: >-
+          backslash-character-misuse (pack 2.62.0; TV-CQL-RULE-5-13-1-01); known anomalies AN-047, AN-106
+        partial: true
   - id: Rule 5.13.2
     kind: rule
     category: required
@@ -313,6 +398,7 @@ guidelines:
       - by: review
         how: "Each octal or hexadecimal escape is the last thing in its literal or is followed by a split literal."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "non-terminated-escape-sequences (pack 2.62.0; TV-CQL-RULE-5-13-2-01)"}
   - id: Rule 5.13.3
     kind: rule
     category: required
@@ -324,6 +410,10 @@ guidelines:
     verification:
       - {by: review, how: "No integer literal other than 0 starts with 0; use hexadecimal or binary for bit patterns."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          octal-constants-used (pack 2.62.0; TV-CQL-RULE-5-13-3-01); known anomalies AN-107
+        partial: true
   - id: Rule 5.13.4
     kind: rule
     category: required
@@ -335,6 +425,11 @@ guidelines:
     verification:
       - {by: review, how: "A literal that has or is meant to have an unsigned type is written with U (0xFFU, 1U)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          unsigned-integer-literals-not-appropriately-suffixed (pack 2.62.0; TV-CQL-RULE-5-13-4-01); known anomalies
+          AN-067, AN-166, AN-207
+        partial: true
   - id: Rule 5.13.5
     kind: rule
     category: required
@@ -345,6 +440,10 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "readability-uppercase-literal-suffix (NewSuffixes: L;LL;UL;ULL)"}
+      - by: codeql
+        how: >-
+          lowercase-l-starts-in-literal-suffix (pack 2.62.0; TV-CQL-RULE-5-13-5-01); known anomalies AN-108
+        partial: true
   - id: Rule 5.13.6
     kind: rule
     category: required
@@ -356,6 +455,10 @@ guidelines:
     verification:
       - {by: review, how: "A literal whose type is long long spells LL or ULL."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          long-long-literal-with-single-l-suffix (pack 2.62.0; TV-CQL-RULE-5-13-6-01); known anomalies AN-006
+        partial: true
   - id: Rule 5.13.7
     kind: rule
     category: required
@@ -380,6 +483,7 @@ guidelines:
       - {by: compiler, how: "-Wvexing-parse (GCC and Clang)", partial: true}
       - {by: review, how: "No function is declared at block scope; objects use brace initialisation."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "block-scope-function-ambiguous (pack 2.62.0; TV-CQL-RULE-6-0-1-01)"}
   - id: Rule 6.0.2
     kind: rule
     category: advisory
@@ -391,6 +495,7 @@ guidelines:
     verification:
       - {by: review, how: "Every array with external linkage states its size in each declaration."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "external-linkage-array-without-explicit-size-misra (pack 2.62.0; TV-CQL-RULE-6-0-2-01)"}
   - id: Rule 6.0.3
     kind: rule
     category: advisory
@@ -403,6 +508,7 @@ guidelines:
       - {by: clang-tidy, how: "google-global-names-in-headers (headers only)", partial: true}
       - {by: review, how: "Everything except main and extern \"C\" interfaces is inside a namespace (KB-CPP-024)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "global-namespace-declarations (pack 2.62.0; TV-CQL-RULE-6-0-3-01)"}
     note: "Raised to required: KB-CPP-024 already keeps every driver declaration in its namespace."
   - id: Rule 6.0.4
     kind: rule
@@ -416,6 +522,7 @@ guidelines:
       - {by: compiler, how: "-Wmain (GCC; questionable main declarations)", partial: true}
       - {by: review, how: "No function, variable or namespace other than the global main is named main."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "non-global-function-main (pack 2.62.0; TV-CQL-RULE-6-0-4-01)"}
   - id: Rule 6.2.1
     kind: rule
     category: required
@@ -434,6 +541,7 @@ guidelines:
           No inline function, class or template is defined differently in two places; no lambda in an unevaluated
           operand or a header's namespace scope (KB-CPP20-018, KB-CPP20-046).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "one-definition-rule-violated (pack 2.62.0; TV-CQL-RULE-6-2-1-01)", partial: true}
   - id: Rule 6.2.2
     kind: rule
     category: required
@@ -446,6 +554,11 @@ guidelines:
       - {by: compiler, how: "-Wlto-type-mismatch with -flto (GCC)", partial: true}
       - {by: review, how: "Each function or object is declared once in a header that every user includes."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          incompatible-function-declarations-cpp, incompatible-object-declarations-cpp (pack 2.62.0;
+          TV-CQL-RULE-6-2-2-01, TV-CQL-RULE-6-2-2-02)
+        partial: true
   - id: Rule 6.2.3
     kind: rule
     category: required
@@ -458,6 +571,11 @@ guidelines:
       - by: review
         how: "No class, template or inline function body is copied into a second file; it is shared from one header."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          duplicate-inline-function-definitions, duplicate-type-definitions, template-specialization-wrong-location
+          (pack 2.62.0; TV-CQL-RULE-6-2-3-01, TV-CQL-RULE-6-2-3-02, TV-CQL-RULE-6-2-3-03)
+        partial: true
   - id: Rule 6.2.4
     kind: rule
     category: required
@@ -468,6 +586,10 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "misc-definitions-in-headers (header extensions include .ipp)"}
+      - by: codeql
+        how: >-
+          violations-of-one-definition-rule-misra (pack 2.62.0; TV-CQL-RULE-6-2-4-01); known anomalies AN-109
+        partial: true
   - id: Rule 6.4.1
     kind: rule
     category: required
@@ -479,6 +601,10 @@ guidelines:
     verification:
       - {by: compiler, how: "-Wshadow (GCC), -Werror"}
       - {by: cppcheck, how: "shadowVariable, shadowArgument", partial: true}
+      - by: codeql
+        how: >-
+          variable-declared-in-inner-scope-hides-outer-scope (pack 2.62.0; TV-CQL-RULE-6-4-1-01); known anomalies AN-110
+        partial: true
   - id: Rule 6.4.2
     kind: rule
     category: required
@@ -492,6 +618,12 @@ guidelines:
       - by: review
         how: "A derived class reusing a base member name adds a using-declaration or overrides; CRTP is excepted."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          definition-shall-be-considered-for-unqualified-lookup, inherited-non-overridable-member-function,
+          inherited-overridable-member-function (pack 2.62.0; TV-CQL-RULE-6-4-2-01, TV-CQL-RULE-6-4-2-02,
+          TV-CQL-RULE-6-4-2-03); known anomalies AN-111, AN-170, AN-208
+        partial: true
   - id: Rule 6.4.3
     kind: rule
     category: required
@@ -504,6 +636,10 @@ guidelines:
       - by: review
         how: "In a template with a dependent base, members of that base are named through this-> or a qualified name."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          name-shall-be-referred-using-a-qualified-id-or-this, name-shall-be-referred-using-a-qualified-id-or-this-audit
+          (pack 2.62.0; TV-CQL-RULE-6-4-3-01, TV-CQL-RULE-6-4-3-02)
   - id: Rule 6.5.1
     kind: rule
     category: advisory
@@ -519,6 +655,7 @@ guidelines:
       - by: review
         how: "Every external-linkage function or object is declared in a header included where it is defined."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "external-linkage-not-declared-in-header-file-misra (pack 2.62.0; TV-CQL-RULE-6-5-1-01)"}
   - id: Rule 6.5.2
     kind: rule
     category: advisory
@@ -532,6 +669,7 @@ guidelines:
       - by: review
         how: "Entities used by one source file are in an unnamed namespace there, not in a header (KB-CPP-026)."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "internal-linkage-specified-appropriately (pack 2.62.0; TV-CQL-RULE-6-5-2-01)"}
   - id: Rule 6.7.1
     kind: rule
     category: required
@@ -546,6 +684,7 @@ guidelines:
           No mutable static or thread_local local variable (KB-CPP-040); constexpr and constant-initialised const locals
           are fine.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "local-variable-static-storage-duration (pack 2.62.0; TV-CQL-RULE-6-7-1-01)"}
   - id: Rule 6.7.2
     kind: rule
     category: required
@@ -560,6 +699,10 @@ guidelines:
         partial: true
       - {by: review, how: "No mutable namespace-scope or static data member outside the MD-CPP-005 scope (KB-CPP-040)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          global-variable-used (pack 2.62.0; TV-CQL-RULE-6-7-2-01); known anomalies AN-018, AN-173
+        partial: true
     deviations: [MD-CPP-005]
   - id: Rule 6.8.1
     kind: rule
@@ -577,6 +720,11 @@ guidelines:
       - {by: cppcheck, how: "danglingLifetime, invalidLifetime, danglingTemporaryLifetime", partial: true}
       - {by: review, how: "No reference, pointer or span outlives what it refers to (KB-CPP-096)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          object-accessed-after-lifetime-misra, object-accessed-before-lifetime-misra (pack 2.62.0;
+          TV-CQL-RULE-6-8-1-01, TV-CQL-RULE-6-8-1-02); known anomalies AN-112
+        partial: true
   - id: Rule 6.8.2
     kind: rule
     category: mandatory
@@ -594,6 +742,11 @@ guidelines:
           No function returns the address of, a reference to, or a lambda capturing by reference, a local or by-value
           parameter.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          return-reference-or-pointer-to-automatic-local-variable (pack 2.62.0; TV-CQL-RULE-6-8-2-01); known anomalies
+          AN-044
+        partial: true
   - id: Rule 6.8.3
     kind: rule
     category: required
@@ -608,6 +761,7 @@ guidelines:
       - {by: compiler, how: "-Wdangling-pointer (GCC)", partial: true}
       - {by: review, how: "No assignment stores the address of a local into an object that lives longer."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "automatic-storage-assigned-to-object-greater-lifetime (pack 2.62.0; TV-CQL-RULE-6-8-3-01)"}
   - id: Rule 6.8.4
     kind: rule
     category: advisory
@@ -622,6 +776,10 @@ guidelines:
           A member function returning a reference or pointer into the object is &-qualified, with a deleted or
           value-returning && overload.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          member-functions-refqualified (pack 2.62.0; TV-CQL-RULE-6-8-4-01); known anomalies AN-113, AN-175
+        partial: true
   - id: Rule 6.9.1
     kind: rule
     category: required
@@ -633,6 +791,7 @@ guidelines:
     verification:
       - {by: review, how: "Redeclarations spell the parameter and return types with the same alias."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "type-aliases-declaration (pack 2.62.0; TV-CQL-RULE-6-9-1-01)"}
   - id: Rule 6.9.2
     kind: rule
     category: advisory
@@ -648,6 +807,7 @@ guidelines:
           Variables, members, parameters and casts use <cstdint> aliases instead of int, unsigned, short or long
           (KB-CPP-103).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "avoid-standard-integer-type-names (pack 2.62.0; TV-CQL-RULE-6-9-2-01)"}
   - id: Rule 7.0.1
     kind: rule
     category: required
@@ -662,6 +822,10 @@ guidelines:
       - by: review
         how: "No bool takes part in arithmetic, bitwise operations, relational comparisons or casts to integers."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          no-conversion-from-bool (pack 2.62.0; TV-CQL-RULE-7-0-1-01); known anomalies AN-023, AN-177
+        partial: true
   - id: Rule 7.0.2
     kind: rule
     category: required
@@ -676,6 +840,11 @@ guidelines:
         partial: true
       - {by: review, how: "Conditions compare explicitly (x != 0U); no static_cast<bool> of a number."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          no-implicit-bool-conversion (pack 2.62.0; TV-CQL-RULE-7-0-2-01); known anomalies AN-078, AN-125, AN-131,
+          AN-165, AN-174, AN-178, AN-181
+        partial: true
   - id: Rule 7.0.3
     kind: rule
     category: required
@@ -688,6 +857,7 @@ guidelines:
       - {by: clang-tidy, how: "bugprone-signed-char-misuse", partial: true}
       - {by: review, how: "char values are only copied and compared with chars; numeric work uses uint8_t."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "no-character-numerical-value (pack 2.62.0; TV-CQL-RULE-7-0-3-01)"}
   - id: Rule 7.0.4
     kind: rule
     category: required
@@ -706,6 +876,10 @@ guidelines:
           Masks and shifts use unsigned operands, a constant shift count is below the width of the unpromoted left
           operand (KB-CPP-105), and a run-time count is masked or checked in the same function (KB-CPP20-020).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          inappropriate-bitwise-or-shift-operands (pack 2.62.0; TV-CQL-RULE-7-0-4-01); known anomalies AN-184
+        partial: true
   - id: Rule 7.0.5
     kind: rule
     category: required
@@ -722,6 +896,10 @@ guidelines:
       - by: review
         how: "uint8_t and uint16_t operands are cast to uint32_t before arithmetic, ~ or shifts."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          no-signedness-change-from-promotion (pack 2.62.0; TV-CQL-RULE-7-0-5-01); known anomalies AN-186, AN-187
+        partial: true
   - id: Rule 7.0.6
     kind: rule
     category: required
@@ -738,6 +916,11 @@ guidelines:
       - by: review
         how: "An implicit numeric conversion only widens an id-expression of the same signedness; otherwise cast."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          numeric-assignment-type-mismatch (pack 2.62.0; TV-CQL-RULE-7-0-6-01); known anomalies AN-079, AN-188, AN-189,
+          AN-199
+        partial: true
   - id: Rule 7.11.1
     kind: rule
     category: required
@@ -749,6 +932,7 @@ guidelines:
     verification:
       - {by: clang-tidy, how: "modernize-use-nullptr"}
       - {by: compiler, how: "-Wzero-as-null-pointer-constant", partial: true}
+      - {by: codeql, how: "nullptr-not-the-only-form-of-the-null-pointer-constant (pack 2.62.0; TV-CQL-RULE-7-11-1-01)"}
   - id: Rule 7.11.2
     kind: rule
     category: required
@@ -759,6 +943,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cppcoreguidelines-pro-bounds-array-to-pointer-decay (reports every decay, a superset)"}
+      - {by: codeql, how: "array-passed-as-function-argument-decay-to-a-pointer (pack 2.62.0; TV-CQL-RULE-7-11-2-01)"}
   - id: Rule 7.11.3
     kind: rule
     category: required
@@ -771,6 +956,11 @@ guidelines:
       - by: review
         how: "A function or captureless lambda becomes a function pointer only where a callback is passed or stored."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          function-pointer-conversion-context (pack 2.62.0; TV-CQL-RULE-7-11-3-01); known anomalies AN-137, AN-169,
+          AN-180, AN-183, AN-191, AN-192
+        partial: true
   - id: Rule 8.0.1
     kind: rule
     category: advisory
@@ -784,6 +974,10 @@ guidelines:
       - {by: compiler, how: "-Wparentheses (in -Wall)", partial: true}
       - {by: review, how: "Expressions mixing operator kinds use parentheses, except plain + - * / chains."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          missing-precedence-clarifying-parenthesis, missing-sizeof-operator-parenthesis (pack 2.62.0;
+          TV-CQL-RULE-8-0-1-01, TV-CQL-RULE-8-0-1-02)
   - id: Rule 8.1.1
     kind: rule
     category: required
@@ -797,6 +991,7 @@ guidelines:
       - {by: clang-tidy, how: "cppcoreguidelines-misleading-capture-default-by-value", partial: true}
       - {by: review, how: "A lambda that outlives its expression names this (or *this) in its capture list."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "non-transient-lambda-implicitly-captures-this (pack 2.62.0; TV-CQL-RULE-8-1-1-01)"}
   - id: Rule 8.1.2
     kind: rule
     category: advisory
@@ -808,6 +1003,7 @@ guidelines:
     verification:
       - {by: review, how: "A lambda that is stored or returned has no capture-default."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "implicit-captures-disallowed-in-non-transient-lambda (pack 2.62.0; TV-CQL-RULE-8-1-2-01)"}
   - id: Rule 8.2.1
     kind: rule
     category: required
@@ -818,6 +1014,10 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "fuchsia-virtual-inheritance (no virtual bases exist, so the cast cannot occur)"}
+      - by: codeql
+        how: >-
+          virtual-base-class-cast-to-derived (pack 2.62.0; TV-CQL-RULE-8-2-1-01); known anomalies AN-115
+        partial: true
   - id: Rule 8.2.2
     kind: rule
     category: required
@@ -831,6 +1031,11 @@ guidelines:
       - {by: clang-tidy, how: "google-readability-casting, cppcoreguidelines-pro-type-cstyle-cast", partial: true}
       - {by: review, how: "No T(x) functional cast of a value; conversions use static_cast or brace initialisation."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          no-c-style-or-functional-casts (pack 2.62.0; TV-CQL-RULE-8-2-2-01); known anomalies AN-134, AN-136, AN-167,
+          AN-171, AN-194, AN-198, AN-200, AN-209
+        partial: true
   - id: Rule 8.2.3
     kind: rule
     category: required
@@ -840,8 +1045,22 @@ guidelines:
     applies: yes
     our_category: required
     verification:
-      - {by: clang-tidy, how: "cppcoreguidelines-pro-type-const-cast (reports every const_cast, a superset)"}
+      - by: clang-tidy
+        how: >-
+          cppcoreguidelines-pro-type-const-cast (reports every const_cast, a superset; misses a cast below the first
+          pointer level, AN-116)
+        partial: true
       - {by: compiler, how: "-Wcast-qual", partial: true}
+      - by: codeql
+        how: >-
+          cast-removes-const-or-volatile-from-pointer-or-reference (pack 2.62.0; TV-CQL-RULE-8-2-3-01); known anomalies
+          AN-001
+        partial: true
+      - by: review
+        how: >-
+          No cast removes const or volatile at any pointer level; CodeQL catches the multi-level cast clang-tidy
+          misses (AN-116) and clang-tidy the cast of an object to a reference CodeQL misses (AN-001).
+      - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
   - id: Rule 8.2.4
     kind: rule
     category: required
@@ -855,6 +1074,11 @@ guidelines:
       - {by: clang-tidy, how: "cppcoreguidelines-pro-type-reinterpret-cast", partial: true}
       - {by: review, how: "No cast involves a function pointer type, including in the port layer."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          casts-between-a-pointer-to-function-and-any-other-type (pack 2.62.0; TV-CQL-RULE-8-2-4-01); known anomalies
+          AN-117, AN-190
+        partial: true
   - id: Rule 8.2.5
     kind: rule
     category: required
@@ -867,6 +1091,7 @@ guidelines:
       - {by: clang-tidy, how: "cppcoreguidelines-pro-type-reinterpret-cast"}
       - by: review
         how: "Each reinterpret_cast is inside the MD-CPP-003 scope, with its NOLINT and deviation reference."
+      - {by: codeql, how: "reinterpret-cast-shall-not-be-used (pack 2.62.0; TV-CQL-RULE-8-2-5-01)"}
     deviations: [MD-CPP-003]
   - id: Rule 8.2.6
     kind: rule
@@ -882,6 +1107,7 @@ guidelines:
         partial: true
       - {by: review, how: "No static_cast from void* or reinterpret_cast from an integer outside the MD-CPP-004 scope."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "int-to-pointer-cast-prohibited (pack 2.62.0; TV-CQL-RULE-8-2-6-01)"}
     deviations: [MD-CPP-004]
   - id: Rule 8.2.7
     kind: rule
@@ -895,6 +1121,10 @@ guidelines:
       - {by: clang-tidy, how: "cppcoreguidelines-pro-type-reinterpret-cast", partial: true}
       - {by: review, how: "No pointer is converted to an integer, except an address handed to DMA in the port layer."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          no-pointer-to-integral-cast (pack 2.62.0; TV-CQL-RULE-8-2-7-01); known anomalies AN-157, AN-179
+        partial: true
   - id: Rule 8.2.8
     kind: rule
     category: required
@@ -907,6 +1137,7 @@ guidelines:
       - {by: clang-tidy, how: "cppcoreguidelines-pro-type-reinterpret-cast", partial: true}
       - {by: review, how: "A pointer converted to an integer goes to std::uintptr_t or std::intptr_t only."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "pointer-to-integral-cast (pack 2.62.0; TV-CQL-RULE-8-2-8-01)"}
   - id: Rule 8.2.9
     kind: rule
     category: required
@@ -935,6 +1166,10 @@ guidelines:
         how: >-
           No call chain, including through function pointers or virtual calls, leads back to its caller (KB-CPP-088).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          functions-call-themselves-either-directly-or-indirectly (pack 2.62.0; TV-CQL-RULE-8-2-10-01)
+        partial: true
   - id: Rule 8.2.11
     kind: rule
     category: required
@@ -945,6 +1180,10 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cppcoreguidelines-pro-type-vararg (reports every C-style variadic call, a superset)"}
+      - by: codeql
+        how: >-
+          inappropriate-argument-type-passed-via-ellipsis (pack 2.62.0; TV-CQL-RULE-8-2-11-01); known anomalies AN-197
+        partial: true
   - id: Rule 8.3.1
     kind: rule
     category: advisory
@@ -957,6 +1196,7 @@ guidelines:
       - by: review
         how: "Unary minus is applied only to signed or floating operands; use 0U - x where wrap is intended."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "built-in-unary-operator-applied-to-unsigned-expression (pack 2.62.0; TV-CQL-RULE-8-3-1-01)"}
   - id: Rule 8.3.2
     kind: rule
     category: advisory
@@ -968,6 +1208,7 @@ guidelines:
     verification:
       - {by: review, how: "No unary + operator, including to force promotion or decay."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "built-in-unary-plus-operator-should-not-be-used (pack 2.62.0; TV-CQL-RULE-8-3-2-01)"}
   - id: Rule 8.7.1
     kind: rule
     category: required
@@ -990,6 +1231,11 @@ guidelines:
           Buffers are std::array or std::span indexed with checked bounds (a dynamic span is size-checked first,
           KB-CPP20-042, KB-CPP20-043); raw pointer arithmetic is in the port layer only.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          pointer-argument-to-cstring-function-is-invalid, pointer-arithmetic-forms-an-invalid-pointer (pack 2.62.0;
+          TV-CQL-RULE-8-7-1-01, TV-CQL-RULE-8-7-1-02)
+        partial: true
   - id: Rule 8.7.2
     kind: rule
     category: required
@@ -1001,6 +1247,10 @@ guidelines:
     verification:
       - {by: review, how: "Pointer differences are only taken between pointers into the same array."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          pointer-difference-taken-between-different-arrays (pack 2.62.0; TV-CQL-RULE-8-7-2-01)
+        partial: true
   - id: Rule 8.9.1
     kind: rule
     category: required
@@ -1013,6 +1263,10 @@ guidelines:
       - {by: cppcheck, how: "comparePointers", partial: true}
       - {by: review, how: "< <= > >= on pointers only between pointers into the same array."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          pointer-compared-between-different-arrays (pack 2.62.0; TV-CQL-RULE-8-9-1-01)
+        partial: true
   - id: Rule 8.14.1
     kind: rule
     category: advisory
@@ -1025,6 +1279,11 @@ guidelines:
       - by: review
         how: "The right operand of && or || writes nothing, calls nothing with side effects and reads no volatile."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          short-circuited-persistent-side-effect (pack 2.62.0; TV-CQL-RULE-8-14-1-01); known anomalies AN-114, AN-127,
+          AN-132
+        partial: true
   - id: Rule 8.18.1
     kind: rule
     category: mandatory
@@ -1038,6 +1297,11 @@ guidelines:
       - {by: compiler, how: "-Wrestrict (GCC)", partial: true}
       - {by: review, how: "No assignment or copy has overlapping source and destination (unions, aliasing spans)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          object-assigned-to-an-overlapping-object-misra-cpp, object-copied-to-an-overlapping-object-misra-cpp (pack
+          2.62.0; TV-CQL-RULE-8-18-1-01, TV-CQL-RULE-8-18-1-02); known anomalies AN-007
+        partial: true
   - id: Rule 8.18.2
     kind: rule
     category: advisory
@@ -1051,6 +1315,7 @@ guidelines:
       - {by: compiler, how: "-Wparentheses (assignment used as a condition)", partial: true}
       - {by: review, how: "Assignments are statements of their own; no chained or embedded assignment."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "result-of-an-assignment-operator-should-not-be-used (pack 2.62.0; TV-CQL-RULE-8-18-2-01)"}
   - id: Rule 8.19.1
     kind: rule
     category: advisory
@@ -1063,6 +1328,7 @@ guidelines:
       - {by: compiler, how: "-Wcomma (Clang; not every use)", partial: true}
       - {by: review, how: "No comma operator, including in for-loop headers."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "comma-operator-should-not-be-used (pack 2.62.0; TV-CQL-RULE-8-19-1-01)"}
   - id: Rule 8.20.1
     kind: rule
     category: advisory
@@ -1075,6 +1341,12 @@ guidelines:
       - by: review
         how: "Constant expressions with unsigned operands stay in range; static_assert where the range is not obvious."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          unsigned-operation-with-constant-operands-wraps (pack 2.62.0; TV-CQL-RULE-8-20-1-01); known anomalies AN-027,
+          AN-028, AN-029, AN-030, AN-031, AN-032, AN-033, AN-034, AN-068, AN-069, AN-070, AN-071, AN-072, AN-073,
+          AN-074, AN-075, AN-076, AN-141, AN-163, AN-176, AN-193, AN-202, AN-205
+        partial: true
   - id: Rule 9.2.1
     kind: rule
     category: required
@@ -1089,6 +1361,7 @@ guidelines:
       - {by: compiler, how: "-Wunused-value", partial: true}
       - {by: review, how: "No statement consists only of a type conversion, such as an unnamed lock guard."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "no-standalone-type-cast-expression (pack 2.62.0; TV-CQL-RULE-9-2-1-01)"}
   - id: Rule 9.3.1
     kind: rule
     category: required
@@ -1099,6 +1372,11 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "readability-braces-around-statements"}
+      - by: codeql
+        how: >-
+          loop-body-compound-condition, switch-body-compound-condition (pack 2.62.0; TV-CQL-RULE-9-3-1-01,
+          TV-CQL-RULE-9-3-1-02); known anomalies AN-041
+        partial: true
   - id: Rule 9.4.1
     kind: rule
     category: required
@@ -1109,6 +1387,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "hicpp-multiway-paths-covered (WarnOnMissingElse: true)"}
+      - {by: codeql, how: "if-else-if-end-condition (pack 2.62.0; TV-CQL-RULE-9-4-1-01)"}
   - id: Rule 9.4.2
     kind: rule
     category: required
@@ -1127,6 +1406,10 @@ guidelines:
           switch over an unscoped enumeration without a fixed underlying type that lists every enumerator may leave
           it out. Enum coverage is kept by -Wswitch-enum (KB-CPP-053).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          appropriate-structure-of-switch-statement (pack 2.62.0; TV-CQL-RULE-9-4-2-01); known anomalies AN-118, AN-203
+        partial: true
   - id: Rule 9.5.1
     kind: rule
     category: advisory
@@ -1142,6 +1425,10 @@ guidelines:
           changes it in the body; extra conditions use while or an early return, and a bound from configuration is
           validated against a named maximum (KB-CPP20-058).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          legacy-for-statements-should-be-simple (pack 2.62.0; TV-CQL-RULE-9-5-1-01); known anomalies AN-204
+        partial: true
   - id: Rule 9.5.2
     kind: rule
     category: required
@@ -1154,6 +1441,7 @@ guidelines:
       - by: review
         how: "The range expression of a range-for calls at most one function; build the range first otherwise."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "for-range-initializer-at-most-one-function-call (pack 2.62.0; TV-CQL-RULE-9-5-2-01)"}
   - id: Rule 9.6.1
     kind: rule
     category: advisory
@@ -1164,6 +1452,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cppcoreguidelines-avoid-goto"}
+      - {by: codeql, how: "goto-statement-should-not-be-used (pack 2.62.0; TV-CQL-RULE-9-6-1-01)"}
     note: "Raised to required: our NASA/JPL Power of Ten baseline already forbids goto."
   - id: Rule 9.6.2
     kind: rule
@@ -1175,6 +1464,10 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cppcoreguidelines-avoid-goto (no goto at all, Rule 9.6.1 raised to required)"}
+      - by: codeql
+        how: >-
+          goto-reference-a-label-in-surrounding-block (pack 2.62.0; TV-CQL-RULE-9-6-2-01); known anomalies AN-039
+        partial: true
   - id: Rule 9.6.3
     kind: rule
     category: required
@@ -1185,6 +1478,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cppcoreguidelines-avoid-goto (no goto at all, Rule 9.6.1 raised to required)"}
+      - {by: codeql, how: "goto-shall-jump-to-label-declared-later-in-the-function (pack 2.62.0; TV-CQL-RULE-9-6-3-01)"}
   - id: Rule 9.6.4
     kind: rule
     category: required
@@ -1199,6 +1493,10 @@ guidelines:
         partial: true
       - {by: review, how: "Every path of a [[noreturn]] function ends in another [[noreturn]] call or an endless loop."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          function-declared-with-the-noreturn-attribute-return (pack 2.62.0; TV-CQL-RULE-9-6-4-01)
+        partial: true
   - id: Rule 9.6.5
     kind: rule
     category: required
@@ -1210,6 +1508,7 @@ guidelines:
     verification:
       - {by: compiler, how: "-Wreturn-type (in -Wall), -Werror"}
       - {by: cppcheck, how: "missingReturn", partial: true}
+      - {by: codeql, how: "non-void-function-shall-return-a-value-on-all-paths (pack 2.62.0; TV-CQL-RULE-9-6-5-01)"}
   - id: Rule 10.0.1
     kind: rule
     category: advisory
@@ -1222,6 +1521,11 @@ guidelines:
       - {by: clang-tidy, how: "readability-isolate-declaration (local variables)", partial: true}
       - {by: review, how: "Members and namespace-scope objects are declared one per line too."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          use-single-global-or-member-declarators, use-single-local-declarators (pack 2.62.0; TV-CQL-RULE-10-0-1-01,
+          TV-CQL-RULE-10-0-1-02); known anomalies AN-046
+        partial: true
   - id: Rule 10.1.1
     kind: rule
     category: advisory
@@ -1236,6 +1540,7 @@ guidelines:
       - by: review
         how: "A pointer or lvalue-reference parameter the function does not modify points or refers to const."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "pointer-or-ref-param-not-const (pack 2.62.0; TV-CQL-RULE-10-1-1-01)"}
   - id: Rule 10.1.2
     kind: rule
     category: required
@@ -1250,6 +1555,10 @@ guidelines:
           volatile appears only on memory-mapped register access in the MCU port, never for thread or interrupt sharing
           (KB-CPP-010, KB-CPP-086).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          volatile-qualifier-not-used-appropriately (pack 2.62.0; TV-CQL-RULE-10-1-2-01); known anomalies AN-086
+        partial: true
   - id: Rule 10.2.1
     kind: rule
     category: required
@@ -1261,6 +1570,11 @@ guidelines:
     verification:
       - {by: review, how: "Every enum names its underlying type (enum class E : uint8_t)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          enumeration-not-defined-with-an-explicit-underlying-type (pack 2.62.0; TV-CQL-RULE-10-2-1-01); known anomalies
+          AN-139, AN-140
+        partial: true
   - id: Rule 10.2.2
     kind: rule
     category: advisory
@@ -1272,6 +1586,7 @@ guidelines:
     verification:
       - {by: review, how: "Every enumeration is an enum class."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "unscoped-enumerations-should-not-be-declared (pack 2.62.0; TV-CQL-RULE-10-2-2-01)"}
     note: "Raised to required: every Kokeb enum is already scoped with a fixed type."
   - id: Rule 10.2.3
     kind: rule
@@ -1285,6 +1600,7 @@ guidelines:
       - {by: compiler, how: "-Wenum-conversion (Clang), -Wenum-compare", partial: true}
       - {by: review, how: "An unscoped enum without fixed type is never used in arithmetic or converted to an integer."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "unscoped-enum-without-fixed-underlying-type-used (pack 2.62.0; TV-CQL-RULE-10-2-3-01)"}
   - id: Rule 10.3.1
     kind: rule
     category: advisory
@@ -1295,6 +1611,7 @@ guidelines:
     our_category: advisory
     verification:
       - {by: clang-tidy, how: "google-build-namespaces (header extensions include .ipp)"}
+      - {by: codeql, how: "unnamed-namespaces-in-header-files (pack 2.62.0; TV-CQL-RULE-10-3-1-01)"}
   - id: Rule 10.4.1
     kind: rule
     category: required
@@ -1305,6 +1622,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "hicpp-no-assembler"}
+      - {by: codeql, how: "asm-declaration-shall-not-be-used (pack 2.62.0; TV-CQL-RULE-10-4-1-01)"}
   - id: Rule 11.3.1
     kind: rule
     category: advisory
@@ -1315,6 +1633,7 @@ guidelines:
     our_category: advisory
     verification:
       - {by: clang-tidy, how: "cppcoreguidelines-avoid-c-arrays"}
+      - {by: codeql, how: "variable-declared-array-type (pack 2.62.0; TV-CQL-RULE-11-3-1-01)"}
   - id: Rule 11.3.2
     kind: rule
     category: advisory
@@ -1326,6 +1645,7 @@ guidelines:
     verification:
       - {by: review, how: "No declaration has three or more levels of pointer indirection."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "declaration-of-an-object-indirections-level (pack 2.62.0; TV-CQL-RULE-11-3-2-01)"}
   - id: Rule 11.6.1
     kind: rule
     category: advisory
@@ -1338,6 +1658,7 @@ guidelines:
       - {by: clang-tidy, how: "cppcoreguidelines-init-variables, cppcoreguidelines-pro-type-member-init", partial: true}
       - {by: review, how: "Every variable and member has an initialiser or a default member initialiser."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "uninitialized-variable (pack 2.62.0; TV-CQL-RULE-11-6-1-01)"}
   - id: Rule 11.6.2
     kind: rule
     category: mandatory
@@ -1354,6 +1675,10 @@ guidelines:
       - {by: cppcheck, how: "uninitvar, uninitMemberVar", partial: true}
       - {by: review, how: "Every object is initialised before any read on every path (Rule 11.6.1 makes this local)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          value-of-an-object-must-not-be-read-before-it-has-been-set (pack 2.62.0; TV-CQL-RULE-11-6-2-01)
+        partial: true
   - id: Rule 11.6.3
     kind: rule
     category: required
@@ -1365,6 +1690,10 @@ guidelines:
     verification:
       - {by: review, how: "No two enumerators of one enum end up with the same value through implicit numbering."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          non-unique-enumeration-constant (pack 2.62.0; TV-CQL-RULE-11-6-3-01); known anomalies AN-142
+        partial: true
   - id: Rule 12.2.1
     kind: rule
     category: advisory
@@ -1376,6 +1705,7 @@ guidelines:
     verification:
       - {by: review, how: "No bit-field members; register fields use masks and shifts (KB-CPP-106)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "bit-fields-should-not-be-declared-misra-cpp (pack 2.62.0; TV-CQL-RULE-12-2-1-01)"}
     note: "Raised to required: KB-CPP-106 already packs register fields with masks and shifts."
   - id: Rule 12.2.2
     kind: rule
@@ -1388,6 +1718,11 @@ guidelines:
     verification:
       - {by: review, how: "Any bit-field (allowed only by deviation) has an unsigned fixed-width or bool type."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          bit-field-shall-have-an-appropriate-type (pack 2.62.0; TV-CQL-RULE-12-2-2-01); known anomalies AN-015, AN-048,
+          AN-049
+        partial: true
   - id: Rule 12.2.3
     kind: rule
     category: required
@@ -1400,6 +1735,11 @@ guidelines:
       - {by: compiler, how: "-Wsingle-bit-bitfield-constant-conversion (Clang)", partial: true}
       - {by: review, how: "No named bit-field of width 1 has a signed type."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          signed-integer-named-bit-field-have-a-length-of-one-bit (pack 2.62.0; TV-CQL-RULE-12-2-3-01); known anomalies
+          AN-010
+        partial: true
   - id: Rule 12.3.1
     kind: rule
     category: required
@@ -1412,6 +1752,7 @@ guidelines:
       - {by: clang-tidy, how: "cppcoreguidelines-pro-type-union-access (member access only)", partial: true}
       - {by: review, how: "No union is declared; register frames are packed with masks, shifts and std::bit_cast."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "union-keyword-used (pack 2.62.0; TV-CQL-RULE-12-3-1-01)"}
   - id: Rule 13.1.1
     kind: rule
     category: advisory
@@ -1422,6 +1763,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "fuchsia-virtual-inheritance"}
+      - {by: codeql, how: "virtual-inheritance-not-allowed (pack 2.62.0; TV-CQL-RULE-13-1-1-01)"}
     note: "Raised to required: no Kokeb design uses virtual bases (ADR-0016)."
   - id: Rule 13.1.2
     kind: rule
@@ -1433,6 +1775,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "fuchsia-virtual-inheritance (no virtual bases at all)"}
+      - {by: codeql, how: "virtual-and-non-virtual-class-in-the-hierarchy (pack 2.62.0; TV-CQL-RULE-13-1-2-01)"}
   - id: Rule 13.3.1
     kind: rule
     category: required
@@ -1449,6 +1792,10 @@ guidelines:
           virtual only on new virtual functions, override or final on overriders, no virtual in a final class
           (KB-CPP-072).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          member-specifiers-not-used-appropriately (pack 2.62.0; TV-CQL-RULE-13-3-1-01); known anomalies AN-021, AN-022
+        partial: true
   - id: Rule 13.3.2
     kind: rule
     category: required
@@ -1459,6 +1806,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "google-default-arguments (no default arguments on virtual functions at all)"}
+      - {by: codeql, how: "overriding-shall-specify-different-default-arguments (pack 2.62.0; TV-CQL-RULE-13-3-2-01)"}
   - id: Rule 13.3.3
     kind: rule
     category: required
@@ -1474,6 +1822,10 @@ guidelines:
       - {by: cppcheck, how: "funcArgNamesDifferent", partial: true}
       - {by: review, how: "Overriders and every declaration name parameters identically or leave them unnamed."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          declarations-of-a-function-same-parameter-name (pack 2.62.0; TV-CQL-RULE-13-3-3-01)
+        partial: true
   - id: Rule 13.3.4
     kind: rule
     category: required
@@ -1485,6 +1837,11 @@ guidelines:
     verification:
       - {by: review, how: "A pointer to a member function that may be virtual is only compared with nullptr."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          potentially-virtual-pointer-only-compares-to-nullptr (pack 2.62.0; TV-CQL-RULE-13-3-4-01); known anomalies
+          AN-043
+        partial: true
   - id: Rule 14.1.1
     kind: rule
     category: advisory
@@ -1498,6 +1855,7 @@ guidelines:
       - by: review
         how: "A class with private data has no public or protected data; plain structs have only public data."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "private-and-public-data-members-mixed (pack 2.62.0; TV-CQL-RULE-14-1-1-01)"}
   - id: Rule 15.0.1
     kind: rule
     category: required
@@ -1515,6 +1873,7 @@ guidelines:
           Each class is unmovable, move-only or copyable by design; public bases have a public virtual or protected
           non-virtual destructor.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "improperly-provided-special-member-functions (pack 2.62.0; TV-CQL-RULE-15-0-1-01)"}
   - id: Rule 15.0.2
     kind: rule
     category: advisory
@@ -1530,6 +1889,11 @@ guidelines:
       - by: review
         how: "Copy and move constructors and assignments take const T& or T&&, return T&, and moves are noexcept."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          invalid-signature-for-special-member-function (pack 2.62.0; TV-CQL-RULE-15-0-2-01); known anomalies AN-120,
+          AN-122, AN-149
+        partial: true
   - id: Rule 15.1.1
     kind: rule
     category: required
@@ -1543,6 +1907,10 @@ guidelines:
       - {by: cppcheck, how: "virtualCallInConstructor", partial: true}
       - {by: review, how: "No virtual call, typeid or dynamic_cast on the object under construction or destruction."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          objects-dynamic-type-used-from-constructor-or-destructor (pack 2.62.0; TV-CQL-RULE-15-1-1-01)
+        partial: true
   - id: Rule 15.1.2
     kind: rule
     category: advisory
@@ -1554,6 +1922,10 @@ guidelines:
     verification:
       - {by: review, how: "Each constructor's initialiser list names every immediate and virtual base class."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          initialize-all-virtual-base-classes (pack 2.62.0; TV-CQL-RULE-15-1-2-01); known anomalies AN-057, AN-145
+        partial: true
   - id: Rule 15.1.3
     kind: rule
     category: required
@@ -1565,6 +1937,11 @@ guidelines:
     verification:
       - {by: clang-tidy, how: "google-explicit-constructor"}
       - {by: cppcheck, how: "noExplicitConstructor", partial: true}
+      - by: codeql
+        how: >-
+          non-explicit-conversion-member (pack 2.62.0; TV-CQL-RULE-15-1-3-01); known anomalies AN-059, AN-060, AN-061,
+          AN-062
+        partial: true
   - id: Rule 15.1.4
     kind: rule
     category: advisory
@@ -1578,6 +1955,7 @@ guidelines:
       - by: review
         how: "Every non-static data member has a default member initialiser or is set in every constructor's list."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "non-static-member-not-init-before-use (pack 2.62.0; TV-CQL-RULE-15-1-4-01)"}
   - id: Rule 15.1.5
     kind: rule
     category: required
@@ -1590,6 +1968,11 @@ guidelines:
       - by: review
         how: "A class with an std::initializer_list constructor has no other constructor (copy and move aside)."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          initializer-list-constructor-is-the-only-constructor (pack 2.62.0; TV-CQL-RULE-15-1-5-01); known anomalies
+          AN-087
+        partial: true
   - id: Dir 15.8.1
     kind: directive
     category: required
@@ -1604,6 +1987,11 @@ guidelines:
       - by: review
         how: "A user-written copy or move assignment is correct when source and target are the same object."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          copy-and-move-assignments-shall-handle-self-assignment (pack 2.62.0; TV-CQL-DIR-15-8-1-01); known anomalies
+          AN-050, AN-195
+        partial: true
   - id: Rule 16.5.1
     kind: rule
     category: required
@@ -1615,6 +2003,7 @@ guidelines:
     verification:
       - {by: review, how: "No class or namespace declares operator&& or operator||."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "logical-and-and-logical-or-operators-overloaded (pack 2.62.0; TV-CQL-RULE-16-5-1-01)"}
   - id: Rule 16.5.2
     kind: rule
     category: required
@@ -1625,6 +2014,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "google-runtime-operator"}
+      - {by: codeql, how: "address-of-operator-overloaded (pack 2.62.0; TV-CQL-RULE-16-5-2-01)"}
   - id: Rule 16.6.1
     kind: rule
     category: advisory
@@ -1639,6 +2029,7 @@ guidelines:
           Binary arithmetic and comparison operators are non-member (hidden friends allowed), except defaulted C++20
           comparisons under MD-CPP-002.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "invalid-operator-overloaded-as-member-function (pack 2.62.0; TV-CQL-RULE-16-6-1-01)"}
     deviations: [MD-CPP-002]
   - id: Rule 17.8.1
     kind: rule
@@ -1652,6 +2043,7 @@ guidelines:
       - by: review
         how: "No explicit specialisation of a function template; use an overload, if constexpr or a class template."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "function-templates-explicitly-specialized (pack 2.62.0; TV-CQL-RULE-17-8-1-01)"}
   - id: Rule 18.1.1
     kind: rule
     category: required
@@ -1733,6 +2125,11 @@ guidelines:
         how: >-
           Destructors, move operations, swap and hash functions are noexcept (KB-CPP-035 makes everything noexcept).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          exception-unfriendly-function-must-be-noexcept (pack 2.62.0; TV-CQL-RULE-18-4-1-01); known anomalies AN-119,
+          AN-121, AN-143, AN-144, AN-146, AN-147, AN-148, AN-150, AN-154, AN-155, AN-161, AN-201
+        partial: true
     note: "Applies even without exceptions: noexcept still selects moves in the standard library."
   - id: Rule 18.5.1
     kind: rule
@@ -1761,6 +2158,7 @@ guidelines:
           No call to abort, exit, quick_exit, _Exit or terminate; fatal paths go through the documented fatal handler
           (KB-CPP-056).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "avoid-program-terminating-functions (pack 2.62.0; TV-CQL-RULE-18-5-2-01)"}
   - id: Rule 19.0.1
     kind: rule
     category: required
@@ -1783,6 +2181,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cppcoreguidelines-macro-usage (reports every function-like macro, a superset)"}
+      - {by: codeql, how: "function-like-macros-defined (pack 2.62.0; TV-CQL-RULE-19-0-2-01)"}
     deviations: [MD-CPP-006]
   - id: Rule 19.0.3
     kind: rule
@@ -1796,6 +2195,11 @@ guidelines:
       - by: review
         how: "Only comments and directives precede an #include; no #include inside a namespace or function."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          include-directives-preceded-by-preprocessor-directives (pack 2.62.0; TV-CQL-RULE-19-0-3-01); known anomalies
+          AN-040
+        partial: true
     deviations: [MD-CPP-009]
   - id: Rule 19.0.4
     kind: rule
@@ -1808,6 +2212,7 @@ guidelines:
     verification:
       - {by: review, how: "Every #undef names a macro defined earlier in the same file."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "undef-of-macro-not-defined-in-file (pack 2.62.0; TV-CQL-RULE-19-0-4-01)"}
   - id: Rule 19.1.1
     kind: rule
     category: required
@@ -1818,6 +2223,11 @@ guidelines:
     our_category: required
     verification:
       - {by: compiler, how: "-Wexpansion-to-defined; a malformed defined is a compile error"}
+      - by: codeql
+        how: >-
+          defined-operator-expanded-in-if-directive, invalid-token-in-defined-operator (pack 2.62.0;
+          TV-CQL-RULE-19-1-1-01, TV-CQL-RULE-19-1-1-02); known anomalies AN-005, AN-036
+        partial: true
   - id: Rule 19.1.2
     kind: rule
     category: required
@@ -1838,6 +2248,11 @@ guidelines:
     our_category: required
     verification:
       - {by: compiler, how: "-Wundef, -Werror"}
+      - by: codeql
+        how: >-
+          identifiers-used-in-the-controlling-expression-of (pack 2.62.0; TV-CQL-RULE-19-1-3-01); known anomalies
+          AN-153, AN-160
+        partial: true
   - id: Rule 19.2.1
     kind: rule
     category: required
@@ -1852,6 +2267,10 @@ guidelines:
           include-guards (KB-CPP-019): every header in inc/, src/, tests/ and examples/ is wrapped whole in an
           #ifndef/#define/#endif guard with a unique, unreserved name; in inc/ and src/ it is <NAME>_<FILE_STEM>_<EXT>
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          include-outside-guard, no-valid-ifdef-guard-in-header (pack 2.62.0; TV-CQL-RULE-19-2-1-01,
+          TV-CQL-RULE-19-2-1-02)
     note: >-
       KB-CPP-019 fixes one guard name per file, so the check can decide it; llvm-header-guard is not used because its
       path-based names differ from that convention.
@@ -1865,6 +2284,10 @@ guidelines:
     our_category: required
     verification:
       - {by: compiler, how: "any other #include form is a compile error"}
+      - by: codeql
+        how: >-
+          invalid-include-directive (pack 2.62.0; TV-CQL-RULE-19-2-2-01); known anomalies AN-004
+        partial: true
   - id: Rule 19.2.3
     kind: rule
     category: required
@@ -1876,6 +2299,7 @@ guidelines:
     verification:
       - {by: review, how: "Include paths use forward slashes and only letters, digits, _ - . and / (KB-CPP-018)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "chars-that-should-not-occur-in-header-file-name (pack 2.62.0; TV-CQL-RULE-19-2-3-01)"}
   - id: Rule 19.3.1
     kind: rule
     category: advisory
@@ -1887,6 +2311,7 @@ guidelines:
     verification:
       - {by: review, how: "No # or ## in macros, outside the MD-CPP-006 X-macro lists."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "and-preprocessor-operators-should-not-be-used (pack 2.62.0; TV-CQL-RULE-19-3-1-01)"}
   - id: Rule 19.3.2
     kind: rule
     category: required
@@ -1898,6 +2323,10 @@ guidelines:
     verification:
       - {by: review, how: "No macro applies ## directly after #param."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          macro-parameter-following-hash (pack 2.62.0; TV-CQL-RULE-19-3-2-01); known anomalies AN-058
+        partial: true
   - id: Rule 19.3.3
     kind: rule
     category: required
@@ -1909,6 +2338,7 @@ guidelines:
     verification:
       - {by: review, how: "A parameter used both with and without # or ## is never passed something that expands."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "a-mixed-use-macro-argument-subject-to-expansion (pack 2.62.0; TV-CQL-RULE-19-3-3-01)"}
   - id: Rule 19.3.4
     kind: rule
     category: required
@@ -1921,6 +2351,7 @@ guidelines:
       - {by: clang-tidy, how: "bugprone-macro-parentheses", partial: true}
       - {by: review, how: "Each macro parameter used in an expression is parenthesised."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "unparenthesized-macro-argument (pack 2.62.0; TV-CQL-RULE-19-3-4-01)"}
   - id: Rule 19.3.5
     kind: rule
     category: required
@@ -1933,6 +2364,7 @@ guidelines:
       - {by: compiler, how: "-Wpedantic (GCC), -Wembedded-directive (Clang)", partial: true}
       - {by: review, how: "No line starting with # appears inside a macro invocation's arguments."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "tokens-that-look-like-directives-in-a-macro-argument (pack 2.62.0; TV-CQL-RULE-19-3-5-01)"}
   - id: Rule 19.6.1
     kind: rule
     category: advisory
@@ -1945,6 +2377,10 @@ guidelines:
       - {by: handbook-check, how: "include-guards (KB-CPP-019): no #pragma or _Pragma in inc/, src/, tests/, examples/"}
       - {by: clang-tidy, how: "portability-avoid-pragma-once", partial: true}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          disallowed-use-of-pragma (pack 2.62.0; TV-CQL-RULE-19-6-1-01); known anomalies AN-088
+        partial: true
     note: "Compiler options live in the build; KB-CPP-019 bans #pragma once and every other pragma."
   - id: Rule 21.2.1
     kind: rule
@@ -1956,6 +2392,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cert-err34-c"}
+      - {by: codeql, how: "atof-atoi-atol-and-atoll-used (pack 2.62.0; TV-CQL-RULE-21-2-1-01)"}
   - id: Rule 21.2.2
     kind: rule
     category: required
@@ -1967,6 +2404,10 @@ guidelines:
     verification:
       - by: clang-tidy
         how: "bugprone-unsafe-functions with CustomFunctions listing the str*, wcs*, strto* and wcsto* functions"
+      - by: codeql
+        how: >-
+          unsafe-string-handling-functions (pack 2.62.0; TV-CQL-RULE-21-2-2-01); known anomalies AN-089
+        partial: true
   - id: Rule 21.2.3
     kind: rule
     category: required
@@ -1977,6 +2418,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cert-env33-c"}
+      - {by: codeql, how: "banned-system-function (pack 2.62.0; TV-CQL-RULE-21-2-3-01)"}
   - id: Rule 21.2.4
     kind: rule
     category: required
@@ -1988,6 +2430,7 @@ guidelines:
     verification:
       - {by: review, how: "No offsetof outside the MD-CPP-007 scope (static_assert on register frame layout)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "macro-offsetof-shall-not-be-used (pack 2.62.0; TV-CQL-RULE-21-2-4-01)"}
     deviations: [MD-CPP-007]
   - id: Rule 21.6.1
     kind: rule
@@ -2006,6 +2449,10 @@ guidelines:
       - by: review
         how: "No allocation, direct or through a standard container, outside the MD-CPP-008 start-up scope."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          dynamic-memory-should-not-be-used (pack 2.62.0; TV-CQL-RULE-21-6-1-01); known anomalies AN-090
+        partial: true
     deviations: [MD-CPP-008]
     note: "Raised to required: KB-CPP-003 forbids the heap in drivers and after start-up everywhere."
   - id: Rule 21.6.2
@@ -2021,6 +2468,10 @@ guidelines:
       - {by: handbook-check, how: "forbidden-patterns/heap (KB-CPP-003)", partial: true}
       - {by: review, how: "No new, delete, malloc family, allocate or deallocate call, or unique_ptr::release."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          dynamic-memory-managed-manually (pack 2.62.0; TV-CQL-RULE-21-6-2-01); known anomalies AN-037, AN-091
+        partial: true
   - id: Rule 21.6.3
     kind: rule
     category: required
@@ -2032,6 +2483,10 @@ guidelines:
     verification:
       - {by: review, how: "No placement new, explicit destructor call, std::launder or uninitialized-memory algorithm."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          advanced-memory-management-used (pack 2.62.0; TV-CQL-RULE-21-6-3-01); known anomalies AN-035
+        partial: true
   - id: Rule 21.6.4
     kind: rule
     category: required
@@ -2044,6 +2499,11 @@ guidelines:
       - {by: compiler, how: "-Wsized-deallocation (GCC)", partial: true}
       - {by: review, how: "A replacement global operator delete comes with its sized counterpart in the same file."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          global-sized-operator-delete-shall-be-defined, global-unsized-operator-delete-shall-be-defined (pack 2.62.0;
+          TV-CQL-RULE-21-6-4-01, TV-CQL-RULE-21-6-4-02); known anomalies AN-002, AN-017, AN-092
+        partial: true
   - id: Rule 21.6.5
     kind: rule
     category: required
@@ -2054,6 +2514,7 @@ guidelines:
     our_category: required
     verification:
       - {by: compiler, how: "-Wdelete-incomplete (on by default), -Werror"}
+      - {by: codeql, how: "pointer-to-an-incomplete-class-type-deleted (pack 2.62.0; TV-CQL-RULE-21-6-5-01)"}
   - id: Rule 21.10.1
     kind: rule
     category: required
@@ -2064,6 +2525,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cppcoreguidelines-pro-type-vararg (reports every variadic definition, call and va_arg)"}
+      - {by: codeql, how: "no-variadic-function-macros (pack 2.62.0; TV-CQL-RULE-21-10-1-01)"}
   - id: Rule 21.10.2
     kind: rule
     category: required
@@ -2074,6 +2536,10 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "cert-err52-cpp"}
+      - by: codeql
+        how: >-
+          no-csetjmp-header (pack 2.62.0; TV-CQL-RULE-21-10-2-01); known anomalies AN-206
+        partial: true
   - id: Rule 21.10.3
     kind: rule
     category: required
@@ -2084,6 +2550,10 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "bugprone-unsafe-functions with CustomFunctions listing signal and raise"}
+      - by: codeql
+        how: >-
+          csignal-facilities-used, csignal-types-shall-not-be-used (pack 2.62.0; TV-CQL-RULE-21-10-3-01,
+          TV-CQL-RULE-21-10-3-02)
   - id: Rule 22.3.1
     kind: rule
     category: required
@@ -2094,6 +2564,7 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "misc-static-assert"}
+      - {by: codeql, how: "assert-macro-used-with-a-constant-expression (pack 2.62.0; TV-CQL-RULE-22-3-1-01)"}
   - id: Rule 22.4.1
     kind: rule
     category: required
@@ -2105,6 +2576,10 @@ guidelines:
     verification:
       - {by: review, how: "errno is never written except to clear it with 0."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          invalid-assignment-to-errno (pack 2.62.0; TV-CQL-RULE-22-4-1-01); known anomalies AN-003
+        partial: true
   - id: Rule 23.11.1
     kind: rule
     category: advisory
@@ -2117,6 +2592,7 @@ guidelines:
       - {by: clang-tidy, how: "modernize-make-unique, modernize-make-shared", partial: true}
       - {by: review, how: "No std::unique_ptr or std::shared_ptr is constructed from a raw pointer."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - {by: codeql, how: "use-smart-ptr-factory-functions (pack 2.62.0; TV-CQL-RULE-23-11-1-01)"}
   - id: Rule 24.5.1
     kind: rule
     category: required
@@ -2128,6 +2604,7 @@ guidelines:
     verification:
       - by: clang-tidy
         how: "bugprone-unsafe-functions with CustomFunctions listing the <cctype> and <cwctype> functions"
+      - {by: codeql, how: "character-handling-function-restrictions (pack 2.62.0; TV-CQL-RULE-24-5-1-01)"}
   - id: Rule 24.5.2
     kind: rule
     category: required
@@ -2139,6 +2616,10 @@ guidelines:
     verification:
       - by: clang-tidy
         how: "bugprone-unsafe-functions with CustomFunctions listing memcpy, memmove, memcmp and memchr"
+      - by: codeql
+        how: >-
+          no-memory-functions-from-c-string (pack 2.62.0; TV-CQL-RULE-24-5-2-01); known anomalies AN-093
+        partial: true
     note: "Use std::copy, std::equal, std::bit_cast or element-wise access instead."
   - id: Rule 25.5.1
     kind: rule
@@ -2151,6 +2632,7 @@ guidelines:
     verification:
       - by: clang-tidy
         how: "bugprone-unsafe-functions with CustomFunctions listing setlocale and std::locale::global"
+      - {by: codeql, how: "locale-global-function-not-allowed (pack 2.62.0; TV-CQL-RULE-25-5-1-01)"}
   - id: Rule 25.5.2
     kind: rule
     category: mandatory
@@ -2165,6 +2647,11 @@ guidelines:
           bugprone-unsafe-functions with CustomFunctions listing localeconv, getenv, setlocale and strerror: our code
           calls none of them
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          pointers-returned-by-locale-functions-must-be-used-as-const (pack 2.62.0; TV-CQL-RULE-25-5-2-01); known
+          anomalies AN-008, AN-094
+        partial: true
     note: "We meet this by never calling these functions."
   - id: Rule 25.5.3
     kind: rule
@@ -2180,6 +2667,12 @@ guidelines:
           bugprone-unsafe-functions with CustomFunctions listing asctime, ctime, gmtime, localtime, localeconv, getenv,
           setlocale and strerror: our code calls none of them
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          call-to-setlocale-invalidates-old-pointers-misra, call-to-setlocale-invalidates-old-pointers-warn-misra (pack
+          2.62.0; TV-CQL-RULE-25-5-3-01, TV-CQL-RULE-25-5-3-02); known anomalies AN-095, AN-096, AN-097, AN-098, AN-099,
+          AN-100
+        partial: true
     note: "We meet this by never calling these functions."
   - id: Rule 26.3.1
     kind: rule
@@ -2192,6 +2685,10 @@ guidelines:
     verification:
       - {by: review, how: "No std::vector<bool>; use std::bitset or std::array<bool, N>."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          vector-should-not-be-specialized-with-bool (pack 2.62.0; TV-CQL-RULE-26-3-1-01); known anomalies AN-014
+        partial: true
   - id: Rule 28.3.1
     kind: rule
     category: required
@@ -2204,6 +2701,11 @@ guidelines:
       - by: review
         how: "Predicates and comparators passed to algorithms are pure: no writes, no volatile access, no I/O."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          non-const-predicate-function-object, predicate-with-persistent-side-effects (pack 2.62.0;
+          TV-CQL-RULE-28-3-1-01, TV-CQL-RULE-28-3-1-02)
+        partial: true
   - id: Rule 28.6.1
     kind: rule
     category: required
@@ -2216,6 +2718,10 @@ guidelines:
       - {by: clang-tidy, how: "performance-move-const-arg", partial: true}
       - {by: review, how: "std::move is applied only to a non-const lvalue."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          std-move-with-non-const-lvalue (pack 2.62.0; TV-CQL-RULE-28-6-1-01); known anomalies AN-101
+        partial: true
   - id: Rule 28.6.2
     kind: rule
     category: required
@@ -2230,6 +2736,11 @@ guidelines:
         partial: true
       - {by: review, how: "Every forwarding reference is used through std::forward, and std::forward only on one."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          forwarding-references-and-forward-not-used-together (pack 2.62.0; TV-CQL-RULE-28-6-2-01); known anomalies
+          AN-038, AN-102
+        partial: true
   - id: Rule 28.6.3
     kind: rule
     category: required
@@ -2243,6 +2754,11 @@ guidelines:
       - {by: cppcheck, how: "accessMoved", partial: true}
       - {by: review, how: "A moved-from object is only assigned or destroyed."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          object-used-while-in-potentially-moved-from-state (pack 2.62.0; TV-CQL-RULE-28-6-3-01); known anomalies
+          AN-024, AN-103
+        partial: true
   - id: Rule 28.6.4
     kind: rule
     category: required
@@ -2257,6 +2773,10 @@ guidelines:
       - by: review
         how: "The results of std::remove, std::remove_if, std::unique, unique_ptr::release and empty() are used."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          potentially-erroneous-container-usage (pack 2.62.0; TV-CQL-RULE-28-6-4-01); known anomalies AN-104
+        partial: true
   - id: Rule 30.0.1
     kind: rule
     category: required
@@ -2267,6 +2787,11 @@ guidelines:
     our_category: required
     verification:
       - {by: clang-tidy, how: "bugprone-unsafe-functions with CustomFunctions listing the <cstdio> functions"}
+      - by: codeql
+        how: >-
+          cstdio-functions-shall-not-be-used, cstdio-macros-shall-not-be-used, cstdio-types-shall-not-be-used (pack
+          2.62.0; TV-CQL-RULE-30-0-1-01, TV-CQL-RULE-30-0-1-02, TV-CQL-RULE-30-0-1-03); known anomalies AN-016, AN-051
+        partial: true
   - id: Rule 30.0.2
     kind: rule
     category: required
@@ -2279,3 +2804,8 @@ guidelines:
       - {by: cppcheck, how: "IOWithoutPositioning", partial: true}
       - {by: review, how: "A stream used for both reading and writing is repositioned between the two."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
+      - by: codeql
+        how: >-
+          reads-and-writes-on-stream-not-separated-by-positioning (pack 2.62.0; TV-CQL-RULE-30-0-2-01); known anomalies
+          AN-077, AN-105
+        partial: true
