@@ -1,0 +1,156 @@
+# Project-wide deviations from MISRA C++:2023 (MISRA Compliance:2020 deviation records). Each record sets aside one
+# guideline for a stated scope, says why the guideline does not fit there, and how the risk it addresses is still
+# controlled. They apply to every Kokeb Labs repository at the safety level and are cited from the matrix
+# (compliance/misra-cpp-2023.yml, `deviations:`). A deviation in one place in the code uses the per-repository
+# record in docs/deviations.md instead.
+#
+# Fields: id (MD-CPP-NNN, never reused); guideline (an id in the matrix; never a mandatory one); scope (where the
+# deviation applies; everything else complies); justification; mitigation; approved_by; date; review_by (the record
+# lapses unless renewed by then). checks/misra_matrix.py validates this file.
+---
+deviations:
+  - id: MD-CPP-001
+    guideline: Rule 4.1.1
+    scope: >-
+      All C++ in drivers, libraries, HALs and firmware: the code is ISO C++20, not the C++17 the edition is written
+      for. The C++20 features in use are concepts and requires-clauses (port concepts such as SpiPort, optional
+      hooks detected with requires-expressions), std::span, designated initialisers, defaulted comparison
+      operators and the <concepts> library (std::same_as, std::derived_from). Any other C++20 feature is added to
+      this list in the pull request that first uses it.
+    justification: >-
+      ADR-0010 fixes C++20 for the whole stack. Concepts state each port's contract at compile time, which is what
+      keeps drivers free of virtual dispatch (ADR-0003, ADR-0016); std::span replaces pointer-and-length pairs and
+      the pointer arithmetic MISRA restricts; designated initialisers make every Config field explicit. Each
+      feature removes a class of defect the guidelines exist to prevent.
+    mitigation: >-
+      No compiler extensions: -std=c++20 -Wpedantic with CMAKE_CXX_EXTENSIONS OFF (KB-CPP-001), and the code
+      builds warning-free with GCC and Clang and every supported cross toolchain. Every guideline of the edition is
+      applied to C++20 constructs by analogy: a concept is a template (rules on templates apply to its
+      instantiations); a requires-expression's parameters are not function parameters (Rule 0.2.2 does not
+      apply to them); a designated initialiser is a converting transfer (Rule 7.0.6); std::span indexing is an
+      array access (Rule 8.7.1). The commercial checker runs in C++20 mode and any C++20-specific finding is
+      triaged against this record.
+    approved_by: maintainer
+    date: 2026-11-08
+    review_by: 2027-11-08
+
+  - id: MD-CPP-002
+    guideline: Rule 16.6.1
+    scope: >-
+      Defaulted comparison operators declared as members (`bool operator==(const T&) const = default;`), as used
+      for configuration and status value types.
+    justification: >-
+      The guideline targets operators whose member form treats its two operands differently under implicit
+      conversion. Since C++20 the compiler also considers the reversed form of a member operator== (and <=>), so
+      `a == b` and `b == a` resolve the same way; a defaulted comparison compares every member and cannot be
+      written asymmetrically.
+    mitigation: >-
+      Only defaulted operator== and operator<=> are covered; any hand-written symmetric operator is a non-member
+      or hidden friend. The value types have no converting constructors (Rule 15.1.3), so no implicit conversion
+      can reach either operand.
+    approved_by: maintainer
+    date: 2026-11-08
+    review_by: 2027-11-08
+
+  - id: MD-CPP-003
+    guideline: Rule 8.2.5
+    scope: >-
+      Memory-mapped register access in MCU port and board bind code (`mcu/<family>/`, `bsp_bind/`), and nowhere
+      else (KB-CPP-007, KB-CPP-086). Drivers, libraries and handlers comply.
+    justification: >-
+      A peripheral register is an object at a fixed address defined by the silicon; reaching it from C++ needs a
+      cast from the address to a pointer to a volatile register type. There is no other way to express it in ISO
+      C++.
+    mitigation: >-
+      Each cast is wrapped in a named accessor in the MCU port, carries a NOLINT for the clang-tidy check and the
+      deviation id, targets a volatile-qualified fixed-width type of the register's documented width, and is
+      tested on hardware by the port's bring-up tests. Register layouts are asserted at compile time (KB-CPP-009).
+    approved_by: maintainer
+    date: 2026-11-08
+    review_by: 2027-11-08
+
+  - id: MD-CPP-004
+    guideline: Rule 8.2.6
+    scope: >-
+      Conversion of a documented peripheral base address (an integer constant from the vendor's reference manual)
+      to a pointer to its volatile register block, in MCU port and board bind code only (same scope as MD-CPP-003).
+    justification: >-
+      The register block of a peripheral exists only as a numeric address in the reference manual; turning it into
+      a pointer is the only way to access it. This is the same construct as MD-CPP-003 seen from the source type.
+    mitigation: >-
+      Addresses come from the vendor's device header or a constexpr table that names the manual section; each
+      conversion is in one accessor per peripheral with the deviation id; no pointer is ever made from a computed or
+      run-time integer.
+    approved_by: maintainer
+    date: 2026-11-08
+    review_by: 2027-11-08
+
+  - id: MD-CPP-005
+    guideline: Rule 6.7.2
+    scope: >-
+      HAL and firmware only: the board facade's managers in static storage (KB-CPP-091), statically allocated RTOS
+      objects and their stacks and control blocks (KB-CPP-075), and state shared with an interrupt handler
+      (KB-CPP-010). Drivers and kb-core utilities comply (KB-CPP-040).
+    justification: >-
+      With no heap after start-up (KB-CPP-003), objects that live for the whole run and are reached from an
+      interrupt or several tasks need static storage duration; the alternative, a function-local static, is
+      forbidden by Rule 6.7.1 as well and hides the object's initialisation point.
+    mitigation: >-
+      Each such object has internal linkage or is a private member of the one owner (the board facade), is
+      constant-initialised or initialised in the fixed start-up sequence before the scheduler runs (KB-CPP-058,
+      KB-CPP-101), and is guarded: atomics or a critical section for interrupt data (KB-CPP-010), one mutex for
+      task data (KB-CPP-085). No other code names it directly.
+    approved_by: maintainer
+    date: 2026-11-08
+    review_by: 2027-11-08
+
+  - id: MD-CPP-006
+    guideline: Rule 19.0.2
+    scope: >-
+      The X-macro list that defines each Base interface's error values and their ToStatus mapping in
+      `Base<Periph>.h` (KB-CPP-069). No other function-like macro is covered.
+    justification: >-
+      The list keeps an error enum, its names and its status mapping generated from one table, so they cannot drift
+      apart; a template or constexpr function cannot generate enumerators.
+    mitigation: >-
+      The list macro and its element macros are defined, expanded and #undef'd in the same header (Rule 19.0.4);
+      element macros only produce enumerators, case labels or string literals; every parameter is parenthesised
+      where it forms an expression (Rule 19.3.4). The generated switch is checked by -Wswitch (KB-CPP-053).
+    approved_by: maintainer
+    date: 2026-11-08
+    review_by: 2027-11-08
+
+  - id: MD-CPP-007
+    guideline: Rule 21.2.4
+    scope: >-
+      offsetof used only inside static_assert to pin the field offsets of a standard-layout struct that mirrors a
+      register or wire frame (KB-CPP-009). Never in an evaluated expression.
+    justification: >-
+      The guideline protects against offsetof on non-standard-layout types and against code that walks object
+      representations. Asserting a frame's layout at compile time is the opposite use: it proves the struct
+      matches the datasheet on every compiler and target, which is what KB-CPP-009 requires.
+    mitigation: >-
+      The asserted type is checked with static_assert(std::is_standard_layout_v<T>) next to the offsets; it has no
+      bit-fields, static members or member functions involved in the assertion; the result never reaches run-time
+      code.
+    approved_by: maintainer
+    date: 2026-11-08
+    review_by: 2027-11-08
+
+  - id: MD-CPP-008
+    guideline: Rule 21.6.1
+    scope: >-
+      Libraries, HALs and firmware during start-up, before the scheduler runs, for allocations on the start-up
+      allowlist (KB-CPP-003, KB-CPP-091). Drivers never allocate. Rule 21.6.1 is raised to required in our
+      matrix, so this record is the documented exception.
+    justification: >-
+      Some platform services (the vendor SDK's drivers, network stacks) allocate once while they initialise. Doing
+      it before the scheduler starts means a failure is seen at boot, and no allocation, fragmentation or timing
+      effect can happen while the system runs.
+    mitigation: >-
+      Allocation is owned by RAII types (Rule 21.6.2 still applies), listed on the start-up allowlist, never freed
+      and re-allocated, and checked by the allocation-allowlist check; after start-up any allocation is a
+      failure. Drivers stay heap-free (forbidden-patterns/heap).
+    approved_by: maintainer
+    date: 2026-11-08
+    review_by: 2027-11-08

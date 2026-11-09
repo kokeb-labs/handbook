@@ -2023,7 +2023,7 @@ rules:
     since: "1.0"
     enforce_from: "2027-03-01"
     applies: {profiles: [driver, library, hal, firmware], from_level: safety}
-    verify: [{check: misra-checker}]
+    verify: [{check: misra-checker}, {check: misra-matrix}]
     refs: [{std: MISRA-CPP-2023}, {std: MISRA-C-2025}]
     page: deviations.md
     notes: Warns until 2027-03-01, then fails CI.
