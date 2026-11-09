@@ -59,7 +59,7 @@ review hold each change to.
 | [KB-CPP-050](#kb-cpp-050) A failed bus transfer always reaches the caller | must | driver, template | checked |
 | [KB-CPP-051](#kb-cpp-051) Above the drivers, one error type per layer and no vendor error types | must | library, hal, firmware | planned |
 | [KB-CPP-052](#kb-cpp-052) Error mapping follows the fixed tables | must | library | checked |
-| [KB-CPP-053](#kb-cpp-053) A mapping switch lists every enumerator and has no default | must | driver, library, hal, template | checked |
+| [KB-CPP-053](#kb-cpp-053) A mapping switch lists every enumerator and ends with default | must | driver, library, hal, template | checked |
 | [KB-CPP-054](#kb-cpp-054) Code branches on the status, never on its detail | must | library, hal, firmware | planned |
 | [KB-CPP-055](#kb-cpp-055) Never log an error and return Ok | must | library, hal, firmware | review |
 | [KB-CPP-056](#kb-cpp-056) Error handling separates recoverable from fatal failures and keeps context | guide | library, hal, firmware | none |
@@ -1152,17 +1152,19 @@ pattern. `ALREADY_INITIALIZED` from an idempotent `Initialize` counts as success
 
 *Explained in:* [standards/errors.md](../standards/errors.md)
 
-## KB-CPP-053: A mapping switch lists every enumerator and has no default { #kb-cpp-053 }
+## KB-CPP-053: A mapping switch lists every enumerator and ends with default { #kb-cpp-053 }
 
 **MUST** · driver, library, hal, template · since 1.0
 
-A `switch` that maps one error enum to another (`ToStatus`, `ToString`) names every enumerator and has no `default:`, so
-a new enumerator is a compiler warning. `ToString()` returns a static string for every value.
+A `switch` that maps one error enum to another (`ToStatus`, `ToString`) names every enumerator and ends with `default:
+break;` followed by the fallback the function returns for a value that is no enumerator (MISRA C++ Rule 9.4.2 requires
+the default for a scoped enumeration). The code builds with `-Wswitch-enum`, so a new enumerator is still a compiler
+warning although a default is present. `ToString()` returns a static string for every value.
 
 *Verified by:*
 
-- `compiler-warnings/-Wswitch` (implemented): the build is warning-free with the named flag and -Werror
-- review: Mapping switches over enums have no default and cover every enumerator.
+- `compiler-warnings/-Wswitch-enum` (implemented): the build is warning-free with the named flag and -Werror
+- review: Mapping switches over enums cover every enumerator and end with default.
 
 *Explained in:* [standards/errors.md](../standards/errors.md)
 
