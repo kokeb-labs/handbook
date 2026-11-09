@@ -1106,6 +1106,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#bus-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#optional-hooks" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1126,6 +1137,50 @@
     <span class="md-ellipsis">
       
         Errors and Result&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#replies-retries-and-resynchronisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replies, retries and resynchronisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-shadows-and-latches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State, shadows and latches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start-up
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#values-and-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Values and diagnostics
       
     </span>
   </a>
@@ -1821,6 +1876,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#bus-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#optional-hooks" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1841,6 +1907,50 @@
     <span class="md-ellipsis">
       
         Errors and Result&lt;T&gt;
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#replies-retries-and-resynchronisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Replies, retries and resynchronisation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-shadows-and-latches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State, shadows and latches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start-up
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#values-and-diagnostics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Values and diagnostics
       
     </span>
   </a>
@@ -2211,6 +2321,89 @@ its hooks; the driver is a template on that class.</p>
 </table>
 <p>All of them plus <code>bool EnsureInitialized()</code>. A chip with a protocol that does not fit (a multi-phase frame, a
 DMA stream) MAY add hooks; they follow the same rules and are listed on the Porting page.</p>
+<h3 id="bus-requirements">Bus requirements<a class="headerlink" href="#bus-requirements" title="Permanent link">&para;</a></h3>
+<p>The bus interface header states what the chip needs from the bus as <code>constexpr</code> values, not only as prose
+(<a href="../../rules/cpp/#kb-cpp-123">KB-CPP-123</a>). The Porting page lists them, and each example port checks its own
+settings against them with <code>static_assert</code>, so a port that clocks too fast or in the wrong mode does not compile.</p>
+<table>
+<thead>
+<tr>
+<th>Bus</th>
+<th>Constant</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SPI</td>
+<td><code>kSpiMode</code></td>
+<td>The SPI mode (0 to 3) the chip samples in; a chip that accepts two names the one the driver is tested with</td>
+</tr>
+<tr>
+<td>SPI</td>
+<td><code>kMsbFirst</code></td>
+<td><code>true</code> when each byte is sent most significant bit first</td>
+</tr>
+<tr>
+<td>SPI</td>
+<td><code>kMaxClockHz</code></td>
+<td>The highest SCK frequency the chip accepts</td>
+</tr>
+<tr>
+<td>SPI</td>
+<td><code>kMinCsHighNs</code></td>
+<td>The shortest time chip select stays high between frames</td>
+</tr>
+<tr>
+<td>SPI</td>
+<td><code>kCsSetupNs</code>, <code>kCsHoldNs</code></td>
+<td>Chip select low to the first SCK edge, last SCK edge to chip select high</td>
+</tr>
+<tr>
+<td>SPI</td>
+<td><code>kContinuousWord</code></td>
+<td><code>true</code> when a frame must be clocked without idle time between its bytes</td>
+</tr>
+<tr>
+<td>I2C</td>
+<td><code>kI2cAddress</code></td>
+<td>The 7-bit address, or the base address when address pins add to it</td>
+</tr>
+<tr>
+<td>I2C</td>
+<td><code>kMaxClockHz</code></td>
+<td>The highest SCL frequency the chip accepts</td>
+</tr>
+<tr>
+<td>I2C</td>
+<td><code>kRepeatedStart</code></td>
+<td><code>true</code> when a register read needs a combined write-read with a repeated START</td>
+</tr>
+<tr>
+<td>UART</td>
+<td><code>kMaxBaudRate</code>, <code>kTurnaroundUs</code></td>
+<td>The highest baud rate, and the time the line needs between the last byte sent and the reply</td>
+</tr>
+</tbody>
+</table>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1">// inc/zp100_spi_interface.hpp</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">kSpiMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">            </span><span class="c1">// datasheet 6.2: CPOL 0, CPHA 0</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">kMsbFirst</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">kMaxClockHz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10'000'000</span><span class="p">;</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">kMinCsHighNs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">kCsSetupNs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">kCsHoldNs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="kr">inline</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">kContinuousWord</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1">// examples/host/host_zp100_port.hpp</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="k">static_assert</span><span class="p">(</span><span class="n">kPortClockHz</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">zp100</span><span class="o">::</span><span class="n">kMaxClockHz</span><span class="p">,</span><span class="w"> </span><span class="s">"the port clocks the ZP100 too fast"</span><span class="p">);</span>
+</span></code></pre></div>
+<p>A chip with a turnaround or an inter-frame gap adds a constant for it the same way. An I2C driver also documents
+which transfers the chip NACKs by design (a reset command, a busy chip) and never probes with a zero-length transfer
+(<a href="../../rules/cpp/#kb-cpp-130">KB-CPP-130</a>).</p>
+<p>Control pins have a stated idle level. The Porting page lists each <code>CtrlPin</code> with its polarity and the level the
+port drives before the pin's output is enabled, and the port drives that inactive level before it enables the output
+and before the first frame (<a href="../../rules/hardware/#kb-hw-018">KB-HW-018</a>).</p>
 <h3 id="optional-hooks">Optional hooks<a class="headerlink" href="#optional-hooks" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -2233,67 +2426,67 @@ DMA stream) MAY add hooks; they follow the same rules and are listed on the Port
 <td>Same as <code>GpioSet</code>; interrupt-driven reads fall back to polling a status register when the chip has one.</td>
 </tr>
 <tr>
-<td><code>void Log(LogLevel level, const char* fmt, ...)</code></td>
-<td>No output. The driver never formats text itself.</td>
+<td><code>void Log(LogLevel level, const char* message)</code></td>
+<td>No output. The message is a fixed string; the driver never formats text, and the hook is not variadic.</td>
 </tr>
 </tbody>
 </table>
 <p>Optional hooks MUST be detected with a C++20 <code>requires</code> expression in one place, never with <code>void_t</code> or by
 calling through the base:</p>
-<div class="language-cpp highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">namespace</span><span class="w"> </span><span class="nn">zp100</span><span class="o">::</span><span class="nn">detail</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Port</span><span class="o">&gt;</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="kt">void</span><span class="w"> </span><span class="n">DelayUs</span><span class="p">(</span><span class="n">Port</span><span class="o">&amp;</span><span class="w"> </span><span class="n">port</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">us</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="p">(</span><span class="k">requires</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">port</span><span class="p">.</span><span class="n">DelayUs</span><span class="p">(</span><span class="n">us</span><span class="p">);</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="n">port</span><span class="p">.</span><span class="n">DelayUs</span><span class="p">(</span><span class="n">us</span><span class="p">);</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">Port</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"zp100: the port must implement DelayUs(uint32_t)"</span><span class="p">);</span>
-</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="p">}</span>
-</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="p">}</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">}</span><span class="w"> </span><span class="c1">// namespace zp100::detail</span>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">namespace</span><span class="w"> </span><span class="nn">zp100</span><span class="o">::</span><span class="nn">detail</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">Port</span><span class="o">&gt;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="kt">void</span><span class="w"> </span><span class="n">DelayUs</span><span class="p">(</span><span class="n">Port</span><span class="o">&amp;</span><span class="w"> </span><span class="n">port</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">us</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="p">(</span><span class="k">requires</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">port</span><span class="p">.</span><span class="n">DelayUs</span><span class="p">(</span><span class="n">us</span><span class="p">);</span><span class="w"> </span><span class="p">})</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="n">port</span><span class="p">.</span><span class="n">DelayUs</span><span class="p">(</span><span class="n">us</span><span class="p">);</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">    </span><span class="k">static_assert</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">Port</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="s">"zp100: the port must implement DelayUs(uint32_t)"</span><span class="p">);</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="p">}</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">}</span><span class="w"> </span><span class="c1">// namespace zp100::detail</span>
 </span></code></pre></div>
 <p>A missing hook therefore either falls back in a documented, safe way or fails to compile. It never silently
 skips a step.</p>
 <h2 id="errors-and-result">Errors and <code>Result&lt;T&gt;</code><a class="headerlink" href="#errors-and-result" title="Permanent link">&para;</a></h2>
 <p>Each driver has its own error enum and result type, so it stays usable outside kb-core
 (<a href="../../adr/0001-error-model/">ADR-0001</a>). Handlers map them to <code>kb::Status</code> (<a href="../errors/">errors.md</a>).</p>
-<div class="language-cpp highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">namespace</span><span class="w"> </span><span class="nn">zp100</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Error</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="c1">// Base set: every driver declares these, with these values, in this order.</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="n">Ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">  </span><span class="n">NotInitialized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">   </span><span class="c1">// an I/O call before EnsureInitialized() succeeded</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="n">InvalidArgument</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">  </span><span class="c1">// a parameter outside the documented range; nothing was sent</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">  </span><span class="n">Bus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">              </span><span class="c1">// a port hook returned false</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="n">Timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">          </span><span class="c1">// the chip did not become ready in time</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="n">DeviceIdMismatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="c1">// the ID register did not match the part</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">  </span><span class="n">Crc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">              </span><span class="c1">// a frame failed its CRC or checksum</span>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">  </span><span class="n">Busy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w">             </span><span class="c1">// the chip refused the command because it is busy</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="n">DeviceFault</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w">      </span><span class="c1">// the chip reported a fault (status register, error frame)</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="n">Unsupported</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w">      </span><span class="c1">// the hook or feature this call needs is absent</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="c1">// Chip-specific values start at 16.</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span><span class="n">FifoOverflow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="p">};</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>
-</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">ToString</span><span class="p">(</span><span class="n">Error</span><span class="w"> </span><span class="n">error</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
-</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
-</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
-</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="k">struct</span><span class="w"> </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="nc">Result</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">  </span><span class="n">T</span><span class="w"> </span><span class="n">value</span><span class="p">{};</span>
-</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">  </span><span class="n">Error</span><span class="w"> </span><span class="n">error</span><span class="p">{</span><span class="n">Error</span><span class="o">::</span><span class="n">Ok</span><span class="p">};</span>
-</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ok</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Error</span><span class="o">::</span><span class="n">Ok</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">  </span><span class="k">constexpr</span><span class="w"> </span><span class="k">explicit</span><span class="w"> </span><span class="k">operator</span><span class="w"> </span><span class="kt">bool</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">ok</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="p">};</span>
-</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>
-</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="k">template</span><span class="w"> </span><span class="o">&lt;&gt;</span>
-</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="k">struct</span><span class="w"> </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="nc">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="w">  </span><span class="n">Error</span><span class="w"> </span><span class="n">error</span><span class="p">{</span><span class="n">Error</span><span class="o">::</span><span class="n">Ok</span><span class="p">};</span>
-</span><span id="__span-4-32"><a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ok</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Error</span><span class="o">::</span><span class="n">Ok</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-33"><a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="w">  </span><span class="k">constexpr</span><span class="w"> </span><span class="k">explicit</span><span class="w"> </span><span class="k">operator</span><span class="w"> </span><span class="kt">bool</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">ok</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
-</span><span id="__span-4-34"><a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="p">};</span>
-</span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>
-</span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="p">}</span><span class="w"> </span><span class="c1">// namespace zp100</span>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">namespace</span><span class="w"> </span><span class="nn">zp100</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Error</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="c1">// Base set: every driver declares these, with these values, in this order.</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span><span class="n">Ok</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="n">NotInitialized</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">   </span><span class="c1">// an I/O call before EnsureInitialized() succeeded</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="n">InvalidArgument</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">  </span><span class="c1">// a parameter outside the documented range; nothing was sent</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="n">Bus</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">              </span><span class="c1">// a port hook returned false</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="n">Timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">          </span><span class="c1">// the chip did not become ready in time</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="n">DeviceIdMismatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="c1">// the ID register did not match the part</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="n">Crc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">              </span><span class="c1">// a frame failed its CRC or checksum</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="n">Busy</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w">             </span><span class="c1">// the chip refused the command because it is busy</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="n">DeviceFault</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span><span class="w">      </span><span class="c1">// the chip reported a fault (status register, error frame)</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">  </span><span class="n">Unsupported</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w">      </span><span class="c1">// the hook or feature this call needs is absent</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">  </span><span class="c1">// Chip-specific values start at 16.</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">  </span><span class="n">FifoOverflow</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">,</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="p">};</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">ToString</span><span class="p">(</span><span class="n">Error</span><span class="w"> </span><span class="n">error</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+</span><span id="__span-5-22"><a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="k">struct</span><span class="w"> </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="nc">Result</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-23"><a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="w">  </span><span class="n">T</span><span class="w"> </span><span class="n">value</span><span class="p">{};</span>
+</span><span id="__span-5-24"><a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="w">  </span><span class="n">Error</span><span class="w"> </span><span class="n">error</span><span class="p">{</span><span class="n">Error</span><span class="o">::</span><span class="n">Ok</span><span class="p">};</span>
+</span><span id="__span-5-25"><a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ok</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Error</span><span class="o">::</span><span class="n">Ok</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-5-26"><a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">  </span><span class="k">constexpr</span><span class="w"> </span><span class="k">explicit</span><span class="w"> </span><span class="k">operator</span><span class="w"> </span><span class="kt">bool</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">ok</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-5-27"><a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="p">};</span>
+</span><span id="__span-5-28"><a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>
+</span><span id="__span-5-29"><a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="k">template</span><span class="w"> </span><span class="o">&lt;&gt;</span>
+</span><span id="__span-5-30"><a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span class="k">struct</span><span class="w"> </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="nc">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-5-31"><a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="w">  </span><span class="n">Error</span><span class="w"> </span><span class="n">error</span><span class="p">{</span><span class="n">Error</span><span class="o">::</span><span class="n">Ok</span><span class="p">};</span>
+</span><span id="__span-5-32"><a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="k">constexpr</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">ok</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">Error</span><span class="o">::</span><span class="n">Ok</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-5-33"><a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a><span class="w">  </span><span class="k">constexpr</span><span class="w"> </span><span class="k">explicit</span><span class="w"> </span><span class="k">operator</span><span class="w"> </span><span class="kt">bool</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">ok</span><span class="p">();</span><span class="w"> </span><span class="p">}</span>
+</span><span id="__span-5-34"><a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a><span class="p">};</span>
+</span><span id="__span-5-35"><a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a>
+</span><span id="__span-5-36"><a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a><span class="p">}</span><span class="w"> </span><span class="c1">// namespace zp100</span>
 </span></code></pre></div>
 <p>Rules:</p>
 <ul>
@@ -2308,23 +2501,83 @@ skips a step.</p>
 <li>Sticky chip status (fault latches, error counters) is extra: a getter MAY expose it, but it never replaces the
   <code>Result</code> of the call that hit the error.</li>
 <li><code>ToString()</code> returns a static string for every value.</li>
+<li><code>NoDevice</code>, <code>Pin</code> and <code>NotReady</code>, when a driver needs them, mean what <a href="../errors/#common-chip-specific-codes">errors.md</a>
+  says.</li>
+</ul>
+<h2 id="replies-retries-and-resynchronisation">Replies, retries and resynchronisation<a class="headerlink" href="#replies-retries-and-resynchronisation" title="Permanent link">&para;</a></h2>
+<p>These rules come from testing the migrated drivers on hardware; each failure they prevent was seen on a bench.</p>
+<ul>
+<li>A reply is decoded only when the protocol proves it answers the request: CRC, plus the reply's type and width,
+  plus the echoed opcode, address or tag the protocol has (<a href="../../rules/architecture/#kb-arch-042">KB-ARCH-042</a>).</li>
+<li>A reply a stuck, floating or looped-back line can produce (all zeros, all ones, the command echoed, one word
+  repeated) is never data; it is <code>NoDevice</code> or another error, and an idle status a line could fake is confirmed
+  by a second read (<a href="../../rules/cpp/#kb-cpp-116">KB-CPP-116</a>).</li>
+<li>A chip that answers one or more frames later is served inside one public call, results matched on the reply's
+  content, never its position; the Porting page states that nothing may access the chip between those frames
+  (<a href="../../rules/architecture/#kb-arch-043">KB-ARCH-043</a>).</li>
+<li>After a failed transfer, or one with an unknown outcome, the next frame brings the chip's protocol back to a known
+  point (<a href="../../rules/cpp/#kb-cpp-118">KB-CPP-118</a>).</li>
+<li>A retry repeats only idempotent frames, never a reset, enable toggle or deinitialise the datasheet does not ask
+  for, and every retry loop has a bound and counts its attempts (<a href="../../rules/architecture/#kb-arch-044">KB-ARCH-044</a>).</li>
+</ul>
+<h2 id="state-shadows-and-latches">State, shadows and latches<a class="headerlink" href="#state-shadows-and-latches" title="Permanent link">&para;</a></h2>
+<ul>
+<li>A setter updates the driver's copy only after the chip accepted the change, and finishes a change the chip
+  applies later before it returns (<a href="../../rules/cpp/#kb-cpp-120">KB-CPP-120</a>).</li>
+<li>A setter changes only what it names; a change the chip accepts only in some state is refused outside it, and
+  nothing is sent (<a href="../../rules/cpp/#kb-cpp-121">KB-CPP-121</a>).</li>
+<li>Control and output registers are written whole from the copy; a read-modify-write uses only a validated read
+  (<a href="../../rules/cpp/#kb-cpp-122">KB-CPP-122</a>).</li>
+<li>Clear-on-read and write-1-to-clear flags collect in one latch the driver owns, from every read it makes,
+  internal ones included: <code>GetLatched*()</code> returns it with no I/O and <code>ClearLatched*()</code> empties it
+  (<a href="../../rules/cpp/#kb-cpp-119">KB-CPP-119</a>).</li>
+</ul>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1">// Every STATUS read the driver makes, including the busy polls inside other calls:</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">latched_status_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="p">(</span><span class="n">latched_status_</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="p">(</span><span class="kt">byte</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">reg</span><span class="o">::</span><span class="n">kStatusClearOnRead</span><span class="p">));</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="n">Status</span><span class="w"> </span><span class="n">GetLatchedStatus</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">   </span><span class="c1">// no I/O</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="kt">void</span><span class="w"> </span><span class="nf">ClearLatchedStatus</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">                         </span><span class="c1">// no I/O</span>
+</span></code></pre></div>
+<h2 id="start-up">Start-up<a class="headerlink" href="#start-up" title="Permanent link">&para;</a></h2>
+<p>On top of the sequence under <a href="#lifecycle">Lifecycle</a>:</p>
+<ul>
+<li>The identity check is one the chip must answer actively (select-and-echo, a bit it must toggle, a write and a
+  read-back), so a dead or looped bus cannot pass it (<a href="../../rules/cpp/#kb-cpp-117">KB-CPP-117</a>).</li>
+<li>Start-up waits for the chip's own ready indication: the datasheet minimum, then a bounded poll with a deadline
+  from <code>Config</code> (<a href="../../rules/cpp/#kb-cpp-124">KB-CPP-124</a>).</li>
+<li>Nothing from before the host reset is trusted: the chip is reset or fully rewritten, and faults latched before
+  the start are cleared or reported (<a href="../../rules/cpp/#kb-cpp-058">KB-CPP-058</a>).</li>
+<li>The variant is confirmed before any variant-specific write (<a href="../../rules/cpp/#kb-cpp-125">KB-CPP-125</a>).</li>
+<li>Load-dependent diagnostics are enabled only for channels <code>Config</code> declares as loaded, and fault routing is set
+  from the same declaration before the chip is armed (<a href="../../rules/cpp/#kb-cpp-131">KB-CPP-131</a>).</li>
+</ul>
+<h2 id="values-and-diagnostics">Values and diagnostics<a class="headerlink" href="#values-and-diagnostics" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Arguments and <code>Config</code> are checked against the datasheet's operating range and never silently clamped; a
+  quantised setting reports what was programmed (<a href="../../rules/cpp/#kb-cpp-126">KB-CPP-126</a>).</li>
+<li>A state that is not a measurement is an error, never a number; a multi-item read reports validity per item
+  (<a href="../../rules/cpp/#kb-cpp-127">KB-CPP-127</a>).</li>
+<li>A conversion that depends on another setting uses the chip's actual setting
+  (<a href="../../rules/cpp/#kb-cpp-128">KB-CPP-128</a>).</li>
+<li>Status bits are named by meaning, not raw polarity (<a href="../../rules/cpp/#kb-cpp-038">KB-CPP-038</a>).</li>
+<li>Every driver has a single-shot raw access with no retries (<code>ReadRegister()</code> or a frame trace) and a <code>GetLast*()</code>
+  accessor for the last raw reply, with no I/O (<a href="../../rules/cpp/#kb-cpp-129">KB-CPP-129</a>).</li>
 </ul>
 <h2 id="lifecycle">Lifecycle<a class="headerlink" href="#lifecycle" title="Permanent link">&para;</a></h2>
 <p>(<a href="../../adr/0002-lifecycle/">ADR-0002</a>, <a href="../../adr/0021-one-start-up-entry-point/">ADR-0021</a>)</p>
-<div class="language-cpp highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="n">I2cPort</span><span class="w"> </span><span class="n">Port</span><span class="o">&gt;</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">ZP100</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">public</span><span class="o">:</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="k">explicit</span><span class="w"> </span><span class="n">ZP100</span><span class="p">(</span><span class="n">Port</span><span class="o">&amp;</span><span class="w"> </span><span class="n">port</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kDefaultAddress</span><span class="p">,</span>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">                 </span><span class="k">const</span><span class="w"> </span><span class="n">Config</span><span class="o">&amp;</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{})</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">  </span><span class="c1">// stores, no I/O</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">EnsureInitialized</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">            </span><span class="c1">// the one start: once, then Ok with no I/O</span>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsInitialized</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Deinitialize</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">                 </span><span class="c1">// chip to its safe low-power state</span>
-</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ApplyConfig</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Config</span><span class="o">&amp;</span><span class="w"> </span><span class="n">config</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">  </span><span class="c1">// write when running, store before</span>
-</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
-</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ReadPressurePa</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
-</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SetOversampling</span><span class="p">(</span><span class="n">Oversampling</span><span class="w"> </span><span class="n">osr</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
-</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="p">};</span>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="n">I2cPort</span><span class="w"> </span><span class="n">Port</span><span class="o">&gt;</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">ZP100</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">public</span><span class="o">:</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="k">explicit</span><span class="w"> </span><span class="n">ZP100</span><span class="p">(</span><span class="n">Port</span><span class="o">&amp;</span><span class="w"> </span><span class="n">port</span><span class="p">,</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="n">address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kDefaultAddress</span><span class="p">,</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">                 </span><span class="k">const</span><span class="w"> </span><span class="n">Config</span><span class="o">&amp;</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{})</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">  </span><span class="c1">// stores, no I/O</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">EnsureInitialized</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">            </span><span class="c1">// the one start: once, then Ok with no I/O</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">  </span><span class="p">[[</span><span class="na">nodiscard</span><span class="p">]]</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">IsInitialized</span><span class="p">()</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Deinitialize</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">                 </span><span class="c1">// chip to its safe low-power state</span>
+</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ApplyConfig</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">Config</span><span class="o">&amp;</span><span class="w"> </span><span class="n">config</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span><span class="w">  </span><span class="c1">// write when running, store before</span>
+</span><span id="__span-7-11"><a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+</span><span id="__span-7-12"><a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">float</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ReadPressurePa</span><span class="p">()</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</span><span id="__span-7-13"><a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="w">  </span><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">SetOversampling</span><span class="p">(</span><span class="n">Oversampling</span><span class="w"> </span><span class="n">osr</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+</span><span id="__span-7-14"><a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="p">};</span>
 </span></code></pre></div>
 <ul>
 <li>The constructor MUST be <code>noexcept</code>, MUST NOT perform I/O and MUST NOT fail. It stores the port, any bus
@@ -2347,11 +2600,11 @@ skips a step.</p>
   explicitly. No default argument may trigger them.</li>
 </ul>
 <h2 id="config-and-kconfig">Config and Kconfig<a class="headerlink" href="#config-and-kconfig" title="Permanent link">&para;</a></h2>
-<div class="language-cpp highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Config</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="n">Oversampling</span><span class="w"> </span><span class="n">pressure_osr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Oversampling</span><span class="o">::</span><span class="n">X8</span><span class="p">;</span><span class="w">   </span><span class="c1">// datasheet default unless the README says why not</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">odr_mhz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50'000</span><span class="p">;</span><span class="w">                      </span><span class="c1">// units as suffixes</span>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">ready_timeout_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">};</span>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">struct</span><span class="w"> </span><span class="nc">Config</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="n">Oversampling</span><span class="w"> </span><span class="n">pressure_osr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Oversampling</span><span class="o">::</span><span class="n">X8</span><span class="p">;</span><span class="w">   </span><span class="c1">// datasheet default unless the README says why not</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">odr_mhz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">50'000</span><span class="p">;</span><span class="w">                      </span><span class="c1">// units as suffixes</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">  </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">ready_timeout_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">};</span>
 </span></code></pre></div>
 <ul>
 <li>Run-time configuration MUST be one <code>Config</code> struct with unit-suffixed fields and defaults taken from the
@@ -2370,9 +2623,9 @@ skips a step.</p>
 <h3 id="verification-is-opt-in">Verification is opt-in<a class="headerlink" href="#verification-is-opt-in" title="Permanent link">&para;</a></h3>
 <p>(<a href="../../rules/architecture/#kb-arch-041">KB-ARCH-041</a>)</p>
 <p>A call does what the datasheet needs and nothing more, so a control loop pays only for the transfer it asked for.</p>
-<div class="language-cpp highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Verify</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">None</span><span class="p">,</span><span class="w"> </span><span class="n">ReadBack</span><span class="w"> </span><span class="p">};</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Write</span><span class="p">(</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">Verify</span><span class="w"> </span><span class="n">verify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Verify</span><span class="o">::</span><span class="n">None</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
+<div class="language-cpp highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">enum</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="nc">Verify</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">None</span><span class="p">,</span><span class="w"> </span><span class="n">ReadBack</span><span class="w"> </span><span class="p">};</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">Result</span><span class="o">&lt;</span><span class="kt">void</span><span class="o">&gt;</span><span class="w"> </span><span class="n">Write</span><span class="p">(</span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">address</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">span</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="kt">uint8_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">Verify</span><span class="w"> </span><span class="n">verify</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Verify</span><span class="o">::</span><span class="n">None</span><span class="p">)</span><span class="w"> </span><span class="k">noexcept</span><span class="p">;</span>
 </span></code></pre></div>
 <ul>
 <li>A read-back after a write, a second read to compare, or any check the datasheet does not require is asked for
@@ -2425,12 +2678,12 @@ the driver's port, lifecycle and <code>Error</code>.</p>
 <p>Every driver carries <code>driver.yml</code> at the root. kb-core builds its compatibility file, <code>catalog/compat.yml</code>, from
 the <code>driver.yml</code> of each pinned driver (<a href="../release/#release-trains">release.md</a>); the file drives the CMake MCU
 gate, the <code>kb</code> command-line tool and the web configurator.</p>
-<div class="language-yaml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zp100</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.2.0</span><span class="w">             </span><span class="c1"># checked against cmake/zp100_build_settings.cmake</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nt">bus</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">i2c</span><span class="p p-Indicator">]</span><span class="w">                 </span><span class="c1"># spi, i2c, uart, adc, pio (a timed bit stream), or a protocol (canopen)</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="nt">mcus</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">any</span><span class="p p-Indicator">]</span><span class="w">                </span><span class="c1"># any, or the families it needs: [esp32]</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="nt">peripheral</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">           </span><span class="c1"># the MCU peripheral it needs, with mcus: RMT</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="nt">kb_core_min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.0</span><span class="w">         </span><span class="c1"># the oldest kb-core whose handler and adapters work with this version</span>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zp100</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.2.0</span><span class="w">             </span><span class="c1"># checked against cmake/zp100_build_settings.cmake</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nt">bus</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">i2c</span><span class="p p-Indicator">]</span><span class="w">                 </span><span class="c1"># spi, i2c, uart, adc, pio (a timed bit stream), or a protocol (canopen)</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="nt">mcus</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">any</span><span class="p p-Indicator">]</span><span class="w">                </span><span class="c1"># any, or the families it needs: [esp32]</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="nt">peripheral</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">           </span><span class="c1"># the MCU peripheral it needs, with mcus: RMT</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="nt">kb_core_min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.0</span><span class="w">         </span><span class="c1"># the oldest kb-core whose handler and adapters work with this version</span>
 </span></code></pre></div>
 <ul>
 <li><code>mcus</code> is <code>[any]</code> unless the driver needs one MCU's peripheral; then it names the families and <code>peripheral</code>
@@ -2441,7 +2694,12 @@ gate, the <code>kb</code> command-line tool and the web configurator.</p>
 </ul>
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
 <ul>
-<li><code>tests/mock_&lt;chip&gt;.hpp</code>: a register-level model of the chip implementing the port, used by every host test.</li>
+<li><code>tests/mock_&lt;chip&gt;.hpp</code>: a register-level model of the chip implementing the port, used by every host test. It
+  is written from the datasheet on its own: it does not include <code>&lt;chip&gt;_registers.hpp</code>, it carries its own register
+  map with datasheet page references, and a test (<code>tests/test_model.cpp</code>) <code>static_assert</code>s the model's map against
+  the driver's, so a wrong constant in the driver cannot hide behind the same constant in the model
+  (<a href="../../rules/testing/#kb-tst-030">KB-TST-030</a>). Every behaviour found on hardware becomes a fault mode of the model
+  and a regression test, and a chip with timing has a virtual clock in its model.</li>
 <li>A host suite built on gcc and clang with <code>-Wall -Wextra -Werror -fno-exceptions -fno-rtti</code>, run by the shared
   host-test workflow. It covers: every public call before <code>EnsureInitialized()</code> (<code>NotInitialized</code>), the chip-ID
   mismatch, a failing port hook on every call path (<code>Bus</code>), argument validation, and the register traffic of each

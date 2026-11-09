@@ -1245,6 +1245,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#kb-tst-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-TST-030: Hardware findings become model faults and tests; the model stands alone
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2138,6 +2149,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#kb-tst-030" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-TST-030: Hardware findings become model faults and tests; the model stands alone
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2344,6 +2366,12 @@ sanitizers, coverage and cross-compilation.</p>
 <td>guide</td>
 <td>driver, library, hal (safety level and above)</td>
 <td>none</td>
+</tr>
+<tr>
+<td><a href="#kb-tst-030">KB-TST-030</a> Hardware findings become model faults and tests; the model stands alone</td>
+<td>must</td>
+<td>driver, template</td>
+<td>planned</td>
 </tr>
 </tbody>
 </table>
@@ -2674,6 +2702,27 @@ who accepted it; an entry for an item the tests now reach is removed.</p>
 mutants; each survivor gets a test or a note on why it is equivalent.</p>
 <p><em>Why:</em> Coverage shows which code ran, not whether a test would notice it being wrong.</p>
 <p><em>See also:</em> <a href="../../adr/0020-complexity-and-coverage/">ADR-0020</a></p>
+<h2 id="kb-tst-030">KB-TST-030: Hardware findings become model faults and tests; the model stands alone<a class="headerlink" href="#kb-tst-030" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. Extends KB-TST-007.</p>
+</div>
+<p><strong>MUST</strong> · driver, template · since 1.0 · enforced from 2027-03-01</p>
+<p>Each behaviour found on hardware becomes a fault mode of <code>tests/mock_&lt;chip&gt;.hpp</code> and a regression test that fails on the
+code before the fix; the test cites the datasheet, and private evidence stays outside the repository. The model is
+written from the datasheet on its own: it does not include the driver's register header but carries its own register map
+with datasheet page references, and a test cross-checks the two maps with <code>static_assert</code>. A chip with timing (busy
+windows, settling, wake-up, pipeline latency) has a virtual clock in its model.</p>
+<p><em>Why:</em> A model that includes the driver's register header shares its mistakes: a wrong constant hides behind the same
+wrong constant. Without a model fault, a fix found on the bench cannot be proven or kept.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>model-virtual-clock</code> (planned): a chip model for a driver whose port has DelayUs or DelayMs advances a virtual clock
+  in those hooks, and a test runs a delayed-ready mode against it</li>
+<li>review: The pull request answers "hardware finding: model fault and test?"; tests/mock_&lt;chip&gt;.hpp includes no
+  driver register header, and a test static_asserts the model's map against the driver's.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/#tests">standards/driver.md</a></p>
 
 
 

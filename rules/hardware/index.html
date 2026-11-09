@@ -1057,6 +1057,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#kb-hw-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-HW-018: Control outputs reach their inactive level before they are enabled
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-hw-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-HW-019: Port conformance covers the shared-bus faults found on hardware
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1874,6 +1896,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#kb-hw-018" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-HW-018: Control outputs reach their inactive level before they are enabled
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-hw-019" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-HW-019: Port conformance covers the shared-bus faults found on hardware
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2015,6 +2059,18 @@ HAL's bind.</p>
 <td>should</td>
 <td>firmware</td>
 <td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-hw-018">KB-HW-018</a> Control outputs reach their inactive level before they are enabled</td>
+<td>must</td>
+<td>driver, library, hal, firmware, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-hw-019">KB-HW-019</a> Port conformance covers the shared-bus faults found on hardware</td>
+<td>must</td>
+<td>library, hal</td>
+<td>planned</td>
 </tr>
 </tbody>
 </table>
@@ -2196,6 +2252,46 @@ the product's documentation describes what it tests.</p>
 <ul>
 <li>review: The factory mode, how to enter it and what it tests are documented.</li>
 </ul>
+<h2 id="kb-hw-018">KB-HW-018: Control outputs reach their inactive level before they are enabled<a class="headerlink" href="#kb-hw-018" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The polarity half is KB-CPP-038.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, hal, firmware, template · since 1.0 · enforced from 2027-03-01</p>
+<p>A port drives every control output (reset, enable, soft chip-select, command/data, write-protect) to its inactive level
+before it enables the pin's output driver and before the first frame; a soft chip-select is written high before its pin
+is configured as an output. Each pin's idle level and polarity are stated once in the port contract (the driver's
+Porting page) as logical ACTIVE and INACTIVE.</p>
+<p><em>Why:</em> Observed on hardware: GPIO defaults left an active-low reset asserted and two chip-selects low together until the
+first driver call.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>port-conformance</code> (planned): the Base* conformance suite passes for the named MCU family, on the host against a
+  mocked SDK and, on a scheduled job with a board, as loopback tests</li>
+<li>review: Each port sets the output level before the direction; the Porting page lists every control pin with its idle
+  level; on a real MCU the bench bring-up checks the pins at reset.</li>
+</ul>
+<p><em>See also:</em> <a href="../../adr/0003-crtp-ports/">ADR-0003</a></p>
+<p><em>Explained in:</em> <a href="../../standards/driver/#the-port">standards/driver.md</a></p>
+<h2 id="kb-hw-019">KB-HW-019: Port conformance covers the shared-bus faults found on hardware<a class="headerlink" href="#kb-hw-019" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The buffer ownership half is KB-CPP-040 and KB-CPP-043.</p>
+</div>
+<p><strong>MUST</strong> · library, hal · since 1.0 · enforced from 2027-03-01</p>
+<p>Port conformance (KB-HW-002) also proves: the first frame after any mode or clock change is intact; chip-select lines
+are at their idle level before any driver starts; UART input is flushed before a transmit and never between transmit and
+receive, and the turnaround is observed; an I2C bus clear runs before a retried start-up; every operation is bounded by
+a timeout; transfer buffers live in memory the bus and its DMA can reach, owned by the driver object, never on a
+caller's stack or in a function-local static.</p>
+<p><em>Why:</em> Observed on hardware, each of these host faults looked like a chip fault on the bench.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>port-conformance</code> (planned): the Base* conformance suite passes for the named MCU family, on the host against a
+  mocked SDK and, on a scheduled job with a board, as loopback tests</li>
+<li>review: The MCU-specific items (DMA-capable memory, first frame after a clock change) are run on the bench.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/hal/#the-platform-bind">standards/hal.md</a></p>
 
 
 

@@ -1573,11 +1573,11 @@ is not built yet. <em>Review</em>: verified in review against the pull-request c
 </tr>
 <tr>
 <td><a href="../architecture/">Architecture</a></td>
-<td>28</td>
+<td>31</td>
 <td>3</td>
-<td>17</td>
-<td>8</td>
-<td>10%</td>
+<td>18</td>
+<td>10</td>
+<td>9%</td>
 </tr>
 <tr>
 <td><a href="../build/">Build and CMake</a></td>
@@ -1605,11 +1605,11 @@ is not built yet. <em>Review</em>: verified in review against the pull-request c
 </tr>
 <tr>
 <td><a href="../cpp/">C++ code</a></td>
-<td>92</td>
+<td>108</td>
+<td>47</td>
 <td>42</td>
-<td>38</td>
-<td>12</td>
-<td>45%</td>
+<td>19</td>
+<td>43%</td>
 </tr>
 <tr>
 <td><a href="../docs/">Documentation</a></td>
@@ -1629,9 +1629,9 @@ is not built yet. <em>Review</em>: verified in review against the pull-request c
 </tr>
 <tr>
 <td><a href="../hardware/">Hardware and porting</a></td>
-<td>7</td>
+<td>9</td>
 <td>0</td>
-<td>6</td>
+<td>8</td>
 <td>1</td>
 <td>0%</td>
 </tr>
@@ -1645,19 +1645,19 @@ is not built yet. <em>Review</em>: verified in review against the pull-request c
 </tr>
 <tr>
 <td><a href="../testing/">Testing</a></td>
-<td>20</td>
+<td>21</td>
 <td>8</td>
-<td>10</td>
+<td>11</td>
 <td>2</td>
-<td>40%</td>
+<td>38%</td>
 </tr>
 <tr>
 <td><strong>All</strong></td>
-<td>276</td>
-<td>99</td>
-<td>141</td>
-<td>36</td>
-<td>35%</td>
+<td>298</td>
+<td>104</td>
+<td>149</td>
+<td>45</td>
+<td>34%</td>
 </tr>
 </tbody>
 </table>
@@ -1763,6 +1763,8 @@ is not built yet. <em>Review</em>: verified in review against the pull-request c
   KB_MCU_&lt;FAMILY&gt;</li>
 <li><code>mcu-matrix</code>: kb-core CI builds every target for each MCU family (STM32 with stub headers), KB_MCU=HOST and NONE</li>
 <li><code>misra-checker</code>: a commercial MISRA C++:2023 / C:2025 checker run, mapped to the compliance matrix (safety level)</li>
+<li><code>model-virtual-clock</code>: a chip model for a driver whose port has DelayUs or DelayMs advances a virtual clock in those
+  hooks, and a test runs a delayed-ready mode against it</li>
 <li><code>no-attribution</code>: no commit message, pull-request body or review comment carries a Co-Authored-By trailer naming a
   tool or model, a "Generated with" footer, an AI-disclosure line or a tool banner (runs beside dco)</li>
 <li><code>no-heap-link</code>: a test binary that links the library with operator new, malloc and free removed builds and runs</li>

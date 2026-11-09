@@ -1237,6 +1237,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#kb-arch-042" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-042: A reply is accepted only when the protocol proves it answers the request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-043" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-043: A pipelined exchange completes inside one public call, keyed on reply content
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-044" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-044: Retries repeat only idempotent frames, are bounded and are counted
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2402,6 +2435,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#kb-arch-042" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-042: A reply is accepted only when the protocol proves it answers the request
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-043" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-043: A pipelined exchange completes inside one public call, keyed on reply content
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kb-arch-044" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        KB-ARCH-044: Retries repeat only idempotent frames, are bounded and are counted
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2686,6 +2752,24 @@ pages under Standards hold the detail. Rules marked guide are design advice for 
 <td><a href="#kb-arch-041">KB-ARCH-041</a> Extra read-back and verification are chosen per call, off by default</td>
 <td>must</td>
 <td>driver, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-042">KB-ARCH-042</a> A reply is accepted only when the protocol proves it answers the request</td>
+<td>must</td>
+<td>driver, template</td>
+<td>planned</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-043">KB-ARCH-043</a> A pipelined exchange completes inside one public call, keyed on reply content</td>
+<td>must</td>
+<td>driver, library, template</td>
+<td>review</td>
+</tr>
+<tr>
+<td><a href="#kb-arch-044">KB-ARCH-044</a> Retries repeat only idempotent frames, are bounded and are counted</td>
+<td>must</td>
+<td>driver, library, template</td>
 <td>review</td>
 </tr>
 </tbody>
@@ -3161,6 +3245,62 @@ command) are not extra and stay unconditional.</p>
   transfer.</li>
 </ul>
 <p><em>Explained in:</em> <a href="../../standards/driver/#verification-is-opt-in">standards/driver.md</a></p>
+<h2 id="kb-arch-042">KB-ARCH-042: A reply is accepted only when the protocol proves it answers the request<a class="headerlink" href="#kb-arch-042" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI. The fuzz target gains a stale-reply mutator (KB-TST-020).</p>
+</div>
+<p><strong>MUST</strong> · driver, template · since 1.0 · enforced from 2027-03-01</p>
+<p>A driver decodes a reply only when every check the protocol offers passes: the CRC or checksum, the reply's type and
+width, and the echoed opcode, address or tag where the protocol has one. A reply that fails any of them is not decoded:
+the call returns <code>Crc</code> or a chip-specific mismatch code, or retries per KB-ARCH-044.</p>
+<p><em>Why:</em> Observed on hardware: on a shared or long bus a frame can arrive intact but late, so a reply with a valid CRC
+still decoded as the wrong register. A CRC proves the bits arrived; only the tag proves which request they answer.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li><code>fuzzing</code> (planned): each parser's libFuzzer target runs on the host for a fixed time under ASan and UBSan without a
+  finding</li>
+<li>review: Every read path checks CRC, reply type or width, and the echoed tag the protocol provides before it decodes; a
+  model test that replays the previous reply, or answers with the wrong tag, fails each read.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/#replies-retries-and-resynchronisation">standards/driver.md</a></p>
+<h2 id="kb-arch-043">KB-ARCH-043: A pipelined exchange completes inside one public call, keyed on reply content<a class="headerlink" href="#kb-arch-043" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, template · since 1.0 · enforced from 2027-03-01</p>
+<p>When a chip answers one or more frames later, the driver sends the request and collects its reply inside the same public
+call, and matches each result to its request by the reply's content (tag, address, opcode), never by frame position. The
+Porting page states that no other access to the chip may come between those frames, and a handler holds the bus for the
+whole call.</p>
+<p><em>Why:</em> Observed on hardware: a reply that arrives in a later frame is lost or attributed to the wrong request when
+another access comes in between. A model test that interleaves a foreign frame shows a mismatch error, not wrong data.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: No public call leaves a request whose reply a later call reads; results are matched on reply content; the
+  Porting page states the no-interleave requirement and the handler holds its lock across the call.</li>
+</ul>
+<p><em>Explained in:</em> <a href="../../standards/driver/#replies-retries-and-resynchronisation">standards/driver.md</a></p>
+<h2 id="kb-arch-044">KB-ARCH-044: Retries repeat only idempotent frames, are bounded and are counted<a class="headerlink" href="#kb-arch-044" title="Permanent link">&para;</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Proposed</p>
+<p>Warns until 2027-03-01, then fails CI.</p>
+</div>
+<p><strong>MUST</strong> · driver, library, template · since 1.0 · enforced from 2027-03-01</p>
+<p>A retry, in a driver or a handler, repeats only frames that are safe to send twice. When the outcome of a write is
+unknown, only the reply request is sent again. A retry never repeats a reset pulse, an enable toggle or a deinitialise
+unless the datasheet requires it. Every retry loop has a fixed upper bound and counts its attempts, and the count is
+visible to the caller or in the diagnostics.</p>
+<p><em>Why:</em> Observed on hardware: repeating a side effect restarted the very wait being retried, doubled a write and made
+outputs flicker.</p>
+<p><em>Verified by:</em></p>
+<ul>
+<li>review: Each retry loop names its bound and repeats only idempotent frames; a handler test counts reset and enable
+  toggles per retried call and expects none beyond the datasheet sequence.</li>
+</ul>
+<p><em>See also:</em> NASA/JPL Power of Ten Rule 2 (fixed upper bound on loops)</p>
+<p><em>Explained in:</em> <a href="../../standards/driver/#replies-retries-and-resynchronisation">standards/driver.md</a></p>
 
 
 

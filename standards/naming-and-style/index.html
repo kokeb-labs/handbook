@@ -1977,11 +1977,57 @@ helpers only.</p>
 <li>One include root per kb-core part: <code>#include "kb/interfaces/BaseSpi.h"</code>, <code>#include "kb/rtos/RtosMutex.h"</code>,
   <code>#include "kb/utils/Status.h"</code>. Drivers use their flat <code>inc/</code>: <code>#include "pca9685.hpp"</code>. Relative paths that
   climb out of a repository or part (<code>"../../drivers/..."</code>) are not allowed.</li>
-<li>Every header starts with <code>#pragma once</code>.</li>
-<li>Include order: the file's own header, then standard headers, then other repositories, then this repository;
-  one blank line between groups. <code>clang-format</code> sorts within a group.</li>
-<li>A header includes what it uses and compiles on its own.</li>
+<li>Every header has an <code>#ifndef</code> include guard, never <code>#pragma once</code> (MISRA C++:2023 Rule 19.2.1). Only comments
+  come before <code>#ifndef GUARD</code> / <code>#define GUARD</code>, and <code>#endif</code> is the last line. The guard is
+  <code>&lt;NAME&gt;_&lt;FILE_STEM&gt;_&lt;EXT&gt;</code> in upper case: the repository's name (the chip, or the library's CMake package), the
+  file name without its extension in snake case, and the extension, with the name not repeated when the stem
+  already starts with it:</li>
 </ul>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Guard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>inc/ads7952.hpp</code></td>
+<td><code>ADS7952_HPP</code></td>
+</tr>
+<tr>
+<td><code>inc/ads7952_types.hpp</code></td>
+<td><code>ADS7952_TYPES_HPP</code></td>
+</tr>
+<tr>
+<td><code>inc/max22200_spi_interface.hpp</code></td>
+<td><code>MAX22200_SPI_INTERFACE_HPP</code></td>
+</tr>
+<tr>
+<td><code>src/ads7952.ipp</code></td>
+<td><code>ADS7952_IPP</code></td>
+</tr>
+<tr>
+<td><code>inc/ads7952_version.h.in</code> (configured)</td>
+<td><code>ADS7952_VERSION_H</code></td>
+</tr>
+<tr>
+<td><code>tests/mock_ads7952.hpp</code></td>
+<td><code>ADS7952_MOCK_ADS7952_HPP</code></td>
+</tr>
+<tr>
+<td><code>inc/ring/MovingAverage.h</code> in <code>ring_buffer</code></td>
+<td><code>RING_BUFFER_MOVING_AVERAGE_H</code></td>
+</tr>
+</tbody>
+</table>
+<p>No leading underscore and no double underscore: those names are reserved. No <code>#pragma</code> of any kind and no
+  <code>_Pragma</code>; compiler options live in the build. <code>python checks/source_checks.py guard --repo . &lt;path&gt;</code> prints the
+  guard a file needs, and <code>python checks/source_checks.py scan --repo .</code> runs the check CI runs
+  (<a href="../../rules/cpp/#kb-cpp-019">KB-CPP-019</a>).
+- Include order: the file's own header, then standard headers, then other repositories, then this repository;
+  one blank line between groups. <code>clang-format</code> sorts within a group.
+- A header includes what it uses and compiles on its own.</p>
 <h2 id="formatting">Formatting<a class="headerlink" href="#formatting" title="Permanent link">&para;</a></h2>
 <p><a href="https://github.com/kokeb-labs/handbook/blob/main/config/.clang-format"><code>config/.clang-format</code></a>: LLVM base, 2-space indent, 100-column limit, pointer and
 reference attached to the type (<code>uint8_t* data</code>), attached braces, short functions only when empty, template
