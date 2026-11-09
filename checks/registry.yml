@@ -38,8 +38,31 @@ checks:
     status: planned
     summary: a test binary that links the library with operator new, malloc and free removed builds and runs
   - id: header-self-contained
-    status: planned
+    status: implemented
     summary: every public header compiles on its own as the first include of a translation unit
+    where: driver-template tests/CMakeLists.txt (one translation unit per public header, built by the host tests)
+  - id: strict-dialect
+    status: implemented
+    summary: >-
+      every public header, and through the driver header its src/*.ipp, compiles as ISO C++20 (-std=c++20
+      -pedantic-errors, extensions off) with each compiler the repository ships for: host GCC and Clang, Arm GCC
+      in the cross-build, and the ESP-IDF toolchain through a header self-check built at -std=c++20 inside the
+      ESP-IDF build, whose own default dialect is newer
+    where: >-
+      driver-template tests/CMakeLists.txt (header checks in the host tests and the Cortex-M cross-build) and
+      examples/esp32/main (the ESP-IDF header self-check)
+  - id: library-hardening
+    status: implemented
+    summary: >-
+      host tests and fuzz targets build with the standard library's assertions (_GLIBCXX_ASSERTIONS, libc++
+      hardening), so an out-of-range span or array access traps
+    where: driver-template tests/CMakeLists.txt
+  - id: codeql
+    status: planned
+    parametric: true
+    summary: >-
+      a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter names the query (for example
+      shift-range, compound-narrowing, enum-from-integer, unbounded-loop, pointer-length-parameter)
   - id: sanitizers
     status: implemented
     summary: host tests pass under AddressSanitizer and UndefinedBehaviorSanitizer
@@ -80,6 +103,20 @@ checks:
     implemented_params: [heap, exceptions-rtti, virtual-outside-interfaces, cmake-glob, cmake-cxx-standard]
     summary: a source scan for a construct the handbook bans; the parameter names the pattern set
     where: ci-tools ru-handbook-check (tools/handbook_check), on drivers, libraries, HALs, firmware and templates
+  - id: cpp20-profile
+    status: implemented
+    parametric: true
+    implemented_params: [forbidden-features, cmake-extensions, nodiscard-error, inline-requires, kconfig-leaf]
+    summary: >-
+      a source check of the C++20 profile (rules/cpp20.yml); the parameter names it: forbidden-features (no
+      coroutines, modules, range views, <format>, char8_t, C++23 features, feature-test macros, [[fallthrough]],
+      and in drivers no <=>, <source_location>, variant, any, function or [[no_unique_address]]),
+      cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF, itself or in a
+      parent directory), nodiscard-error (Error enumerations and Result types are [[nodiscard]]), inline-requires
+      (no requires-expression in an if constexpr condition), kconfig-leaf (no header includes the Kconfig header)
+    where: >-
+      handbook checks/source_checks.py scan (selftest in handbook CI); run by driver-template's repository checks
+      and by every repository made from the template
   - id: include-guards
     status: implemented
     summary: >-

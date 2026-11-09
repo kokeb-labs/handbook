@@ -69,9 +69,12 @@ guidelines:
     our_category: required
     verification:
       - by: compiler
-        how: "[[nodiscard]] on every Result type (KB-CPP-046); the warning is on by default, -Werror"
+        how: "[[nodiscard]] on every Result type and every Error enumeration (KB-CPP-046, KB-CPP20-037); -Werror"
         partial: true
       - {by: clang-tidy, how: "bugprone-unused-return-value", partial: true}
+      - by: handbook-check
+        how: "cpp20-profile/nodiscard-error: every Error enumeration and Result type is declared [[nodiscard]]"
+        partial: true
       - {by: review, how: "Each ignored return value is cast to void with a comment saying why."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
   - id: Rule 0.2.1
@@ -162,10 +165,21 @@ guidelines:
     our_category: required
     verification:
       - by: compiler
-        how: "-std=c++20 -Wpedantic -pedantic-errors with CMAKE_CXX_EXTENSIONS OFF (KB-CPP-001)"
+        how: >-
+          -std=c++20 -pedantic-errors with CMAKE_CXX_EXTENSIONS OFF in every target (KB-CPP-001, KB-CPP20-001), and
+          the strict-dialect build: every public header alone at -std=c++20 -pedantic-errors with host GCC and
+          Clang, Arm GCC and the ESP-IDF toolchain
+        partial: true
+      - by: handbook-check
+        how: >-
+          cpp20-profile/cmake-extensions (every CMakeLists.txt that builds a target sets CMAKE_CXX_EXTENSIONS OFF)
+          and cpp20-profile/forbidden-features (no C++23-or-later feature, coroutine, module, range view or
+          <format> in target code: KB-CPP20-002)
         partial: true
       - by: review
-        how: "No extension, attribute or builtin outside ISO C++20; any C++20 feature is on the MD-CPP-001 list."
+        how: >-
+          No extension, attribute or builtin outside ISO C++20; every C++20 feature used is one the C++20 profile
+          marks Use or Use with rules (the MD-CPP-001 scope), under its KB-CPP20 guidelines.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
     deviations: [MD-CPP-001]
     note: "Deviated project-wide: we target C++20 instead of the C++17 the edition is written for."
@@ -179,9 +193,11 @@ guidelines:
     our_category: advisory
     verification:
       - by: compiler
-        how: "-Wdeprecated -Wdeprecated-declarations -Wdeprecated-copy-dtor -Wvolatile (GCC)"
+        how: >-
+          -Wdeprecated -Wdeprecated-declarations -Wdeprecated-copy-dtor -Wvolatile (GCC),
+          -Wdeprecated-enum-enum-conversion -Wdeprecated-enum-float-conversion (KB-CPP20-003)
         partial: true
-      - {by: review, how: "No feature listed as deprecated in C++17 or C++20 is used."}
+      - {by: review, how: "No feature listed as deprecated in C++17 or C++20 is used (KB-CPP20-003)."}
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
   - id: Rule 4.1.3
     kind: rule
@@ -410,7 +426,13 @@ guidelines:
     our_category: required
     verification:
       - {by: compiler, how: "-Wodr with -flto (GCC); duplicate strong symbols fail the link", partial: true}
-      - {by: review, how: "No inline function, class or template is defined differently in two places."}
+      - by: handbook-check
+        how: "cpp20-profile/kconfig-leaf: no library header includes the configuration-dependent Kconfig header"
+        partial: true
+      - by: review
+        how: >-
+          No inline function, class or template is defined differently in two places; no lambda in an unevaluated
+          operand or a header's namespace scope (KB-CPP20-018, KB-CPP20-046).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
   - id: Rule 6.2.2
     kind: rule
@@ -678,10 +700,11 @@ guidelines:
       - {by: clang-tidy, how: "hicpp-signed-bitwise", partial: true}
       - {by: cppcheck, how: "shiftTooManyBits, shiftNegative", partial: true}
       - {by: compiler, how: "-Wshift-count-overflow -Wshift-count-negative", partial: true}
+      - {by: compiler, how: "-fsanitize=undefined (shift) in the host tests and fuzzers (dynamic)", partial: true}
       - by: review
         how: >-
-          Masks and shifts use unsigned operands, and a constant shift count is below the width of the unpromoted left
-          operand (KB-CPP-105).
+          Masks and shifts use unsigned operands, a constant shift count is below the width of the unpromoted left
+          operand (KB-CPP-105), and a run-time count is masked or checked in the same function (KB-CPP20-020).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
   - id: Rule 7.0.5
     kind: rule
@@ -959,10 +982,13 @@ guidelines:
         partial: true
       - {by: cppcheck, how: "pointerOutOfBounds, arrayIndexOutOfBounds", partial: true}
       - {by: compiler, how: "-fsanitize=address in the host tests (dynamic, partial)", partial: true}
+      - by: compiler
+        how: "-D_GLIBCXX_ASSERTIONS in the host tests and fuzzers: an out-of-range span or array index traps"
+        partial: true
       - by: review
         how: >-
-          Buffers are std::array or std::span indexed with checked bounds; raw pointer arithmetic is in the port layer
-          only.
+          Buffers are std::array or std::span indexed with checked bounds (a dynamic span is size-checked first,
+          KB-CPP20-042, KB-CPP20-043); raw pointer arithmetic is in the port layer only.
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
   - id: Rule 8.7.2
     kind: rule
@@ -1094,6 +1120,7 @@ guidelines:
     verification:
       - {by: compiler, how: "-Wimplicit-fallthrough -Wswitch (in -Wall)", partial: true}
       - {by: clang-tidy, how: "bugprone-switch-missing-default-case, hicpp-multiway-paths-covered", partial: true}
+      - {by: handbook-check, how: "cpp20-profile/forbidden-features: no [[fallthrough]] (KB-CPP20-039)", partial: true}
       - by: review
         how: >-
           Each switch has at least two cases, ends every clause with break or return, and has default unless every
@@ -1111,7 +1138,8 @@ guidelines:
       - by: review
         how: >-
           A classic for loop has one integer counter, compares it with a bound, steps it once per iteration and never
-          changes it in the body; extra conditions use while.
+          changes it in the body; extra conditions use while or an early return, and a bound from configuration is
+          validated against a named maximum (KB-CPP20-058).
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}
   - id: Rule 9.5.2
     kind: rule
@@ -1970,6 +1998,9 @@ guidelines:
     verification:
       - {by: clang-tidy, how: "cppcoreguidelines-no-malloc, cppcoreguidelines-owning-memory", partial: true}
       - {by: handbook-check, how: "forbidden-patterns/heap (KB-CPP-003)", partial: true}
+      - by: handbook-check
+        how: "cpp20-profile/forbidden-features: no coroutine, <format> or std::function in target code (KB-CPP20)"
+        partial: true
       - by: review
         how: "No allocation, direct or through a standard container, outside the MD-CPP-008 start-up scope."
       - {by: commercial-checker, how: "safety level: every finding of the commercial checker is triaged and closed"}

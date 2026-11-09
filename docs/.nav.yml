@@ -6,6 +6,7 @@ nav:
   - Rules:
       - Architecture: rules/architecture.md
       - C++ code: rules/cpp.md
+      - C++20 profile: rules/cpp20.md
       - C code: rules/c.md
       - Hardware and porting: rules/hardware.md
       - Build and CMake: rules/build.md

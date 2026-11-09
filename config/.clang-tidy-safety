@@ -32,6 +32,8 @@ Checks: >-
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-special-member-functions,
+  -modernize-use-std-format,
+  -modernize-use-std-print,
   -modernize-use-trailing-return-type,
   -readability-function-cognitive-complexity,
   -readability-identifier-length,
@@ -61,6 +63,7 @@ CheckOptions:
   - { key: readability-implicit-bool-conversion.AllowPointerConditions, value: true }
   - { key: readability-uppercase-literal-suffix.NewSuffixes, value: 'L;LL;UL;ULL' }
   - { key: hicpp-signed-bitwise.IgnorePositiveIntegerLiterals, value: true }
+  - { key: bugprone-dangling-handle.HandleClasses, value: 'std::basic_string_view;std::experimental::basic_string_view;std::span' }
   - { key: readability-identifier-naming.NamespaceCase, value: 'lower_case' }
   - { key: readability-identifier-naming.ClassCase, value: 'CamelCase' }
   - { key: readability-identifier-naming.StructCase, value: 'CamelCase' }

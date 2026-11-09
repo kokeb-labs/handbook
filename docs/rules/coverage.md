@@ -9,15 +9,16 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 | [Coding agents](agents.md) | 17 | 5 | 10 | 2 | 29% |
 | [Architecture](architecture.md) | 31 | 3 | 18 | 10 | 9% |
 | [Build and CMake](build.md) | 21 | 5 | 15 | 1 | 23% |
-| [C code](c.md) | 7 | 1 | 4 | 2 | 14% |
+| [C code](c.md) | 7 | 2 | 3 | 2 | 28% |
 | [CI and supply chain](ci.md) | 12 | 2 | 10 | 0 | 16% |
-| [C++ code](cpp.md) | 108 | 47 | 42 | 19 | 43% |
+| [C++ code](cpp.md) | 108 | 48 | 41 | 19 | 44% |
+| [C++20 profile](cpp20.md) | 40 | 32 | 8 | 0 | 80% |
 | [Documentation](docs.md) | 35 | 15 | 13 | 7 | 42% |
 | [Git, review and release](git.md) | 21 | 6 | 14 | 1 | 28% |
 | [Hardware and porting](hardware.md) | 9 | 0 | 8 | 1 | 0% |
 | [Repository](repo.md) | 16 | 12 | 4 | 0 | 75% |
 | [Testing](testing.md) | 21 | 8 | 11 | 2 | 38% |
-| **All** | 298 | 104 | 149 | 45 | 34% |
+| **All** | 338 | 138 | 155 | 45 | 40% |
 
 ## Checks still to build
 
@@ -43,6 +44,8 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 - `cmake-configure`: a CMake configure test asserts the named property: standard-options, dev-warnings, kb-core-targets,
   backend-selection, mcu-gates (a wrong-MCU enable must fail), option-defaults, single-toggles
 - `codeowners`: .github/CODEOWNERS has a `*` rule naming at least one owner
+- `codeql`: a query of the Kokeb CodeQL pack for C++ over the CMake build; the parameter names the query (for example
+  shift-range, compound-narrowing, enum-from-integer, unbounded-loop, pointer-length-parameter)
 - `compat-table`: regenerating the tables derived from catalog/compat.yml leaves the tree unchanged
 - `config-drift`: \_config/.clang-format and \_config/.clang-tidy equal the handbook's config/ files apart from the
   header
@@ -92,7 +95,6 @@ is not built yet. *Review*: verified in review against the pull-request checklis
 - `hal-lints`: the kb-hal-common boundary, driver-access, allocation and lock lints pass in the board HAL
 - `hal-startup-test`: a HAL host test with the host bind injects a failure into each manager in turn and checks that
   start-up stops, deinitialises the started managers in reverse and reports the failing ManagerId
-- `header-self-contained`: every public header compiles on its own as the first include of a translation unit
 - `heading-skeleton`: a Markdown file's headings match a required skeleton in order (parameter: contract, readme, adr,
   hf-hal-readme, hf-board-spec, hf-protocol-spec)
 - `hf-spec-metadata`: each HardFOC specification starts with the metadata block (spec type, name, revision, status,
