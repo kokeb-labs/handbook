@@ -1478,6 +1478,12 @@ dialect accepts it. The profile page also says how each guideline applies to C++
 <li><code>compiler</code>: a GCC or Clang flag (with <code>-Werror</code>) whose diagnostic decides the guideline;</li>
 <li><code>clang-tidy</code>: a clang-tidy 20 check, with its options where they matter;</li>
 <li><code>cppcheck</code>: a cppcheck message id (there is no free MISRA C++ addon; cppcheck's MISRA addon covers MISRA C only);</li>
+<li><code>codeql</code>: a query of the pinned CodeQL MISRA C++:2023 pack (<code>codeql/misra-cpp-coding-standards</code> 2.62.0) or the
+  Kokeb C++20 profile pack, run by ci-tools <code>ru-misra</code> on traced host and Cortex-M builds; the <code>how</code> names the
+  query and its tool-validation requirement (ci-tools <code>docs/tool-validation/traceability.md</code>). An entry without
+  <code>partial</code> is a query the validation proved on every seeded form with no recorded anomaly; <code>known anomalies</code>
+  lists the anomaly-log ids that make it partial, and <code>ru-misra</code> lists the findings of a rule with a known false
+  positive for review instead of failing on them;</li>
 <li><code>handbook-check</code>: one of the handbook's own implemented checks (<code>checks/source_checks.py</code> for include guards,
   pragmas and the C++20 profile checks <code>cpp20-profile/...</code>, ci-tools' handbook check for the forbidden patterns);</li>
 <li><code>review</code>: the step a reviewer checks on the pull request, used where no free tool decides the guideline;</li>
@@ -1547,7 +1553,7 @@ not apply, and no deviation of a mandatory guideline. It also keeps the counts b
 <tbody>
 <tr>
 <td>Decided by an open tool (compiler, clang-tidy, cppcheck, handbook check)</td>
-<td>48</td>
+<td>93</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp;of which by compiler</td>
@@ -1555,7 +1561,11 @@ not apply, and no deviation of a mandatory guideline. It also keeps the counts b
 </tr>
 <tr>
 <td>&nbsp;&nbsp;of which by clang-tidy</td>
-<td>35</td>
+<td>34</td>
+</tr>
+<tr>
+<td>&nbsp;&nbsp;of which by codeql</td>
+<td>73</td>
 </tr>
 <tr>
 <td>&nbsp;&nbsp;of which by handbook-check</td>
@@ -1567,7 +1577,7 @@ not apply, and no deviation of a mandatory guideline. It also keeps the counts b
 </tr>
 <tr>
 <td>Review and commercial checker only</td>
-<td>45</td>
+<td>0</td>
 </tr>
 <tr>
 <td>Not applicable to our code</td>
