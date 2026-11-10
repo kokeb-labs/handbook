@@ -23,6 +23,9 @@ loosened rule is a major release.
 
 ### Changed
 
+- Repository governance and the driver migration checklist create chip drivers in the `kokeb-labs-drivers`
+  organisation (`gh repo create kokeb-labs-drivers/driver-<chip> --template kokeb-labs/driver-template`); libraries
+  stay in `kokeb-labs`.
 - The MISRA matrix names CodeQL (`by: codeql`, a new verification method) for the 168 guidelines whose
   queries the ci-tools tool validation proves: 73 decided by it (decidable, translation-unit scope, every query
   passing with no recorded anomaly), 95 partial, each citing its requirement and anomaly ids. Nothing was removed:
