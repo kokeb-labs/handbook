@@ -49,8 +49,8 @@ soon after; a driver with no hardware user can move at any time.
 - [ ] Datasheet URL and revision noted; the PDF is never copied (ADR-0019)
 
 ### 1. Scaffold (no chip code yet)
-- [ ] `gh repo create kokeb-labs/driver-<chip> --private --template kokeb-labs/driver-template`; public only after
-      the licence decision and the first green CI
+- [ ] `gh repo create kokeb-labs-drivers/driver-<chip> --private --template kokeb-labs/driver-template`; public only
+      after the licence decision and the first green CI
 - [ ] `git switch -c feat/initial-driver`, then
       `python3 tools/setup.py --non-interactive --bus <bus> --description "..." --datasheet <url>`
 - [ ] The scaffold's own host tests pass; commit that state alone (`git commit -s -m "Scaffold <CHIP> from driver-template"`)

@@ -194,11 +194,12 @@ and the folders `.github/`, `.claude/`, `_config/`, `cmake/`, `docs/`, `examples
 
 ## Creating a repository
 
-1. **Create it from the template** for its kind, in the `kokeb-labs` org, public:
+1. **Create it from the template** for its kind, public: a chip driver in the `kokeb-labs-drivers` org, a library
+   in `kokeb-labs`:
 
    ```bash
-   gh repo create kokeb-labs/driver-<chip> --public --template kokeb-labs/driver-template
-   gh repo clone kokeb-labs/driver-<chip> && cd driver-<chip>
+   gh repo create kokeb-labs-drivers/driver-<chip> --public --template kokeb-labs/driver-template
+   gh repo clone kokeb-labs-drivers/driver-<chip> && cd driver-<chip>
    python3 tools/setup.py --kind driver --name <chip> --bus spi|i2c|uart|adc --description "..."
    ```
 
