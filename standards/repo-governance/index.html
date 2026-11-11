@@ -2218,10 +2218,11 @@ and the folders <code>.github/</code>, <code>.claude/</code>, <code>_config/</co
 </ul>
 <h2 id="creating-a-repository">Creating a repository<a class="headerlink" href="#creating-a-repository" title="Permanent link">&para;</a></h2>
 <ol>
-<li><strong>Create it from the template</strong> for its kind, in the <code>kokeb-labs</code> org, public:</li>
+<li><strong>Create it from the template</strong> for its kind, public: a chip driver in the <code>kokeb-labs-drivers</code> org, a library
+   in <code>kokeb-labs</code>:</li>
 </ol>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gh<span class="w"> </span>repo<span class="w"> </span>create<span class="w"> </span>kokeb-labs/driver-&lt;chip&gt;<span class="w"> </span>--public<span class="w"> </span>--template<span class="w"> </span>kokeb-labs/driver-template
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gh<span class="w"> </span>repo<span class="w"> </span>clone<span class="w"> </span>kokeb-labs/driver-&lt;chip&gt;<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>driver-&lt;chip&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>gh<span class="w"> </span>repo<span class="w"> </span>create<span class="w"> </span>kokeb-labs-drivers/driver-&lt;chip&gt;<span class="w"> </span>--public<span class="w"> </span>--template<span class="w"> </span>kokeb-labs/driver-template
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gh<span class="w"> </span>repo<span class="w"> </span>clone<span class="w"> </span>kokeb-labs-drivers/driver-&lt;chip&gt;<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>driver-&lt;chip&gt;
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>python3<span class="w"> </span>tools/setup.py<span class="w"> </span>--kind<span class="w"> </span>driver<span class="w"> </span>--name<span class="w"> </span>&lt;chip&gt;<span class="w"> </span>--bus<span class="w"> </span>spi<span class="p">|</span>i2c<span class="p">|</span>uart<span class="p">|</span>adc<span class="w"> </span>--description<span class="w"> </span><span class="s2">"..."</span>
 </span></code></pre></div>
 <p>The template carries the shell: CMake layout, CI workflows with the gate and the DCO check, <code>_config/</code> with every

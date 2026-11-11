@@ -2,250 +2,250 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://kokeb-labs.github.io/handbook/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/assurance-levels/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/coding-standards/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/deviations/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/evidence/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/how-rules-work/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/iec-62304/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0001-error-model/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0002-lifecycle/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0003-crtp-ports/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0004-no-heap/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0005-kb-hal-common/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0006-freertos-1khz-tick/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0007-submodule-pinning-and-tags/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0008-naming/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0009-licensing/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0010-cpp20/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0011-repository-root-layout/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0012-unbranded-drivers/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0013-kb-core-monorepo/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0014-three-kinds-of-specific/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0015-solo-maintainer-governance/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0016-virtual-functions/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0017-target-library-subset/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0018-sdkconfig/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0019-datasheets/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0020-complexity-and-coverage/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/adr/0021-one-start-up-entry-point/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/checklists/migrate-driver/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/checklists/new-board-hal/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/checklists/new-driver/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/checklists/new-handler/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/checklists/release/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/agents/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/architecture/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/build/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/c/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/ci/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/coverage/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/cpp/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/cpp20/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/docs/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/git/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/hardware/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/repo/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/rules/testing/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/agents/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/cpp20-profile/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/docs/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/driver/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/errors/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/hal/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/handler/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/layers/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/library/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/naming-and-style/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/product/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/release/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/repo-governance/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
     <url>
          <loc>https://kokeb-labs.github.io/handbook/standards/threading-and-timing/</loc>
-         <lastmod>2026-11-09</lastmod>
+         <lastmod>2026-11-11</lastmod>
     </url>
 </urlset>
